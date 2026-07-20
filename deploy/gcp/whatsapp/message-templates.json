@@ -1,0 +1,64 @@
+{
+  "$comment": "DesiSquare WhatsApp templates for submission to Meta (WhatsApp -> Manage templates). Categories: UTILITY (transactional; free within an open service window per current rules), MARKETING. Approval required before use; submit on Day 3. Placeholders {{n}} need example values at submission.",
+  "templates": [
+    {
+      "key": "community_reply",
+      "name": "community_reply",
+      "language": "en",
+      "category": "UTILITY",
+      "status": "PENDING",
+      "components": [
+        {
+          "type": "BODY",
+          "text": "New reply on your DesiSquare thread \"{{1}}\":\n\n{{2}}\n\nOpen community.desisquare.com to continue the conversation. Community discussion, not financial advice.",
+          "example": { "body_text": [["401k vs India investments", "For NRIs, the answer depends on your residency timeline..."]] }
+        },
+        { "type": "FOOTER", "text": "Reply STOP to opt out" }
+      ],
+      "variables": [
+        { "index": 1, "name": "thread_title" },
+        { "index": 2, "name": "reply_excerpt" }
+      ]
+    },
+    {
+      "key": "optin_confirm",
+      "name": "optin_confirm",
+      "language": "en",
+      "category": "UTILITY",
+      "status": "PENDING",
+      "components": [
+        {
+          "type": "BODY",
+          "text": "Welcome to DesiSquare, {{1}}! Ask any money question here and the community will answer. You stay pseudonymous on the site. Reply STOP any time to opt out.",
+          "example": { "body_text": [["friend"]] }
+        }
+      ],
+      "variables": [{ "index": 1, "name": "first_name" }]
+    },
+    {
+      "key": "weekly_digest",
+      "name": "weekly_digest",
+      "language": "en",
+      "category": "MARKETING",
+      "status": "PENDING",
+      "components": [
+        {
+          "type": "BODY",
+          "text": "This week on DesiSquare: {{1}}\n\nTop answer: {{2}}\n\nRead more at community.desisquare.com",
+          "example": { "body_text": [["Tax filing for H1B, NRE vs NRO, gold vs index funds", "How to report Indian mutual funds on US taxes"]] }
+        },
+        { "type": "FOOTER", "text": "Reply STOP to opt out" }
+      ],
+      "variables": [
+        { "index": 1, "name": "topics_summary" },
+        { "index": 2, "name": "top_answer_title" }
+      ]
+    }
+  ],
+  "usage_rules": {
+    "in_window": "Prefer free-form replies within the open 24-hour service window (the bridge does this automatically).",
+    "out_of_window": "Use an APPROVED template of the correct category with validated variables.",
+    "disclaimer": "Finance-adjacent outbound content carries the 'not financial advice' line (enforced by the bridge/platform layer).",
+    "opt_out": "Honor STOP/UNSUBSCRIBE/CANCEL; include an opt-out footer on business-initiated templates."
+  }
+}

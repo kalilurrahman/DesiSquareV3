@@ -1,0 +1,990 @@
+<title>DesiSquare · Wireframes v3 — Search + Maven Proof (interactive)</title>
+<style>
+  /* ================= THEME (token block ≙ common.scss variables) ================= */
+  /* Lane DECIDED by client 19 Jul 2026: 1c Porcelain Slate. Dark (1a) and Haldi & Rani (1d)
+     rejected; single light lane ships — no dark palette is assigned in production Discourse. */
+  #app {
+    --bg:#F1F4F8; --bg2:#E9EDF3; --card:#FFFFFF; --card2:#F7F9FC;
+    --ink:#1D2733; --ink2:#45536B; --mute:#7A8699; --line:rgba(29,39,51,.13); --line2:rgba(29,39,51,.22);
+    --accent:#24549E; --accent-ink:#FFFFFF; --accent-soft:rgba(36,84,158,.10);
+    --maven:#B7791F; --maven-bg:rgba(230,180,60,.16);
+    --pos:#0E8F55; --neg:#C7382F; --pos-bg:rgba(14,143,85,.12); --neg-bg:rgba(199,56,47,.10);
+    --wa:#0E7A5F; --wa-bg:rgba(14,122,95,.10);
+    --avatarA:#176B5D; --avatarB:#5B4A9E; --avatarC:#8A2E4F; --avatarD:#3D6A9E;
+    --chip-bg:var(--card2);
+    --r:14px; --rs:9px;
+    --font:-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    --font-display:var(--font);
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+    --shadow:0 14px 40px -22px rgba(29,39,51,.35);
+    color-scheme:light;
+  }
+  /* ================= BASE ================= */
+  *{box-sizing:border-box}
+  body{margin:0}
+  #app{
+    min-height:100vh; background:var(--bg); color:var(--ink);
+    font-family:var(--font); font-size:14.5px; line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+    display:flex; flex-direction:column;
+  }
+  #app a{color:inherit; text-decoration:none}
+  button{font:inherit; color:inherit; background:none; border:none; cursor:pointer; padding:0}
+  .mono{font-family:var(--mono)}
+  .pos{color:var(--pos)} .neg{color:var(--neg)}
+  .num{font-variant-numeric:tabular-nums}
+
+  /* ---------- topbar ---------- */
+  .topbar{
+    position:sticky; top:0; z-index:30; display:flex; align-items:center; gap:14px;
+    padding:10px 18px; background:var(--card); border-bottom:1px solid var(--line);
+  }
+  .logo{display:flex; align-items:center; gap:8px; font-weight:800; font-size:15.5px; letter-spacing:-.01em; white-space:nowrap; font-family:var(--font-display)}
+  .logo .dia{color:var(--accent); font-size:13px}
+  .searchbox{
+    flex:1; max-width:520px; display:flex; align-items:center; gap:8px;
+    background:var(--bg); border:1px solid var(--line); border-radius:100px; padding:7px 14px;
+  }
+  .searchbox:focus-within{border-color:var(--accent)}
+  .searchbox input{flex:1; background:none; border:none; outline:none; color:var(--ink); font:inherit; min-width:60px}
+  .searchbox input::placeholder{color:var(--mute)}
+  .searchbox .slash{font-family:var(--mono); font-size:10.5px; color:var(--mute); border:1px solid var(--line); border-radius:5px; padding:1px 6px}
+  .top-right{margin-left:auto; display:flex; align-items:center; gap:10px}
+  .lanechip{
+    font-family:var(--mono); font-size:10.5px; font-weight:700; color:var(--mute);
+    border:1px solid var(--line); border-radius:100px; padding:5px 11px; white-space:nowrap;
+  }
+  .lanechip b{color:var(--accent); font-weight:700}
+  .country{font-family:var(--mono); font-size:11.5px; border:1px solid var(--line); border-radius:100px; padding:5px 11px; color:var(--ink2); white-space:nowrap}
+  .avatar{width:30px; height:30px; border-radius:50%; display:grid; place-items:center; font-size:10.5px; font-weight:800; color:#fff; flex:none}
+
+  /* ---------- layout ---------- */
+  main{flex:1; width:100%; max-width:1180px; margin:0 auto; padding:20px 18px 40px}
+  .cols{display:grid; grid-template-columns:200px 1fr 264px; gap:18px; align-items:start}
+  .card{background:var(--card); border:1px solid var(--line); border-radius:var(--r); box-shadow:var(--shadow)}
+  .pad{padding:16px}
+
+  /* left nav */
+  .nav a{display:flex; align-items:center; gap:8px; padding:8px 12px; border-radius:var(--rs); color:var(--ink2); font-weight:600; font-size:13.5px}
+  .nav a.on{background:var(--accent-soft); color:var(--ink)}
+  .nav a .b{margin-left:auto; font-size:10.5px; font-weight:800; background:var(--neg); color:#fff; border-radius:100px; padding:1px 7px}
+  .nav a .modtag{margin-left:4px; font-family:var(--mono); font-size:9.5px; color:var(--mute)}
+  .navhead{font-family:var(--mono); font-size:10px; letter-spacing:.14em; color:var(--mute); text-transform:uppercase; padding:14px 12px 6px}
+  .nav .space{display:flex; justify-content:space-between; padding:5px 12px; color:var(--ink2); font-size:13px; border-radius:var(--rs)}
+  .nav .space:hover{background:var(--accent-soft)}
+  .nav .space .n{color:var(--mute); font-size:11.5px}
+  .wacard{margin:14px 8px 8px; padding:11px 12px; border:1px solid var(--line); border-radius:var(--rs); background:var(--wa-bg)}
+  .wacard .t{display:flex; align-items:center; gap:6px; font-weight:700; font-size:12.5px; color:var(--wa)}
+  .wacard p{margin:5px 0 0; font-size:11.5px; color:var(--ink2)}
+
+  /* pills */
+  .pillrow{display:flex; flex-wrap:wrap; gap:7px}
+  .pill{
+    display:inline-flex; align-items:center; gap:5px; font-size:12px; font-weight:600; color:var(--ink2);
+    border:1px solid var(--line); border-radius:100px; padding:4px 11px; background:var(--chip-bg);
+  }
+  .pill.hot{background:var(--maven-bg); border-color:transparent; color:var(--maven)}
+  .pill:hover{border-color:var(--line2)}
+
+  .mavenchip{
+    font-family:var(--mono); font-size:9.5px; font-weight:700; letter-spacing:.05em;
+    background:var(--maven-bg); color:var(--maven); border-radius:5px; padding:2px 6px; white-space:nowrap;
+  }
+  .wachip{font-family:var(--mono); font-size:9.5px; font-weight:700; background:var(--wa-bg); color:var(--wa); border-radius:5px; padding:2px 6px}
+  .conchip{font-family:var(--mono); font-size:10px; background:var(--accent-soft); color:var(--accent); border-radius:6px; padding:2px 8px; white-space:nowrap}
+
+  /* feed cards */
+  .post{padding:15px 16px}
+  .post + .post{border-top:1px solid var(--line)}
+  .byline{display:flex; align-items:center; gap:8px; flex-wrap:wrap; font-size:12.5px; color:var(--mute)}
+  .byline .who{font-weight:700; color:var(--ink); font-size:13px}
+  .byline a.who:hover{color:var(--accent)}
+  .post h3{margin:7px 0 9px; font-size:15.5px; letter-spacing:-.01em; font-family:var(--font-display)}
+  .post .cmt{font-size:12px; color:var(--mute)}
+  .composer{display:flex; gap:10px; align-items:center; padding:14px 16px}
+  .composer .fake{flex:1; border:1px dashed var(--line2); border-radius:100px; padding:9px 16px; color:var(--mute); font-size:13.5px}
+
+  /* right rail */
+  .rail .stat{font-size:12.5px; color:var(--mute)}
+  .railhead{font-family:var(--mono); font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--mute); margin:0 0 10px}
+  .mrow{display:flex; align-items:center; gap:9px; padding:8px 0; border-top:1px solid var(--line)}
+  .mrow:first-of-type{border-top:none}
+  .mrow .who{font-weight:700; font-size:13px}
+  .mrow .cred{font-size:11px; color:var(--mute)}
+  .mrow .ytd{margin-left:auto; font-family:var(--mono); font-size:11px; font-weight:700}
+
+  /* ---------- search ---------- */
+  .tabrow{display:flex; gap:6px; overflow-x:auto; padding-bottom:2px}
+  .tabrow button{
+    padding:7px 14px; border-radius:100px; font-weight:700; font-size:13px; color:var(--ink2); white-space:nowrap;
+  }
+  .tabrow button[aria-selected="true"]{background:var(--accent); color:var(--accent-ink)}
+  .tabrow .c{font-weight:600; opacity:.75; font-size:11.5px; margin-left:4px}
+  .sortrow{display:flex; gap:14px; align-items:center; margin:10px 2px 14px; font-size:12px; color:var(--mute)}
+  .sortrow .sel{border:1px solid var(--line); border-radius:100px; padding:4px 11px; color:var(--ink2); font-weight:600}
+  .shead{font-family:var(--mono); font-size:10.5px; letter-spacing:.13em; text-transform:uppercase; color:var(--mute); margin:20px 2px 8px}
+  .shead:first-child{margin-top:0}
+  .rescard{padding:13px 16px}
+  .rescard + .rescard{border-top:1px solid var(--line)}
+  mark{background:var(--maven-bg); color:inherit; border-radius:3px; padding:0 2px}
+  .commrow{display:flex; align-items:center; gap:11px}
+  .commrow .cicon{width:34px; height:34px; border-radius:9px; display:grid; place-items:center; font-weight:800; color:#fff; font-size:12px; flex:none}
+  .commrow .nm{font-weight:700}
+  .commrow .sub{font-size:12px; color:var(--mute)}
+  .joinbtn{margin-left:auto; border:1px solid var(--accent); color:var(--accent); font-weight:700; font-size:12px; border-radius:100px; padding:5px 14px}
+  .joinbtn.joined{border-color:var(--line); color:var(--mute)}
+  .vischip{font-family:var(--mono); font-size:9px; font-weight:700; letter-spacing:.06em; border:1px solid var(--line2); border-radius:5px; padding:1px 6px; color:var(--mute)}
+  .profrow{display:flex; align-items:center; gap:11px}
+  .profrow .meta{font-size:12px; color:var(--mute)}
+  .empty{padding:34px 20px; text-align:center; color:var(--mute); font-size:13.5px}
+  .empty .big{font-size:20px; margin-bottom:6px}
+
+  /* ---------- maven profile ---------- */
+  .mhead{display:flex; gap:14px; align-items:flex-start; flex-wrap:wrap}
+  .mhead .avatar{width:52px; height:52px; font-size:17px}
+  .mhead h2{margin:0; font-size:21px; letter-spacing:-.02em; display:flex; align-items:center; gap:9px; font-family:var(--font-display)}
+  .mhead .cred{color:var(--ink2); font-size:13.5px; margin-top:2px}
+  .mhead .chips{display:flex; gap:7px; flex-wrap:wrap; margin-top:8px}
+  .followbtn{margin-left:auto; background:var(--accent); color:var(--accent-ink); font-weight:700; border-radius:100px; padding:8px 20px; font-size:13px}
+  .standing{display:flex; gap:18px; margin-top:12px; font-size:12.5px; color:var(--mute); flex-wrap:wrap}
+  .standing b{color:var(--ink); font-weight:700}
+  .ribbon{
+    display:flex; align-items:center; gap:9px; margin-top:14px; padding:9px 14px;
+    border:1px solid var(--line2); border-radius:var(--rs); background:var(--accent-soft);
+    font-family:var(--mono); font-size:11px; color:var(--ink2);
+  }
+  .ribbon .lock{color:var(--accent)}
+  .ribbon b{color:var(--ink)}
+  .mtabs{display:flex; gap:4px; border-bottom:1px solid var(--line); margin-top:18px}
+  .mtabs button{padding:9px 15px; font-weight:700; font-size:13.5px; color:var(--mute); border-bottom:2px solid transparent; margin-bottom:-1px}
+  .mtabs button[aria-selected="true"]{color:var(--ink); border-bottom-color:var(--accent)}
+
+  .kpis{display:grid; grid-template-columns:repeat(6,1fr); gap:10px; margin-top:16px}
+  .kpi{background:var(--card2); border:1px solid var(--line); border-radius:var(--rs); padding:10px 12px}
+  .kpi .l{font-size:10.5px; color:var(--mute); font-family:var(--mono); letter-spacing:.04em; text-transform:uppercase}
+  .kpi .v{font-size:16.5px; font-weight:800; margin-top:3px; font-variant-numeric:tabular-nums}
+  .riskband{display:inline-block; font-size:12px; font-weight:800; border-radius:6px; padding:2px 9px; background:var(--maven-bg); color:var(--maven)}
+
+  .ranges{display:flex; gap:4px; margin-left:auto}
+  .ranges button{font-family:var(--mono); font-size:11px; font-weight:700; padding:4px 10px; border-radius:100px; color:var(--mute)}
+  .ranges button[aria-pressed="true"]{background:var(--accent-soft); color:var(--accent)}
+  .chartwrap{margin-top:14px}
+  .chartwrap canvas{width:100%; height:230px; display:block}
+  .legend{display:flex; gap:16px; margin-top:8px; font-size:11.5px; color:var(--mute)}
+  .legend i{display:inline-block; width:14px; height:3px; border-radius:2px; vertical-align:middle; margin-right:5px}
+
+  .poslist{margin-top:8px}
+  .posrow{display:grid; grid-template-columns:1fr auto auto; gap:12px; align-items:center; padding:9px 2px; border-top:1px solid var(--line); font-size:13px}
+  .posrow:first-child{border-top:none}
+  .posrow .tk{font-weight:700}
+  .posrow .nm{color:var(--mute); font-size:11.5px}
+  .posrow .w{font-family:var(--mono); font-size:12px; color:var(--ink2)}
+  .posrow .ret{font-family:var(--mono); font-size:12px; font-weight:700; text-align:right}
+  .allocbar{height:9px; border-radius:100px; background:var(--line); overflow:hidden; flex:1}
+  .allocbar i{display:block; height:100%; background:var(--accent); border-radius:100px}
+  .allocrow{display:flex; align-items:center; gap:12px; padding:8px 0; font-size:13px}
+  .allocrow .lab{width:110px; color:var(--ink2)}
+  .allocrow .pct{font-family:var(--mono); font-weight:700; width:44px; text-align:right}
+
+  /* monthly heat table */
+  .heatwrap{overflow-x:auto; margin-top:14px; border:1px solid var(--line); border-radius:var(--rs)}
+  .heat{border-collapse:collapse; width:100%; min-width:720px; font-size:12px; background:var(--card)}
+  .heat th{font-family:var(--mono); font-size:10px; letter-spacing:.06em; color:var(--mute); font-weight:600; padding:8px 6px; border-bottom:1px solid var(--line2); text-transform:uppercase}
+  .heat td{padding:8px 6px; text-align:center; border-top:1px solid var(--line); font-variant-numeric:tabular-nums; font-weight:600}
+  .heat td.y{font-family:var(--mono); color:var(--mute); font-weight:700}
+  .heat td.tot{font-weight:800; border-left:1px solid var(--line2)}
+
+  .notshared{padding:36px 24px; text-align:center}
+  .notshared .big{font-size:30px; margin-bottom:8px}
+  .notshared p{color:var(--mute); max-width:46ch; margin:6px auto}
+
+  /* settings */
+  .setrow{display:flex; align-items:flex-start; gap:12px; padding:13px 2px; border-top:1px solid var(--line)}
+  .setrow:first-child{border-top:none}
+  .setrow .t{font-weight:700; font-size:13.5px}
+  .setrow .s{font-size:12px; color:var(--mute); margin-top:2px}
+  .toggle{margin-left:auto; flex:none; width:42px; height:24px; border-radius:100px; background:var(--line2); position:relative; transition:background .15s}
+  .toggle[aria-checked="true"]{background:var(--pos)}
+  .toggle i{position:absolute; top:3px; left:3px; width:18px; height:18px; border-radius:50%; background:#fff; transition:left .15s}
+  .toggle[aria-checked="true"] i{left:21px}
+  .newtag{font-family:var(--mono); font-size:9px; font-weight:800; letter-spacing:.06em; background:var(--accent); color:var(--accent-ink); border-radius:4px; padding:1px 5px; vertical-align:2px}
+
+  /* signed-out gate (#7) */
+  #app.signedout .searchbox,#app.signedout .lanechip,#app.signedout .country,#app.signedout #topav{display:none}
+  #app:not(.signedout) #signinbtn{display:none}
+  #signinbtn{border:1px solid var(--accent); color:var(--accent); font-weight:700; font-size:12.5px; border-radius:100px; padding:6px 16px}
+  .landing{max-width:560px; margin:40px auto 0; text-align:center; padding:40px 34px}
+  .landing .dia{color:var(--accent); font-size:22px}
+  .landing h2{font-size:27px; letter-spacing:-.02em; margin:14px 0 8px; font-family:var(--font-display)}
+  .landing .stats{color:var(--mute); font-size:13px}
+  .landing .cta{display:flex; gap:10px; justify-content:center; margin:22px 0 12px; flex-wrap:wrap}
+  .landing .invite{font-family:var(--mono); font-size:12px; border:1.5px dashed var(--line2); border-radius:var(--rs); padding:8px 18px; color:var(--ink2); letter-spacing:.08em}
+  .btn-solid{background:var(--accent); color:var(--accent-ink); font-weight:700; border-radius:100px; padding:10px 22px; font-size:13.5px}
+  .btn-ghost2{border:1px solid var(--line2); color:var(--ink2); font-weight:700; border-radius:100px; padding:10px 22px; font-size:13.5px}
+  .gatenote{font-family:var(--mono); font-size:11px; color:var(--mute); margin-top:18px; line-height:1.7}
+  .rolecard{display:flex; align-items:center; gap:13px; padding:15px 16px; width:100%; text-align:left; border-radius:var(--rs); border:1px solid var(--line)}
+  .rolecard:hover{border-color:var(--accent); background:var(--accent-soft)}
+  .rolecard .nm{font-weight:700; font-size:14.5px}
+  .rolecard .rl{margin-left:auto; font-family:var(--mono); font-size:10.5px; color:var(--mute); text-transform:uppercase; letter-spacing:.08em}
+  .post h3 a:hover{color:var(--accent)}
+  .comment{display:flex; gap:10px; padding:13px 16px; border-top:1px solid var(--line)}
+  .comment .b2{font-size:13.5px; margin-top:3px}
+  .flagcard{padding:15px 16px}
+  .flagcard + .flagcard{border-top:1px solid var(--line)}
+  .reasonchip{font-family:var(--mono); font-size:9.5px; font-weight:800; letter-spacing:.06em; border-radius:5px; padding:2px 7px; background:var(--neg-bg); color:var(--neg)}
+  .flagcard blockquote{margin:8px 0 10px; padding:9px 13px; border-left:3px solid var(--line2); background:var(--card2); border-radius:0 var(--rs) var(--rs) 0; font-size:13.5px; color:var(--ink2)}
+  .flagcard .acts{display:flex; gap:8px}
+  .flagcard .acts .rm{border:1px solid var(--neg); color:var(--neg); font-weight:700; font-size:12px; border-radius:100px; padding:5px 14px}
+  .flagcard .acts .ds{border:1px solid var(--line2); color:var(--ink2); font-weight:700; font-size:12px; border-radius:100px; padding:5px 14px}
+
+  /* popular ranking */
+  .rankchip{
+    font-family:var(--mono); font-size:9px; font-weight:800; letter-spacing:.05em;
+    background:var(--pos-bg); color:var(--pos); border-radius:5px; padding:2px 6px; white-space:nowrap;
+  }
+  .sorttabs{display:flex; gap:6px; align-items:center; margin:14px 0 10px}
+  .sorttabs button{
+    display:inline-flex; align-items:center; gap:6px; padding:6px 14px; border-radius:100px;
+    font-weight:700; font-size:12.5px; color:var(--ink2); border:1px solid var(--line); background:var(--card);
+  }
+  .sorttabs button[aria-pressed="true"]{background:var(--accent); color:var(--accent-ink); border-color:transparent}
+  .sorttabs .note{font-size:11px; color:var(--mute); margin-left:8px}
+
+  /* communities view */
+  .corridor{display:flex; gap:6px; margin:0 0 14px}
+  .corridor span{font-family:var(--mono); font-size:11px; font-weight:700; border:1px solid var(--line); border-radius:7px; padding:3px 9px; color:var(--mute)}
+  .corridor span.on{background:var(--accent); color:var(--accent-ink); border-color:transparent}
+  .commhead{display:flex; align-items:center; gap:11px; padding:15px 16px; border-bottom:1px solid var(--line)}
+  .minipost{display:grid; grid-template-columns:26px 1fr auto; gap:10px; align-items:center; padding:10px 16px}
+  .minipost + .minipost{border-top:1px solid var(--line)}
+  .minipost .rk{font-family:var(--mono); font-size:11px; font-weight:800; color:var(--mute); text-align:right}
+  .minipost .t{display:block; font-weight:600; font-size:13.5px}
+  .minipost .m{display:block; font-size:11.5px; color:var(--mute); margin-top:1px}
+  .minipost .sc{font-family:var(--mono); font-size:11px; font-weight:700; color:var(--pos); white-space:nowrap}
+  .teaser{padding:13px 16px; font-size:12.5px; color:var(--mute)}
+
+  /* frame label + footer */
+  .framelabel{display:flex; align-items:center; gap:9px; margin:0 0 12px}
+  .framelabel .wnum{font-family:var(--mono); font-size:11px; font-weight:800; border:1.5px solid var(--ink); border-radius:6px; padding:1px 7px}
+  .framelabel h1{margin:0; font-size:16.5px; letter-spacing:-.01em; font-family:var(--font-display)}
+  .framelabel .note{font-size:11.5px; color:var(--mute)}
+  .disclaimer{
+    border-top:1px solid var(--line); background:var(--card);
+    padding:11px 18px; font-size:11px; color:var(--mute); text-align:center;
+  }
+  .disclaimer b{color:var(--ink2)}
+
+  .backlink{font-size:12.5px; color:var(--mute); display:inline-flex; gap:6px; margin-bottom:10px}
+  .backlink:hover{color:var(--ink)}
+
+  @media (max-width: 960px){
+    .cols{grid-template-columns:1fr}
+    .leftnav,.rail{display:none}
+    .kpis{grid-template-columns:repeat(3,1fr)}
+    .lanechip{display:none}
+    .country{display:none}
+  }
+  @media (max-width: 620px){
+    .kpis{grid-template-columns:repeat(2,1fr)}
+    .followbtn{margin-left:0}
+  }
+  @media (prefers-reduced-motion: reduce){
+    .toggle,.toggle i{transition:none}
+  }
+</style>
+
+<div id="app">
+  <header class="topbar">
+    <a class="logo" href="#/feed"><span class="dia">◆</span> DesiSquare</a>
+    <div class="searchbox">
+      <span style="color:var(--mute)">⌕</span>
+      <input id="q" type="search" placeholder="Search posts, tickers, people, communities…" autocomplete="off" aria-label="Search DesiSquare">
+      <span class="slash">/</span>
+    </div>
+    <div class="top-right">
+      <span class="lanechip" title="Theme lane locked per client decision, 19 Jul 2026 — dark and Haldi &amp; Rani lanes retired"><b>1c</b> Porcelain Slate ✓</span>
+      <span class="country">US ▾</span>
+      <a id="signinbtn" href="#/signin">Sign in</a>
+      <span class="avatar" id="topav" style="background:var(--avatarB)">QL</span>
+    </div>
+  </header>
+
+  <main id="view" tabindex="-1"></main>
+
+  <footer class="disclaimer">
+    <b>Educational content — not investment advice or a solicitation.</b> Past performance is not indicative of future results.
+    Maven performance is verified via linked Ghostfolio and shown in <b>percentages only — currency values are never displayed</b> (constraint #8).
+    · DesiSquare Wireframes v3 · Phase 1.5 "Trust &amp; Discovery" · Theme lane: <b>1c Porcelain Slate</b> (client-selected 19 Jul 2026 — dark &amp; Haldi lanes retired)
+  </footer>
+</div>
+
+<script>
+(function(){
+"use strict";
+
+/* ============================= SEED DATA ============================= */
+/* Monthly returns (%) — nikhil_cfa, mapped from the client's eToro reference */
+var NIK = {
+  2024:{Sep:4.67, Oct:2.59, Nov:9.77, Dec:1.21},
+  2025:{Jan:3.07, Feb:-9.62, Mar:-10.92, Apr:4.48, May:6.46, Jun:13.28, Jul:4.04, Aug:0.27, Sep:16.12, Oct:3.10, Nov:-0.48, Dec:2.05},
+  2026:{Jan:0.52, Feb:3.51, Mar:-2.85, Apr:7.34, May:2.78, Jun:-4.31, Jul:7.17}
+};
+var BENCH = { /* neutral index, total return %, same span */
+  2024:{Sep:2.02, Oct:-0.99, Nov:5.73, Dec:-2.50},
+  2025:{Jan:2.70, Feb:-1.42, Mar:-5.75, Apr:-0.76, May:6.15, Jun:4.96, Jul:2.24, Aug:1.91, Sep:3.53, Oct:2.27, Nov:0.05, Dec:-1.10},
+  2026:{Jan:1.60, Feb:2.10, Mar:-1.20, Apr:3.40, May:1.10, Jun:-0.80, Jul:2.60}
+};
+var MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+
+function flatten(series){
+  var out=[]; [2024,2025,2026].forEach(function(y){
+    MONTHS.forEach(function(m){ if(series[y] && series[y][m]!=null) out.push({y:y,m:m,v:series[y][m]}); });
+  }); return out;
+}
+var NIK_F = flatten(NIK), BEN_F = flatten(BENCH);
+
+function cum(list){ var acc=100, out=[{label:"start", v:0}];
+  list.forEach(function(p){ acc*=(1+p.v/100); out.push({label:p.m+" "+String(p.y).slice(2), v:(acc-100)}); }); return out; }
+function windowFrom(list,n){ return n>=list.length?list.slice():list.slice(list.length-n); }
+function compound(list){ var acc=1; list.forEach(function(p){acc*=(1+p.v/100);}); return (acc-1)*100; }
+function maxDD(list){ var acc=100, peak=100, dd=0;
+  list.forEach(function(p){ acc*=(1+p.v/100); if(acc>peak)peak=acc; var d=(acc/peak-1)*100; if(d<dd)dd=d; }); return dd; }
+function stdev(list){ var n=list.length, mu=list.reduce(function(s,p){return s+p.v;},0)/n;
+  return Math.sqrt(list.reduce(function(s,p){return s+(p.v-mu)*(p.v-mu);},0)/n); }
+
+var STATS = (function(){
+  var ytd = compound(NIK_F.filter(function(p){return p.y===2026;}));
+  var r1 = compound(windowFrom(NIK_F,12));
+  var r2raw = compound(windowFrom(NIK_F,23)); /* full track ≈ 23m */
+  var r2ann = (Math.pow(1+r2raw/100, 12/23)-1)*100;
+  var dd = maxDD(NIK_F);
+  var prof = NIK_F.filter(function(p){return p.v>0;}).length/NIK_F.length*100;
+  var vol = stdev(NIK_F);
+  var band = vol<3?"Low":(vol<6?"Medium":"High");
+  return {ytd:ytd, r1:r1, r2ann:r2ann, dd:dd, prof:prof, band:band};
+})();
+
+var POSITIONS = [
+  {tk:"VTI",  nm:"Vanguard Total Market", w:22.1, ret:11.2},
+  {tk:"VXUS", nm:"Vanguard Intl ex-US",   w:12.4, ret:6.8},
+  {tk:"NVDA", nm:"NVIDIA",                w:9.8,  ret:32.4},
+  {tk:"IBN",  nm:"ICICI Bank ADR",        w:4.2,  ret:18.9},
+  {tk:"HDB",  nm:"HDFC Bank ADR",         w:3.9,  ret:-2.1}
+];
+var ALLOC = [
+  {lab:"US Equity", pct:58}, {lab:"India Equity", pct:22},
+  {lab:"Debt / FD", pct:12}, {lab:"Cash", pct:8}
+];
+
+var PROFILES = [
+  {id:"nikhil_cfa", init:"NC", av:"--avatarA", maven:true, shared:true,  cred:"CFA · ex-Fidelity PM",        meta:"maven since Jan 2026 · 214 reactions received"},
+  {id:"priya_ea",   init:"PE", av:"--avatarC", maven:true, shared:false, cred:"CPA · EA · cross-border tax", meta:"maven since Feb 2026 · 178 reactions received"},
+  {id:"quiet_lotus",init:"QL", av:"--avatarB", maven:false, cred:"",     meta:"member since Mar 2026 · 47 reactions received"},
+  {id:"first_gen_saver",init:"FG", av:"--avatarD", maven:false, cred:"", meta:"member since Apr 2026 · 21 reactions received"},
+  {id:"desisquare_mod",init:"DM", av:"--avatarD", maven:false, cred:"",  meta:"moderator"}
+];
+var COMMUNITIES = [
+  {id:"us-investment", nm:"US Investment",  vis:"PUBLIC",  sub:"4,823 members · 142 online · free", joined:true,  ic:"US", desc:"The main corridor for desi money questions in the US."},
+  {id:"h1b-money",     nm:"H-1B Money Talk",vis:"PUBLIC",  sub:"1,102 members · free",              joined:false, ic:"H1", desc:"Visas, 401k, and investing while on H-1B."},
+  {id:"bay-angels",    nm:"Bay Area Angels",vis:"PRIVATE", sub:"212 members · invite-gated",        joined:false, ic:"BA", desc:"Private angel-investing circle."},
+  {id:"taxes-fema",    nm:"Taxes & FEMA",   vis:"PUBLIC",  sub:"space in US Investment · 178 posts",joined:true,  ic:"TF", desc:"Cross-border tax, FEMA, remittances, NRI/NRO."},
+  {id:"nri-invest",    nm:"NRI Investment Circle", vis:"PUBLIC", sub:"689 members · free",          joined:false, ic:"NI", desc:"Investing back into India as an NRI — FCNR, GIFT City, mutual funds."}
+];
+var POSTS = [
+  {id:1, who:"nikhil_cfa", maven:true, space:"Stocks & ETFs", when:"2h", age:120,
+   title:"Trimming NVDA into strength — back to target weights",
+   body:"Rebalancing discipline beats conviction. NVDA ran past its band, so I trimmed back to target weight and rotated into the laggards.",
+   pills:[["👍","Helpful",9],["💡","Insightful",23],["📊","Actionable",14],["❤️","Like",31]], cmts:12},
+  {id:2, who:"quiet_lotus", maven:false, space:"Ask the community", when:"now", age:0, via:true,
+   title:"Anyone compared FCNR rates at ICICI vs HDFC this month?",
+   body:"Looking to park USD for 2 years — FCNR(B) rates seem to have moved after the RBI announcement.",
+   pills:[["👍","Helpful",0],["💡","Insightful",0],["📊","Actionable",0],["❤️","Like",0]], cmts:2},
+  {id:3, who:"priya_ea", maven:true, space:"Taxes & FEMA", when:"5h", age:300,
+   title:"FEMA basics: repatriating sale proceeds from an inherited flat",
+   body:"The $1M scheme, Form 15CA/CB, and why the order of steps matters more than the paperwork.",
+   pills:[["👍","Helpful",41],["💡","Insightful",28],["📊","Actionable",19],["❤️","Like",22]], cmts:17},
+  {id:4, who:"first_gen_saver", maven:false, space:"401k & Retirement", when:"1d", age:1440,
+   title:"Mega backdoor Roth on an H-1B — worth it if I might return to India?",
+   body:"Employer allows after-tax contributions. Trying to weigh US retirement lock-in vs flexibility.",
+   pills:[["👍","Helpful",12],["💡","Insightful",9],["📊","Actionable",6],["❤️","Like",8]], cmts:9},
+  {id:5, who:"nikhil_cfa", maven:true, space:"Stocks & ETFs", when:"3d", age:4320,
+   title:"My rebalancing bands: how I decide when to trim or add",
+   body:"5% absolute / 25% relative bands on every sleeve. Mechanical, boring, effective.",
+   pills:[["👍","Helpful",33],["💡","Insightful",45],["📊","Actionable",38],["❤️","Like",29]], cmts:21},
+  {id:6, who:"quiet_lotus", maven:false, space:"Real Estate", when:"2d", age:2880,
+   title:"Buying in India while living in the US — POA pitfalls",
+   body:"Learned the hard way that a general POA is not enough for registration in some states.",
+   pills:[["👍","Helpful",18],["💡","Insightful",11],["📊","Actionable",7],["❤️","Like",13]], cmts:6}
+];
+var COMMENTS = [
+  {id:1, on:"Anyone compared FCNR rates at ICICI vs HDFC this month?", who:"first_gen_saver", when:"40m",
+   body:"ICICI quoted me 5.35% for 2y USD FCNR last week; HDFC was 5.20% but waived the remittance fee."},
+  {id:2, on:"Anyone compared FCNR rates at ICICI vs HDFC this month?", who:"priya_ea", when:"25m",
+   body:"Remember FCNR interest is tax-free in India only while you're NRI — plan the maturity around any return date."},
+  {id:3, on:"Trimming NVDA into strength — back to target weights", who:"quiet_lotus", when:"1h",
+   body:"What band width do you use before a trim triggers? 5% absolute or relative?"},
+  {id:4, on:"Mega backdoor Roth on an H-1B — worth it if I might return to India?", who:"nikhil_cfa", when:"20h",
+   body:"Think of it as optionality: Roth space is use-it-or-lose-it, and India–US treaty treatment of Roth is the real open question."},
+  {id:5, on:"FEMA basics: repatriating sale proceeds from an inherited flat", who:"quiet_lotus", when:"4h",
+   body:"The 15CB CA certificate took longer than the bank steps for us — start there."},
+  {id:6, on:"My rebalancing bands: how I decide when to trim or add", who:"first_gen_saver", when:"2d",
+   body:"Do you rebalance with new contributions first, or actually sell the overweight sleeve?"},
+  {id:7, on:"My rebalancing bands: how I decide when to trim or add", who:"priya_ea", when:"1d",
+   body:"Worth noting the tax angle: selling to rebalance in a taxable account can cost more than the drift does."}
+];
+var FLAGGED = [
+  {id:1, reason:"Marketing", who:"wealth_guru_77", where:"Ask the community", when:"2h", flags:9,
+   body:"DM me for my premium signals group — guaranteed 3% monthly. Limited seats."},
+  {id:2, reason:"Misleading", who:"moon_bets", where:"Stocks & ETFs", when:"6h", flags:5,
+   body:"My uncle turned 10L into 2Cr. Stop being poor, go 3x or go home."}
+];
+var SPACES = [["Stocks & ETFs",214],["Taxes & FEMA",178],["401k & Retirement",131],["Real Estate",96],["Ask the community",84],["Insurance & Visas",61],["Watercooler",152]];
+
+/* ============================= STATE + ROUTER ============================= */
+var state = { role:null, tab:"all", range:"Max", mtab:"overview", nikShared:true, sort:"popular" };
+var app = document.getElementById("app");
+var view = document.getElementById("view");
+var qInput = document.getElementById("q");
+
+function esc(s){ return String(s).replace(/[&<>"]/g, function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];}); }
+function hl(text,q){
+  if(!q) return esc(text);
+  var i = text.toLowerCase().indexOf(q.toLowerCase());
+  if(i<0) return esc(text);
+  return esc(text.slice(0,i))+"<mark>"+esc(text.slice(i,i+q.length))+"</mark>"+esc(text.slice(i+q.length));
+}
+function pf(id){ for(var i=0;i<PROFILES.length;i++) if(PROFILES[i].id===id) return PROFILES[i]; return null; }
+function fmtPct(v,signed){ var s=(Math.round(v*100)/100).toFixed(2)+"%"; return (signed&&v>0?"+":"")+s; }
+function pctClass(v){ return v>=0?"pos":"neg"; }
+
+function applyRole(id){
+  state.role = id;
+  var p = pf(id);
+  var av = document.getElementById("topav");
+  av.textContent = p.init;
+  av.style.background = "var("+p.av+")";
+  app.classList.remove("signedout");
+}
+function route(){
+  var h = location.hash || (state.role ? "#/feed" : "#/landing");
+  if(!state.role && !/^#\/(landing|signin)/.test(h)){ location.hash = "#/landing"; return; }
+  var m;
+  if(h.indexOf("#/landing")===0) renderLanding();
+  else if(h.indexOf("#/signin")===0) renderSignin();
+  else if((m = h.match(/^#\/post\/(\d+)/))) renderPost(+m[1]);
+  else if(h.indexOf("#/review")===0) renderReview();
+  else if((m = h.match(/^#\/maven\/([\w-]+)/))) renderMaven(m[1]);
+  else if(h.indexOf("#/search")===0){
+    var qm = h.match(/[?&]q=([^&]*)/); var tm = h.match(/[?&]tab=(\w+)/);
+    var q = qm?decodeURIComponent(qm[1]):"";
+    if(tm) state.tab = tm[1];
+    if(qInput.value !== q) qInput.value = q;
+    renderSearch(q);
+  }
+  else if(h.indexOf("#/communities")===0) renderCommunities();
+  else if(h.indexOf("#/settings")===0) renderSettings();
+  else renderFeed();
+  view.focus({preventScroll:true});
+  window.scrollTo(0,0);
+}
+window.addEventListener("hashchange", route);
+
+/* search wiring: live nav on input, `/` shortcut */
+qInput.addEventListener("input", function(){
+  var q = qInput.value.trim();
+  var target = "#/search?q="+encodeURIComponent(q)+"&tab="+state.tab;
+  if(q.length>0){ if(location.hash!==target) location.hash = target; }
+});
+qInput.addEventListener("keydown", function(e){
+  if(e.key==="Enter"){ location.hash = "#/search?q="+encodeURIComponent(qInput.value.trim())+"&tab="+state.tab; }
+});
+document.addEventListener("keydown", function(e){
+  if(e.key==="/" && document.activeElement!==qInput && !/INPUT|TEXTAREA/.test(document.activeElement.tagName)){
+    e.preventDefault(); qInput.focus(); qInput.select();
+  }
+});
+
+/* ============================= SHARED SNIPPETS ============================= */
+function avatarHTML(p, size){
+  return '<span class="avatar" style="background:var('+p.av+')'+(size?';width:'+size+'px;height:'+size+'px;font-size:'+Math.round(size*0.34)+'px':'')+'">'+p.init+"</span>";
+}
+function whoHTML(p, linkMaven){
+  var name = (p.maven && linkMaven!==false)
+    ? '<a class="who" href="#/maven/'+p.id+'">'+p.id+"</a>"
+    : '<span class="who">'+p.id+"</span>";
+  return name + (p.maven?' <span class="mavenchip">MAVEN ✓</span>':"");
+}
+function pillsHTML(pills){
+  return '<div class="pillrow">'+pills.map(function(pl,i){
+    var cnt = pl[2]>0?" "+pl[2]:"";
+    return '<button class="pill'+(i===0&&pl[2]>0?" hot":"")+'">'+pl[0]+" "+pl[1]+cnt+"</button>";
+  }).join("")+"</div>";
+}
+function score(p){ return p.pills.reduce(function(s2,pl){return s2+pl[2];},0) + 2*p.cmts; }
+function sortPosts(list, mode){
+  var arr = list.slice();
+  return mode==="new" ? arr.sort(function(a,b){return a.age-b.age;})
+                      : arr.sort(function(a,b){return score(b)-score(a);});
+}
+function rankChip(i){ return '<span class="rankchip num">#'+(i+1)+' POPULAR</span>'; }
+function postCard(p, q, rank){
+  var a = pf(p.who);
+  return '<article class="post">'
+    +'<div class="byline">'+(rank!=null&&rank<3?rankChip(rank):"")+avatarHTML(a,26)+whoHTML(a)
+    +(p.via?' <span class="wachip">via WhatsApp</span>':"")
+    +' <span>'+p.space+" · "+p.when+"</span>"
+    +(a.maven&&a.cred?' <span>· '+a.cred+"</span>":"")
+    +'<span style="margin-left:auto" class="mono">⋯</span></div>'
+    +'<h3><a href="#/post/'+p.id+'">'+hl(p.title,q)+"</a></h3>"
+    +pillsHTML(p.pills)
+    +'<div class="cmt" style="margin-top:8px">'+p.cmts+" comments</div>"
+    +"</article>";
+}
+
+/* ============================= FEED (W3 hub) ============================= */
+function renderFeed(){
+  var mavenRail = PROFILES.filter(function(p){return p.maven;}).map(function(p){
+    var ytd = (p.shared)
+      ? '<a class="ytd pos" href="#/maven/'+p.id+'" title="Return YTD — % only">'+fmtPct(STATS.ytd,true)+' YTD</a>'
+      : '<span class="ytd" style="color:var(--mute)" title="performance not shared">—</span>';
+    return '<div class="mrow">'+avatarHTML(p,30)
+      +'<div><a class="who" href="#/maven/'+p.id+'">'+p.id+'</a> <span class="mavenchip">MAVEN ✓</span><div class="cred">'+p.cred+"</div></div>"
+      + ytd + "</div>";
+  }).join("");
+
+  var sorted = sortPosts(POSTS, state.sort);
+  var sortTabs =
+    '<div class="sorttabs" role="group" aria-label="Feed sort">'
+    +'<button aria-pressed="'+(state.sort==="popular")+'" data-sort="popular">▲ Popular</button>'
+    +'<button aria-pressed="'+(state.sort==="new")+'" data-sort="new">New</button>'
+    +'<span class="note">landing feed ranks by engagement — Reddit-style (F3)</span></div>';
+
+  view.innerHTML =
+  '<div class="framelabel"><span class="wnum">W3</span><h1>Feed — the home surface</h1><span class="note">Popular is the landing default (F3) · search live → try "FCNR" or press /</span></div>'
+  +'<div class="cols">'
+  +'<nav class="leftnav card pad nav" aria-label="Primary">'
+    +'<a class="on" href="#/feed">Feed</a><a href="#/communities">Communities <span class="newtag">NEW</span></a><a href="#/settings">Settings</a>'
+    +(state.role==="desisquare_mod"
+      ? '<a href="#/review">Review queue '+(FLAGGED.length?'<span class="b num">'+FLAGGED.length+'</span>':'<span class="modtag">clear ✓</span>')+'</a>'
+      : '')
+    +'<div class="navhead">Spaces · US investment</div>'
+    + SPACES.map(function(s){return '<a class="space" href="#/search?q='+encodeURIComponent(s[0])+'&tab=posts"><span>'+s[0]+'</span><span class="n num">'+s[1]+"</span></a>";}).join("")
+    +'<div class="wacard"><div class="t">● WhatsApp connected</div><p>Chat from WhatsApp, it lands here. Manage in Settings.</p></div>'
+  +"</nav>"
+  +'<section>'
+    +'<div class="card composer">'+avatarHTML(pf("quiet_lotus"),30)+'<div class="fake">Share an idea or a question…</div><button class="pill" style="background:var(--accent);color:var(--accent-ink);border-color:transparent">Post</button></div>'
+    + sortTabs
+    +'<div class="card">'+sorted.map(function(p,i){return postCard(p,"",state.sort==="popular"?i:null);}).join("")+"</div>"
+  +"</section>"
+  +'<aside class="rail">'
+    +'<div class="card pad"><p class="railhead">US Investment</p><div class="stat"><b style="color:var(--ink)">4,823</b> members · <span class="pos">● 142 online</span></div></div>'
+    +'<div class="card pad" style="margin-top:14px"><p class="railhead">Mavens in this community</p>'+mavenRail
+    +'<p style="font-size:11px;color:var(--mute);margin:10px 0 0">YTD chip shows only for mavens sharing performance (% only · #8). Tap a maven for the proof page.</p></div>'
+  +"</aside></div>";
+
+  Array.prototype.forEach.call(view.querySelectorAll("[data-sort]"), function(b){
+    b.addEventListener("click", function(){ state.sort=b.getAttribute("data-sort"); renderFeed(); });
+  });
+}
+
+/* ============================= COMMUNITIES (W15) ============================= */
+function miniPost(p, i){
+  var a = pf(p.who);
+  return '<a class="minipost" href="#/feed">'
+    +'<span class="rk num">'+(i+1)+'</span>'
+    +'<span><span class="t">'+esc(p.title)+'</span>'
+    +'<span class="m">'+p.who+(a.maven?' · MAVEN ✓':'')+' · '+p.space+' · '+p.cmts+' comments'+(p.via?' · via WhatsApp':'')+'</span></span>'
+    +'<span class="sc num" title="engagement: reactions + 2×comments">▲ '+score(p)+'</span></a>';
+}
+function communitySection(c){
+  var head = '<div class="commhead"><span class="cicon" style="background:var(--accent)">'+c.ic+'</span>'
+    +'<div><span class="nm" style="font-weight:700">'+c.nm+'</span> <span class="vischip">'+c.vis+'</span>'
+    +'<div class="sub" style="font-size:12px;color:var(--mute)">'+c.sub+'</div></div>'
+    +'<button class="joinbtn'+(c.joined?' joined':'')+'" style="margin-left:auto">'+(c.joined?'Joined ✓':(c.vis==='PRIVATE'?'Request':'Join'))+'</button></div>';
+  var body;
+  if(c.joined){
+    var pool = c.id==='taxes-fema' ? POSTS.filter(function(p){return p.space==='Taxes & FEMA';}) : POSTS;
+    var top = sortPosts(pool,'popular').slice(0,3);
+    body = '<p class="railhead" style="padding:12px 16px 2px;margin:0">Popular in '+c.nm+'</p>'
+      + top.map(function(p,i){return miniPost(p,i);}).join('');
+  } else if(c.vis==='PRIVATE'){
+    body = '<div class="teaser">Private community — posts are never previewed to non-members (#3). Request to join.</div>';
+  } else {
+    body = '<div class="teaser">Join to follow — its popular posts then rank into your landing feed (F3).</div>';
+  }
+  return '<div class="card" style="margin-bottom:16px">'+head+body+'</div>';
+}
+function renderCommunities(){
+  view.innerHTML =
+  '<div class="framelabel"><span class="wnum">W15</span><h1>Communities — popular posts per joined community</h1><span class="note">NEW · from feedback F3 — Reddit-style</span></div>'
+  +'<div class="cols" style="grid-template-columns:minmax(0,720px)">'
+  +'<div>'
+  +'<div class="corridor"><span class="on">US</span><span>CA</span><span>UK</span><span>AE</span><span>AU</span><span>SG</span></div>'
+  + COMMUNITIES.map(communitySection).join('')
+  +'<p style="font-size:11.5px;color:var(--mute)">Ranking = reactions + 2×comments (prototype stand-in for Discourse\'s native Hot algorithm). Country switch swaps the whole list per corridor (W8).</p>'
+  +'</div></div>';
+}
+
+/* ============================= SEARCH (W13) ============================= */
+function matches(txt,q){ return txt.toLowerCase().indexOf(q.toLowerCase())>=0; }
+function searchData(q){
+  if(!q) return {communities:[],posts:[],comments:[],profiles:[]};
+  return {
+    communities: COMMUNITIES.filter(function(c){return matches(c.nm+" "+c.desc,q);}),
+    posts: POSTS.filter(function(p){return matches(p.title+" "+p.body+" "+p.space+" "+p.who,q);}),
+    comments: COMMENTS.filter(function(c){return matches(c.body+" "+c.on+" "+c.who,q);}),
+    profiles: PROFILES.filter(function(p){return matches(p.id+" "+p.cred,q);})
+  };
+}
+function commCard(c,q){
+  return '<div class="rescard commrow"><span class="cicon" style="background:var(--accent)">'+c.ic+"</span>"
+  +'<div><span class="nm">'+hl(c.nm,q)+'</span> <span class="vischip">'+c.vis+'</span><div class="sub">'+c.sub+" — "+esc(c.desc)+"</div></div>"
+  +'<button class="joinbtn'+(c.joined?" joined":"")+'">'+(c.joined?"Joined ✓":(c.vis==="PRIVATE"?"Request":"Join"))+"</button></div>";
+}
+function commentCard(c,q){
+  return '<div class="rescard"><div class="byline">'+avatarHTML(pf(c.who),24)+whoHTML(pf(c.who))+" <span>· "+c.when+'</span></div>'
+  +'<div style="font-size:12px;color:var(--mute);margin-top:6px">on <a href="#/feed" style="color:var(--accent);font-weight:600">'+esc(c.on)+"</a></div>"
+  +'<p style="margin:6px 0 0;font-size:13.5px">'+hl(c.body,q)+"</p></div>";
+}
+function profCard(p,q){
+  var perf = (p.maven&&p.shared)
+    ? '<span class="conchip num" title="Return YTD · % only — $ never shown">'+fmtPct(STATS.ytd,true)+" YTD</span>"
+    : (p.maven?'<span class="vischip">performance not shared</span>':"");
+  return '<div class="rescard profrow">'+avatarHTML(p,36)
+  +"<div>"+whoHTML(p)+'<div class="meta">'+(p.cred?p.cred+" · ":"")+p.meta+"</div></div>"
+  +'<div style="margin-left:auto;display:flex;gap:8px;align-items:center">'+perf
+  +(p.maven?'<a class="joinbtn" href="#/maven/'+p.id+'">View proof</a>':"")+"</div></div>";
+}
+function emptyState(tab,q){
+  return '<div class="card empty"><div class="big">⌕</div>No '+tab+' match "<b>'+esc(q)+'</b>"<br><span style="font-size:12px">try a ticker · a space name · a member pseudonym</span></div>';
+}
+function section(title, inner){ return '<p class="shead">'+title+'</p><div class="card">'+inner+"</div>"; }
+
+function renderSearch(q){
+  var d = searchData(q);
+  var counts = {all: d.communities.length+d.posts.length+d.comments.length+d.profiles.length,
+    communities:d.communities.length, posts:d.posts.length, comments:d.comments.length, profiles:d.profiles.length};
+  var TABS = [["all","All"],["communities","Communities"],["posts","Posts"],["comments","Comments"],["profiles","Profiles"]];
+  var body="";
+  if(!q){
+    body = '<div class="card empty"><div class="big">⌕</div>Type to search across the community<br><span style="font-size:12px">results appear as you type — All · Communities · Posts · Comments · Profiles</span></div>';
+  } else if(state.tab==="all"){
+    body = (d.communities.length?section("Communities", d.communities.slice(0,2).map(function(c){return commCard(c,q);}).join("")):"")
+         + (d.posts.length?section("Posts", d.posts.slice(0,3).map(function(p){return postCard(p,q);}).join("")):"")
+         + (d.comments.length?section("Comments", d.comments.slice(0,2).map(function(c){return commentCard(c,q);}).join("")):"")
+         + (d.profiles.length?section("Profiles", d.profiles.map(function(p){return profCard(p,q);}).join("")):"");
+    if(!counts.all) body = emptyState("results",q);
+  } else {
+    var map={communities:[d.communities,commCard],posts:[d.posts,postCard],comments:[d.comments,commentCard],profiles:[d.profiles,profCard]};
+    var pair=map[state.tab];
+    body = pair[0].length? '<div class="card">'+pair[0].map(function(x){return pair[1](x,q);}).join("")+"</div>" : emptyState(state.tab,q);
+  }
+  var railComms = COMMUNITIES.slice(0,3).map(function(c){return commCard(c,q);}).join("");
+
+  view.innerHTML =
+  '<div class="framelabel"><span class="wnum">W13</span><h1>Universal search</h1><span class="note">NEW · from feedback F1 — All / Communities / Posts / Comments / Profiles</span></div>'
+  +'<div class="cols" style="grid-template-columns:1fr 264px">'
+  +"<section>"
+    +'<div class="tabrow" role="tablist">'+TABS.map(function(t){
+      return '<button role="tab" aria-selected="'+(state.tab===t[0])+'" data-tab="'+t[0]+'">'+t[1]+(q?'<span class="c num">'+counts[t[0]]+"</span>":"")+"</button>";
+    }).join("")+"</div>"
+    +'<div class="sortrow"><span class="sel">Relevance ▾</span><span class="sel">All time ▾</span><span>searching <b style="color:var(--ink2)">US corridor</b> · change ▾</span></div>'
+    + body
+  +"</section>"
+  +'<aside class="rail"><div class="card"><p class="railhead" style="padding:14px 16px 0;margin:0">Communities</p>'+railComms+"</div>"
+  +'<p style="font-size:11px;color:var(--mute);margin-top:10px">Private communities never leak content into results; flags &amp; review-queue items are never indexed (#3).</p></aside>'
+  +"</div>";
+
+  Array.prototype.forEach.call(view.querySelectorAll(".tabrow button"), function(b){
+    b.addEventListener("click", function(){
+      state.tab=b.getAttribute("data-tab");
+      location.hash="#/search?q="+encodeURIComponent(q)+"&tab="+state.tab;
+    });
+  });
+}
+
+/* ============================= MAVEN (W14) ============================= */
+function kpi(l,v,cls){ return '<div class="kpi"><div class="l">'+l+'</div><div class="v '+(cls||"")+'">'+v+"</div></div>"; }
+
+function renderMaven(id){
+  var p = pf(id) || pf("nikhil_cfa");
+  var shared = p.id==="nikhil_cfa" ? state.nikShared : !!p.shared;
+
+  var header =
+  '<a class="backlink" href="#/feed">← Feed</a>'
+  +'<div class="card pad">'
+  +'<div class="mhead">'+avatarHTML(p,52)
+    +'<div><h2>'+p.id+' <span class="mavenchip" style="font-size:11px">MAVEN ✓</span></h2>'
+    +'<div class="cred">'+(p.cred||"Community maven")+"</div>"
+    +'<div class="chips"><span class="conchip">✓ credential reviewed</span><span class="conchip">✓ desi check</span><span class="conchip">✓ email verified</span></div></div>'
+    +'<button class="followbtn">Follow</button></div>'
+  +'<div class="standing"><span><b>38</b> posts</span><span><b>112</b> comments</span><span><b>214</b> reactions received</span><span><b>72%</b> helpful rate</span><span>'+esc(p.meta.split("·")[0].trim())+"</span></div>"
+  +(shared
+    ?'<div class="ribbon"><span class="lock">🔒</span><span>Performance verified via linked <b>Ghostfolio</b> · <b>% only — ₹/$ never shown</b> (constraint #8) · updated daily · last verified today</span></div>'
+    :"")
+  +"</div>";
+
+  if(!shared){
+    view.innerHTML =
+    '<div class="framelabel"><span class="wnum">W14</span><h1>Maven profile — performance proof</h1><span class="note">consent-OFF state (#5 → #8): nothing financial renders</span></div>'
+    + header
+    +'<div class="card notshared" style="margin-top:14px"><div class="big">🪷</div>'
+    +"<h3 style='margin:0;font-family:var(--font-display)'>"+p.id+" hasn’t shared performance yet</h3>"
+    +"<p>Mavens choose whether to substantiate their expertise with verified, percentage-only performance. Until they opt in (Settings → Privacy), this page shows credentials and community activity only.</p>"
+    +'<p style="font-size:12px">Meanwhile — their expertise still shows: <a href="#/search?q='+p.id+'&tab=posts" style="color:var(--accent);font-weight:700">read their best posts →</a></p></div>';
+    return;
+  }
+
+  var tabs = [["overview","Overview"],["stats","Stats"],["alloc","Allocation"],["posts","Posts"]];
+  var inner="";
+  if(state.mtab==="overview"){
+    inner =
+    '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"><p class="railhead" style="margin:0">Cumulative return — %</p>'
+    +'<div class="ranges">'+["6M","YTD","1Y","2Y","Max"].map(function(r){return '<button aria-pressed="'+(state.range===r)+'" data-range="'+r+'">'+r+"</button>";}).join("")+"</div></div>"
+    +'<div class="chartwrap"><canvas id="perfchart" role="img" aria-label="Cumulative percentage return chart with benchmark overlay"></canvas></div>'
+    +'<div class="legend"><span><i style="background:var(--accent)"></i>'+p.id+'</span><span><i style="background:var(--mute)"></i>S&amp;P 500 TR (benchmark)</span></div>'
+    +'<div class="kpis">'
+      +kpi("Return YTD", fmtPct(STATS.ytd,true), pctClass(STATS.ytd))
+      +kpi("Return 1Y", fmtPct(STATS.r1,true), pctClass(STATS.r1))
+      +kpi("2Y annualised", fmtPct(STATS.r2ann,true), pctClass(STATS.r2ann))
+      +kpi("Max drawdown", fmtPct(STATS.dd,false), "neg")
+      +kpi("Profitable months", Math.round(STATS.prof)+"%","")
+      +'<div class="kpi"><div class="l">Risk band</div><div class="v"><span class="riskband">'+STATS.band+"</span></div></div>"
+    +"</div>"
+    +'<p class="railhead" style="margin:22px 0 2px">About</p>'
+    +'<p style="margin:0;max-width:64ch;color:var(--ink2)">Rebalancing over prediction. 15 years running US large-cap portfolios; now I write about boring, mechanical investing for desi households straddling two markets.</p>'
+    +'<p class="railhead" style="margin:22px 0 0">Top positions <span style="text-transform:none;letter-spacing:0">— % of portfolio &amp; return only · quantities and values never shown</span></p>'
+    +'<div class="poslist">'+POSITIONS.map(function(x){
+      return '<div class="posrow"><div><span class="tk">'+x.tk+'</span> <span class="nm">'+x.nm+'</span></div><span class="w num">'+x.w.toFixed(1)+'% of portfolio</span><span class="ret num '+pctClass(x.ret)+'">'+fmtPct(x.ret,true)+"</span></div>";
+    }).join("")+"</div>";
+  } else if(state.mtab==="stats"){
+    var rows=[2026,2025,2024].map(function(y){
+      var cells = MONTHS.map(function(m){
+        var v = NIK[y]&&NIK[y][m];
+        if(v==null) return "<td></td>";
+        var a = Math.min(Math.abs(v)/16,1)*0.55+0.08;
+        var bg = v>=0?"rgba(24,150,90,"+a.toFixed(2)+")":"rgba(205,64,54,"+a.toFixed(2)+")";
+        return '<td class="num" style="background:'+bg+'" title="'+m+" "+y+": "+fmtPct(v,true)+'">'+fmtPct(v,false).replace("%","")+"</td>";
+      }).join("");
+      var yr = compound(NIK_F.filter(function(pp){return pp.y===y;}));
+      return '<tr><td class="y">'+y+"</td>"+cells+'<td class="tot num '+pctClass(yr)+'">'+fmtPct(yr,true)+"</td></tr>";
+    }).join("");
+    inner =
+    '<p class="railhead" style="margin:0 0 2px">Monthly returns — %</p>'
+    +'<p style="font-size:12px;color:var(--mute);margin:0">The eToro-style proof table the feedback referenced — every cell is a percentage; intensity = magnitude.</p>'
+    +'<div class="heatwrap"><table class="heat"><thead><tr><th></th>'+MONTHS.map(function(m){return "<th>"+m+"</th>";}).join("")+"<th>Year</th></tr></thead><tbody>"+rows+"</tbody></table></div>"
+    +'<p style="font-size:11.5px;color:var(--mute);margin-top:10px">Track record starts Sep 2024 (23 months). Under 6 months would render an <b>early-history</b> note instead of implying a record.</p>';
+  } else if(state.mtab==="alloc"){
+    inner =
+    '<p class="railhead" style="margin:0 0 6px">Allocation — % only <span class="conchip" style="text-transform:none;letter-spacing:0">$ never shown · #4/#8</span></p>'
+    + ALLOC.map(function(a2){
+      return '<div class="allocrow"><span class="lab">'+a2.lab+'</span><span class="allocbar"><i style="width:'+a2.pct+'%"></i></span><span class="pct num">'+a2.pct+"%</span></div>";
+    }).join("")
+    +'<p style="font-size:12px;color:var(--mute);margin-top:14px">Same allocation semantics as the member public profile (W6) — the maven page is a superset, never a different privacy rule.</p>';
+  } else {
+    inner = '<p class="railhead" style="margin:0 0 10px">Best of '+p.id+" — sorted by reactions received</p>"
+    +'<div style="margin:0 -16px -16px">'+POSTS.filter(function(x){return x.who===p.id;}).map(function(x){return postCard(x,"");}).join("")+"</div>";
+  }
+
+  view.innerHTML =
+  '<div class="framelabel"><span class="wnum">W14</span><h1>Maven profile — performance proof</h1><span class="note">NEW · from feedback F2 — "prove he is an expert", % only</span></div>'
+  + header
+  +'<div class="card pad" style="margin-top:14px">'
+  +'<div class="mtabs" role="tablist">'+tabs.map(function(t){return '<button role="tab" aria-selected="'+(state.mtab===t[0])+'" data-mtab="'+t[0]+'">'+t[1]+"</button>";}).join("")+"</div>"
+  +'<div style="padding-top:16px">'+inner+"</div></div>"
+  +'<p style="font-size:11.5px;color:var(--mute);margin-top:12px">Past performance is not indicative of future results. Educational — not investment advice. No copy-trading; mavens are never ranked by returns.</p>';
+
+  Array.prototype.forEach.call(view.querySelectorAll("[data-mtab]"), function(b){
+    b.addEventListener("click", function(){ state.mtab=b.getAttribute("data-mtab"); renderMaven(id); });
+  });
+  Array.prototype.forEach.call(view.querySelectorAll("[data-range]"), function(b){
+    b.addEventListener("click", function(){ state.range=b.getAttribute("data-range"); renderMaven(id); });
+  });
+  if(state.mtab==="overview") drawChart();
+}
+
+/* chart */
+function themeVar(name){ return getComputedStyle(app).getPropertyValue(name).trim(); }
+function drawChart(){
+  var cv = document.getElementById("perfchart"); if(!cv) return;
+  var n = {"6M":6,"YTD":7,"1Y":12,"2Y":23,"Max":99}[state.range]||99;
+  var A = cum(windowFrom(NIK_F,n)), B = cum(windowFrom(BEN_F,n));
+  var dpr = window.devicePixelRatio||1, W = cv.clientWidth||600, H = 230;
+  cv.width=W*dpr; cv.height=H*dpr;
+  var g = cv.getContext("2d"); g.scale(dpr,dpr); g.clearRect(0,0,W,H);
+  var vals = A.concat(B).map(function(p){return p.v;});
+  var mn = Math.min.apply(null,vals), mx = Math.max.apply(null,vals);
+  var padY=(mx-mn)*0.12||5; mn-=padY; mx+=padY;
+  var L=8,R=52,T=10,Btm=26;
+  function X(i,len){ return L+(W-L-R)*(i/(len-1)); }
+  function Y(v){ return T+(H-T-Btm)*(1-(v-mn)/(mx-mn)); }
+  var ink=themeVar("--mute"), line=themeVar("--line2"), acc=themeVar("--accent");
+  /* gridlines */
+  g.font="10px "+themeVar("--mono"); g.textAlign="left";
+  var steps=4;
+  for(var s=0;s<=steps;s++){
+    var v=mn+(mx-mn)*s/steps, y=Y(v);
+    g.strokeStyle=line; g.lineWidth=1; g.beginPath(); g.moveTo(L,y); g.lineTo(W-R,y); g.stroke();
+    g.fillStyle=ink; g.fillText((v>0?"+":"")+v.toFixed(0)+"%", W-R+6, y+3);
+  }
+  /* zero line emphasis */
+  if(mn<0&&mx>0){ g.strokeStyle=ink; g.globalAlpha=.5; g.beginPath(); g.moveTo(L,Y(0)); g.lineTo(W-R,Y(0)); g.stroke(); g.globalAlpha=1; }
+  /* benchmark */
+  g.strokeStyle=ink; g.lineWidth=1.5; g.setLineDash([5,4]); g.beginPath();
+  B.forEach(function(p,i){ var x=X(i,B.length),y=Y(p.v); i?g.lineTo(x,y):g.moveTo(x,y); }); g.stroke(); g.setLineDash([]);
+  /* maven area+line */
+  var grad=g.createLinearGradient(0,T,0,H-Btm);
+  grad.addColorStop(0, acc+"55"); grad.addColorStop(1, acc+"00");
+  g.beginPath();
+  A.forEach(function(p,i){ var x=X(i,A.length),y=Y(p.v); i?g.lineTo(x,y):g.moveTo(x,y); });
+  g.lineTo(X(A.length-1,A.length),H-Btm); g.lineTo(L,H-Btm); g.closePath(); g.fillStyle=grad; g.fill();
+  g.strokeStyle=acc; g.lineWidth=2.2; g.beginPath();
+  A.forEach(function(p,i){ var x=X(i,A.length),y=Y(p.v); i?g.lineTo(x,y):g.moveTo(x,y); }); g.stroke();
+  /* endpoint */
+  var lp=A[A.length-1], lx=X(A.length-1,A.length), ly=Y(lp.v);
+  g.fillStyle=acc; g.beginPath(); g.arc(lx,ly,3.5,0,7); g.fill();
+  g.font="700 11px "+themeVar("--font").split(",")[0]; g.textAlign="right";
+  g.fillText((lp.v>0?"+":"")+lp.v.toFixed(1)+"%", lx-8, ly-8);
+  /* x labels */
+  g.fillStyle=ink; g.font="9.5px "+themeVar("--mono"); g.textAlign="center";
+  var lbls=[0, Math.floor((A.length-1)/2), A.length-1];
+  lbls.forEach(function(i){ if(A[i]&&A[i].label!=="start") g.fillText(A[i].label, X(i,A.length), H-8); });
+}
+window.addEventListener("resize", function(){ if(document.getElementById("perfchart")) drawChart(); });
+
+/* ============================= LANDING (W1) + SIGN IN (W2) ============================= */
+function renderLanding(){
+  view.innerHTML =
+  '<div class="framelabel"><span class="wnum">W1</span><h1>Landing — the only signed-out surface</h1><span class="note">#7 gate: every member API 401s without a session</span></div>'
+  +'<div class="card landing">'
+  +'<div class="dia">◆</div>'
+  +'<h2>Where desi money questions<br>get trusted answers.</h2>'
+  +'<div class="stats">4,823 members · 142 online · pseudonymous by default · free</div>'
+  +'<div class="cta"><a class="btn-solid" href="#/signin">Join with invite code</a><button class="btn-ghost2">Request to join</button></div>'
+  +'<div class="invite">DSQ-2026</div>'
+  +'<p class="gatenote">Signed-out visitors see only this shell + public stats (me: null).<br>No posts, no members, no portfolios leak past this gate (#7).</p>'
+  +'</div>';
+}
+function renderSignin(){
+  var roles=[
+    {id:"quiet_lotus", role:"member"},
+    {id:"nikhil_cfa",  role:"maven"},
+    {id:"desisquare_mod", role:"moderator"}
+  ];
+  view.innerHTML =
+  '<div class="framelabel"><span class="wnum">W2</span><h1>Sign in — three roles</h1><span class="note">one session per role — pseudonym is the identity members see</span></div>'
+  +'<div class="card landing" style="text-align:left;max-width:480px">'
+  +'<h2 style="font-size:20px;text-align:center">Pick who you are</h2>'
+  +'<div style="display:grid;gap:10px;margin-top:16px">'
+  + roles.map(function(r){
+      var p=pf(r.id);
+      return '<button class="rolecard" data-role="'+r.id+'">'+avatarHTML(p,38)
+        +'<span><span class="nm">'+r.id+'</span>'+(p.maven?' <span class="mavenchip">MAVEN ✓</span>':'')
+        +(p.cred?'<div style="font-size:11.5px;color:var(--mute)">'+p.cred+'</div>':'')
+        +'</span><span class="rl">'+r.role+'</span></button>';
+    }).join("")
+  +'</div>'
+  +'<p class="gatenote" style="text-align:center">Role changes what W3 shows: the moderator gains the Review queue nav item;<br>maven posts carry the badge.</p>'
+  +'</div>';
+  Array.prototype.forEach.call(view.querySelectorAll("[data-role]"), function(b){
+    b.addEventListener("click", function(){ applyRole(b.getAttribute("data-role")); location.hash="#/feed"; });
+  });
+}
+
+/* ============================= POST DETAIL (W4) ============================= */
+function renderPost(id){
+  var p=null; for(var i=0;i<POSTS.length;i++) if(POSTS[i].id===id) p=POSTS[i];
+  if(!p){ location.hash="#/feed"; return; }
+  var a=pf(p.who);
+  var comments=COMMENTS.filter(function(c){return c.on===p.title;});
+  view.innerHTML =
+  '<div class="framelabel"><span class="wnum">W4</span><h1>Post detail — thread</h1><span class="note">comments reuse the same pill row; reactions roll up to the author profile</span></div>'
+  +'<a class="backlink" href="#/feed">← Feed</a>'
+  +'<div class="cols" style="grid-template-columns:minmax(0,680px)"><div>'
+  +'<div class="card"><article class="post">'
+  +'<div class="byline">'+avatarHTML(a,30)+whoHTML(a)
+  +(p.via?' <span class="wachip">via WhatsApp</span>':'')
+  +' <span>'+p.space+' · '+p.when+'</span>'+(a.maven&&a.cred?' <span>· '+a.cred+'</span>':'')
+  +'<span style="margin-left:auto" class="mono">⋯</span></div>'
+  +'<h3 style="font-size:18px">'+esc(p.title)+'</h3>'
+  +'<p style="margin:0 0 12px;color:var(--ink2);font-size:14px">'+esc(p.body)+'</p>'
+  +pillsHTML(p.pills)
+  +'</article>'
+  +'<div class="composer" style="border-top:1px solid var(--line)">'+avatarHTML(pf(state.role||"quiet_lotus"),28)+'<div class="fake">Add a comment…</div></div>'
+  + comments.map(function(c){
+      var ca=pf(c.who);
+      return '<div class="comment">'+avatarHTML(ca,28)
+        +'<div><div class="byline">'+whoHTML(ca)+' <span>· '+c.when+'</span></div>'
+        +'<div class="b2">'+esc(c.body)+'</div></div></div>';
+    }).join("")
+  +'</div>'
+  +'<p style="font-size:11.5px;color:var(--mute);margin-top:10px">'+p.cmts+' comments in the full thread — '+comments.length+' seeded here. Reactions received roll up to '+p.who+"'s profile counter.</p>"
+  +'</div></div>';
+}
+
+/* ============================= REVIEW QUEUE (W9, mod only) ============================= */
+function renderReview(){
+  if(state.role!=="desisquare_mod"){
+    view.innerHTML =
+    '<div class="framelabel"><span class="wnum">W9</span><h1>Review queue — moderator only</h1></div>'
+    +'<div class="card landing" style="max-width:480px"><div class="dia">🛡</div>'
+    +'<h2 style="font-size:19px">Moderators only</h2>'
+    +'<p style="color:var(--mute);font-size:13.5px">Flags route here privately (#3). Sign in as <b>desisquare_mod</b> to review.</p>'
+    +'<div class="cta"><a class="btn-solid" href="#/signin">Switch role</a></div></div>';
+    return;
+  }
+  var rows = FLAGGED.length ? FLAGGED.map(function(f){
+    return '<div class="flagcard" data-fid="'+f.id+'">'
+    +'<div class="byline"><span class="reasonchip">'+f.reason.toUpperCase()+'</span>'
+    +'<span class="who">'+f.who+'</span><span> in '+f.where+' · '+f.when+'</span>'
+    +'<span style="margin-left:auto" class="mono num">'+f.flags+' flags</span></div>'
+    +'<blockquote>“'+esc(f.body)+'”</blockquote>'
+    +'<div class="acts"><button class="rm" data-act="remove" data-id="'+f.id+'">Remove post</button>'
+    +'<button class="ds" data-act="dismiss" data-id="'+f.id+'">Dismiss flags</button></div></div>';
+  }).join("") : '<div class="empty"><div class="big">✓</div>Queue clear — nothing awaiting review</div>';
+  view.innerHTML =
+  '<div class="framelabel"><span class="wnum">W9</span><h1>Review queue — moderator only</h1><span class="note">members’ flags land here privately (#3) — never shown publicly</span></div>'
+  +'<a class="backlink" href="#/feed">← Feed</a>'
+  +'<div class="cols" style="grid-template-columns:minmax(0,680px)"><div>'
+  +'<div class="card">'+rows+'</div>'
+  +'<p style="font-size:11.5px;color:var(--mute);margin-top:10px">Remove pulls the post from the feed; Dismiss clears the flags. Full tooling (audit trail, appeals, karma effects) is Phase 2.</p>'
+  +'</div></div>';
+  Array.prototype.forEach.call(view.querySelectorAll("[data-act]"), function(b){
+    b.addEventListener("click", function(){
+      var fid=+b.getAttribute("data-id");
+      FLAGGED = FLAGGED.filter(function(f){return f.id!==fid;});
+      renderReview();
+    });
+  });
+}
+
+/* ============================= SETTINGS (W7 excerpt) ============================= */
+function renderSettings(){
+  view.innerHTML =
+  '<div class="framelabel"><span class="wnum">W7</span><h1>Settings — consent lives here</h1><span class="note">excerpt · shown as <b>nikhil_cfa</b> (maven) to demo the new toggle</span></div>'
+  +'<div class="cols" style="grid-template-columns:minmax(0,620px)">'
+  +'<div class="card pad">'
+  +'<p class="railhead">Privacy</p>'
+  +'<div class="setrow"><div><div class="t">Display name</div><div class="s">Pseudonymous by default — real name never required</div></div><span class="mono" style="margin-left:auto;font-size:12px">nikhil_cfa</span></div>'
+  +'<div class="setrow"><div><div class="t">Portfolio visibility</div><div class="s">Public shows allocation % only — never dollars (#4)</div></div><span class="sel mono" style="margin-left:auto;font-size:11px;border:1px solid var(--line);border-radius:100px;padding:4px 11px">Public ▾</span></div>'
+  +'<div class="setrow"><div><div class="t">Share my performance publicly <span class="newtag">NEW</span></div><div class="s">Maven only · verified via Ghostfolio · <b>% only — currency stripped server-side (#8)</b> · default OFF</div></div>'
+  +'<button class="toggle" id="perfToggle" role="switch" aria-checked="'+state.nikShared+'" aria-label="Share my performance publicly"><i></i></button></div>'
+  +'<p class="railhead" style="margin-top:18px">WhatsApp <span style="text-transform:none;letter-spacing:0">· linked group: US Investment</span></p>'
+  +'<div class="setrow"><div><div class="t">Mirror my group messages</div><div class="s">Posted under your pseudonym, labelled "via WhatsApp" (#5)</div></div><button class="toggle" aria-checked="true" role="switch" aria-label="Mirror my group messages"><i></i></button></div>'
+  +'<div class="setrow"><div><div class="t">WhatsApp notifications</div><div class="s">Replies and mentions back to your chat</div></div><button class="toggle" aria-checked="true" role="switch" aria-label="WhatsApp notifications"><i></i></button></div>'
+  +"</div>"
+  +'<p style="font-size:12px;color:var(--mute)">Flip the NEW toggle, then open <a href="#/maven/nikhil_cfa" style="color:var(--accent);font-weight:700">nikhil_cfa’s profile</a> — acceptance criterion 4: consent OFF collapses the performance surface everywhere (profile, search chip, mavens rail).</p>'
+  +"</div>";
+  var t=document.getElementById("perfToggle");
+  t.addEventListener("click", function(){
+    state.nikShared=!state.nikShared;
+    t.setAttribute("aria-checked", String(state.nikShared));
+  });
+  var wt=view.querySelectorAll(".toggle:not(#perfToggle)");
+  Array.prototype.forEach.call(wt,function(b){ b.addEventListener("click",function(){ b.setAttribute("aria-checked", String(b.getAttribute("aria-checked")!=="true")); }); });
+}
+
+app.classList.add("signedout");
+route();
+})();
+</script>

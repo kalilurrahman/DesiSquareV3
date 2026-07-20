@@ -1,0 +1,17 @@
+{
+	email {$ACME_EMAIL}
+}
+
+folio.{$DOMAIN} {
+	reverse_proxy ghostfolio:3333
+}
+
+wa.{$DOMAIN} {
+	reverse_proxy wa-bridge:3000
+}
+
+app.{$DOMAIN} {
+	# Uncomment once the desisquare-app service is enabled in docker-compose.yml
+	# reverse_proxy desisquare-app:8080
+	respond "DesiSquare app placeholder — enable the service in docker-compose.yml" 503
+}

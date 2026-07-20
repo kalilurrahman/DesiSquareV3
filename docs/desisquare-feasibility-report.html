@@ -1,0 +1,632 @@
+<title>DesiSquare Platform — Feasibility Report · BiGMo Consulting</title>
+<style>
+  :root {
+    color-scheme: light dark;
+    /* ---- LIGHT (base) ---- */
+    --bg:        #EEF1F7;
+    --bg-2:      #E4E9F2;
+    --panel:     #FFFFFF;
+    --panel-2:   #F7F9FC;
+    --ink:       #0A0E1A;
+    --ink-soft:  #26314A;
+    --muted:     #55617A;
+    --line:      rgba(10, 14, 26, 0.12);
+    --line-2:    rgba(10, 14, 26, 0.20);
+    --blue:      #2348E6;
+    --blue-2:    #2D5BFF;
+    --orange:    #E23A0E;
+    --orange-2:  #FF4A1C;
+    --green:     #0E8F55;
+    --green-2:   #12B36A;
+    /* semantic status (4-tier feasibility) */
+    --ok:        #0E8F55;  --ok-bg:     rgba(18, 179, 106, 0.14);
+    --warn:      #A6791A;  --warn-bg:   rgba(232, 179, 65, 0.18);
+    --costly:    #C7480C;  --costly-bg: rgba(255, 106, 44, 0.16);
+    --stop:      #C42A3B;  --stop-bg:   rgba(255, 84, 104, 0.15);
+    --hero-glow:
+      radial-gradient(ellipse at 12% 0%, rgba(45, 91, 255, 0.14), transparent 55%),
+      radial-gradient(ellipse at 92% 8%, rgba(255, 74, 28, 0.10), transparent 52%);
+    --grid: rgba(10, 14, 26, 0.045);
+    --shadow: 0 24px 60px -34px rgba(10, 14, 26, 0.45);
+
+    --font-sans: "Archivo", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --font-mono: "SFMono-Regular", ui-monospace, "SF Mono", "Cascadia Code", "JetBrains Mono", Menlo, Consolas, monospace;
+    --maxw: 1080px;
+    --radius: 16px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg:        #070A13;
+      --bg-2:      #0A0E1A;
+      --panel:     #101A2E;
+      --panel-2:   #0D1424;
+      --ink:       #FFFFFF;
+      --ink-soft:  #DCE2ED;
+      --muted:     #9BA6BA;
+      --line:      rgba(198, 203, 211, 0.12);
+      --line-2:    rgba(198, 203, 211, 0.24);
+      --blue:      #7C9BFF;
+      --blue-2:    #5C82FF;
+      --orange:    #FF6A2C;
+      --orange-2:  #FF7A3C;
+      --green:     #2ED08A;
+      --green-2:   #12B36A;
+      --ok:        #2ED08A;  --ok-bg:     rgba(18, 179, 106, 0.16);
+      --warn:      #E8B341;  --warn-bg:   rgba(232, 179, 65, 0.16);
+      --costly:    #FF854A;  --costly-bg: rgba(255, 106, 44, 0.16);
+      --stop:      #FF6D7D;  --stop-bg:   rgba(255, 84, 104, 0.15);
+      --hero-glow:
+        radial-gradient(ellipse at 12% 0%, rgba(45, 91, 255, 0.30), transparent 55%),
+        radial-gradient(ellipse at 92% 8%, rgba(255, 74, 28, 0.16), transparent 52%);
+      --grid: rgba(198, 203, 211, 0.05);
+      --shadow: 0 30px 70px -30px rgba(0, 0, 0, 0.8);
+    }
+  }
+  :root[data-theme="light"] {
+    --bg:#EEF1F7; --bg-2:#E4E9F2; --panel:#FFFFFF; --panel-2:#F7F9FC;
+    --ink:#0A0E1A; --ink-soft:#26314A; --muted:#55617A;
+    --line:rgba(10,14,26,0.12); --line-2:rgba(10,14,26,0.20);
+    --blue:#2348E6; --blue-2:#2D5BFF; --orange:#E23A0E; --orange-2:#FF4A1C; --green:#0E8F55; --green-2:#12B36A;
+    --ok:#0E8F55; --ok-bg:rgba(18,179,106,0.14); --warn:#A6791A; --warn-bg:rgba(232,179,65,0.18);
+    --costly:#C7480C; --costly-bg:rgba(255,106,44,0.16); --stop:#C42A3B; --stop-bg:rgba(255,84,104,0.15);
+    --hero-glow:radial-gradient(ellipse at 12% 0%, rgba(45,91,255,0.14), transparent 55%),radial-gradient(ellipse at 92% 8%, rgba(255,74,28,0.10), transparent 52%);
+    --grid:rgba(10,14,26,0.045); --shadow:0 24px 60px -34px rgba(10,14,26,0.45);
+  }
+  :root[data-theme="dark"] {
+    --bg:#070A13; --bg-2:#0A0E1A; --panel:#101A2E; --panel-2:#0D1424;
+    --ink:#FFFFFF; --ink-soft:#DCE2ED; --muted:#9BA6BA;
+    --line:rgba(198,203,211,0.12); --line-2:rgba(198,203,211,0.24);
+    --blue:#7C9BFF; --blue-2:#5C82FF; --orange:#FF6A2C; --orange-2:#FF7A3C; --green:#2ED08A; --green-2:#12B36A;
+    --ok:#2ED08A; --ok-bg:rgba(18,179,106,0.16); --warn:#E8B341; --warn-bg:rgba(232,179,65,0.16);
+    --costly:#FF854A; --costly-bg:rgba(255,106,44,0.16); --stop:#FF6D7D; --stop-bg:rgba(255,84,104,0.15);
+    --hero-glow:radial-gradient(ellipse at 12% 0%, rgba(45,91,255,0.30), transparent 55%),radial-gradient(ellipse at 92% 8%, rgba(255,74,28,0.16), transparent 52%);
+    --grid:rgba(198,203,211,0.05); --shadow:0 30px 70px -30px rgba(0,0,0,0.8);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background:
+      var(--hero-glow),
+      linear-gradient(180deg, var(--bg-2), var(--bg));
+    background-attachment: fixed;
+    color: var(--ink);
+    font-family: var(--font-sans);
+    font-size: 17px;
+    line-height: 1.62;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  .wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 24px 96px; }
+  .grid-bg {
+    position: fixed; inset: 0; z-index: -1; pointer-events: none;
+    background-image:
+      linear-gradient(var(--grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size: 62px 62px;
+    mask-image: linear-gradient(180deg, #000 0%, transparent 62%);
+  }
+
+  a { color: var(--blue); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  h1, h2, h3 { text-wrap: balance; line-height: 1.1; letter-spacing: -0.02em; margin: 0; }
+  p { margin: 0 0 1rem; max-width: 68ch; }
+  strong { color: var(--ink); font-weight: 700; }
+
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 12px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.16em;
+    color: var(--blue);
+  }
+  .mono { font-family: var(--font-mono); }
+
+  /* ---------- Theme toggle ---------- */
+  .toggle {
+    position: fixed; top: 16px; right: 16px; z-index: 20;
+    font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
+    background: var(--panel); color: var(--muted);
+    border: 1px solid var(--line); border-radius: 100px;
+    padding: 8px 14px; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 7px;
+    transition: border-color .2s, color .2s;
+  }
+  .toggle:hover { border-color: var(--blue-2); color: var(--ink); }
+
+  /* ---------- Hero ---------- */
+  header.hero { padding: 74px 0 30px; }
+  .kicker { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 26px; }
+  .mark {
+    font-family: var(--font-mono); font-weight: 700; font-size: 13px; letter-spacing: 0.04em;
+    display: inline-flex; align-items: center; gap: 9px;
+  }
+  .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--orange-2); box-shadow: 0 0 12px var(--orange-2); }
+  h1 {
+    font-size: clamp(2.3rem, 6vw, 4rem);
+    font-weight: 800; letter-spacing: -0.035em;
+    margin: 0 0 22px;
+  }
+  .grad {
+    background: linear-gradient(100deg, var(--blue-2) 0%, var(--blue) 30%, var(--orange-2) 78%, var(--orange) 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .thesis {
+    font-size: clamp(1.05rem, 2.2vw, 1.32rem);
+    color: var(--ink-soft); max-width: 60ch; line-height: 1.5; font-weight: 450;
+  }
+  .metaline {
+    display: flex; flex-wrap: wrap; gap: 8px 26px; margin-top: 28px;
+    font-family: var(--font-mono); font-size: 12.5px; color: var(--muted);
+    padding-top: 20px; border-top: 1px solid var(--line);
+  }
+  .metaline b { color: var(--ink-soft); font-weight: 600; }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 30px; }
+  .chip {
+    font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.02em;
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 8px 13px; border-radius: 10px; border: 1px solid var(--line-2);
+    background: var(--panel); color: var(--ink-soft);
+  }
+  .chip .tk { width: 8px; height: 8px; border-radius: 2px; flex: none; }
+
+  /* ---------- Sections ---------- */
+  section { margin-top: 62px; scroll-margin-top: 20px; }
+  .sec-head { display: flex; align-items: baseline; gap: 14px; margin-bottom: 8px; }
+  .sec-num { font-family: var(--font-mono); font-size: 13px; color: var(--blue); font-weight: 600; }
+  h2 { font-size: clamp(1.5rem, 3.4vw, 2.1rem); font-weight: 800; }
+  .lede { color: var(--muted); max-width: 70ch; margin-top: 10px; }
+  h3 { font-size: 1.16rem; font-weight: 750; margin: 30px 0 10px; letter-spacing: -0.015em; }
+
+  /* ---------- Panels / cards ---------- */
+  .panel {
+    background: linear-gradient(180deg, var(--panel), var(--panel-2));
+    border: 1px solid var(--line); border-radius: var(--radius);
+    box-shadow: var(--shadow);
+  }
+  .cards { display: grid; gap: 18px; margin-top: 24px; }
+  .cards.c3 { grid-template-columns: repeat(3, 1fr); }
+  .cards.c2 { grid-template-columns: repeat(2, 1fr); }
+  .card { padding: 22px; }
+  .card h3 { margin: 0 0 4px; font-size: 1.1rem; }
+  .card p { font-size: 14.5px; color: var(--muted); margin: 8px 0 0; }
+  .card .tag { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+
+  /* pillar meter */
+  .meter { height: 8px; border-radius: 100px; background: var(--line); overflow: hidden; margin: 14px 0 6px; }
+  .meter > span { display: block; height: 100%; border-radius: 100px; }
+  .meter-label { font-family: var(--font-mono); font-size: 11px; color: var(--muted); display: flex; justify-content: space-between; }
+
+  /* callout */
+  .callout {
+    padding: 22px 24px; margin-top: 26px; border-radius: var(--radius);
+    border: 1px solid var(--line-2);
+    background: linear-gradient(180deg, var(--panel), var(--panel-2));
+    position: relative; overflow: hidden;
+  }
+  .callout::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: linear-gradient(180deg, var(--blue-2), var(--orange-2)); }
+  .callout .eyebrow { color: var(--orange); }
+  .callout p { margin: 8px 0 0; color: var(--ink-soft); }
+  .callout p:last-child { margin-bottom: 0; }
+
+  /* ---------- Tables ---------- */
+  .tw { overflow-x: auto; margin-top: 22px; border-radius: var(--radius); border: 1px solid var(--line); box-shadow: var(--shadow); }
+  table { border-collapse: collapse; width: 100%; min-width: 540px; background: var(--panel); font-size: 14.5px; }
+  thead th {
+    font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
+    text-align: left; color: var(--muted); font-weight: 600;
+    padding: 13px 16px; background: var(--panel-2); border-bottom: 1px solid var(--line-2);
+    position: sticky; top: 0;
+  }
+  tbody td { padding: 13px 16px; border-bottom: 1px solid var(--line); vertical-align: top; color: var(--ink-soft); }
+  tbody tr:last-child td { border-bottom: none; }
+  td.num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  td strong { color: var(--ink); }
+
+  /* status pills */
+  .pill {
+    display: inline-flex; align-items: center; gap: 7px; white-space: nowrap;
+    font-family: var(--font-mono); font-size: 11.5px; font-weight: 600; letter-spacing: 0.01em;
+    padding: 4px 10px; border-radius: 100px; border: 1px solid transparent;
+  }
+  .pill::before { content: ""; width: 7px; height: 7px; border-radius: 50%; flex: none; }
+  .pill.ok     { color: var(--ok);     background: var(--ok-bg); }     .pill.ok::before     { background: var(--ok); }
+  .pill.warn   { color: var(--warn);   background: var(--warn-bg); }   .pill.warn::before   { background: var(--warn); }
+  .pill.costly { color: var(--costly); background: var(--costly-bg); } .pill.costly::before { background: var(--costly); }
+  .pill.stop   { color: var(--stop);   background: var(--stop-bg); }   .pill.stop::before   { background: var(--stop); }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 8px 16px; margin-top: 16px; font-family: var(--font-mono); font-size: 12px; color: var(--muted); }
+  .legend span { display: inline-flex; align-items: center; gap: 7px; }
+  .legend i { width: 9px; height: 9px; border-radius: 50%; }
+
+  /* ---------- Architecture diagram ---------- */
+  .arch { margin-top: 24px; display: flex; flex-direction: column; align-items: center; gap: 0; }
+  .band { width: 100%; }
+  .node {
+    border: 1px solid var(--line-2); border-radius: 12px; background: var(--panel);
+    padding: 13px 16px; text-align: center;
+  }
+  .node .t { font-weight: 700; font-size: 14.5px; }
+  .node .s { font-family: var(--font-mono); font-size: 11px; color: var(--muted); margin-top: 3px; }
+  .node.accent { border-color: color-mix(in srgb, var(--blue-2) 55%, var(--line-2)); }
+  .node.wide { width: 100%; }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; width: 100%; }
+  .row3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; width: 100%; }
+  .flowline { width: 2px; height: 26px; background: linear-gradient(180deg, var(--blue-2), transparent); opacity: 0.6; }
+  .flowlabel { font-family: var(--font-mono); font-size: 10.5px; color: var(--muted); padding: 6px 0; letter-spacing: 0.04em; }
+
+   /* ---------- lists ---------- */
+  ul.clean { list-style: none; padding: 0; margin: 18px 0 0; display: grid; gap: 12px; }
+  ul.clean li { padding-left: 30px; position: relative; color: var(--ink-soft); max-width: 74ch; }
+  ul.clean li::before {
+    content: "→"; position: absolute; left: 0; top: 0; color: var(--blue);
+    font-family: var(--font-mono); font-weight: 700;
+  }
+  ul.clean.check li::before { content: "✓"; color: var(--green); }
+
+  /* roadmap */
+  .road { display: grid; gap: 14px; margin-top: 24px; }
+  .phase { display: grid; grid-template-columns: 88px 1fr; gap: 18px; padding: 20px 22px; align-items: start; }
+  .phase .pn { font-family: var(--font-mono); font-weight: 700; color: var(--blue); font-size: 13px; letter-spacing: 0.06em; }
+  .phase .pn small { display: block; color: var(--muted); font-weight: 500; margin-top: 4px; font-size: 11px; }
+  .phase h3 { margin: 0 0 6px; font-size: 1.05rem; }
+  .phase p { margin: 0; font-size: 14.5px; color: var(--muted); }
+
+  .footnote { margin-top: 60px; padding-top: 22px; border-top: 1px solid var(--line); font-size: 13px; color: var(--muted); }
+  .footnote p { max-width: none; }
+
+  @media (max-width: 760px) {
+    body { font-size: 16px; }
+    .cards.c3, .cards.c2, .row3 { grid-template-columns: 1fr; }
+    .phase { grid-template-columns: 1fr; gap: 8px; }
+    header.hero { padding: 60px 0 20px; }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .reveal { animation: rise .7s cubic-bezier(.2,.8,.2,1) both; }
+    @keyframes rise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+  }
+</style>
+
+<div class="grid-bg" aria-hidden="true"></div>
+<button class="toggle" id="themeBtn" type="button" aria-label="Toggle colour theme"><span id="themeIcon">◐</span> <span id="themeTxt">Theme</span></button>
+
+<div class="wrap">
+
+  <header class="hero reveal">
+    <div class="kicker">
+      <span class="mark"><span class="dot"></span>BiGMo&nbsp;Consulting</span>
+      <span class="eyebrow">Feasibility &amp; Architecture Report</span>
+    </div>
+    <h1>Building <span class="grad">DesiSquare</span>: a community forum on Discourse&nbsp;+&nbsp;Ghostfolio&nbsp;+&nbsp;WhatsApp</h1>
+    <p class="thesis">A critical read on what can be skinned, forked, integrated and shipped — and the three places where budgets and timelines actually die.</p>
+
+    <div class="chips" aria-label="Headline verdicts">
+      <span class="chip"><span class="tk" style="background:var(--ok)"></span> Forum reskin from wireframe</span>
+      <span class="chip"><span class="tk" style="background:var(--warn)"></span> Portfolio rebrand = a fork</span>
+      <span class="chip"><span class="tk" style="background:var(--stop)"></span> WhatsApp ≠ the forum</span>
+      <span class="chip"><span class="tk" style="background:var(--blue-2)"></span> One OIDC login across all</span>
+    </div>
+
+    <div class="metaline">
+      <span><b>Subject</b> · South-Asian retail-investor community</span>
+      <span><b>Demo</b> · desisquare-production.up.railway.app</span>
+      <span><b>Method</b> · 13 research deep-dives + 12 verified claims</span>
+      <span><b>Date</b> · 18 Jul 2026</span>
+    </div>
+  </header>
+
+  <!-- 1. VERDICT -->
+  <section id="verdict">
+    <div class="sec-head"><span class="sec-num">01</span><h2>The one-line verdict</h2></div>
+    <p class="lede">This is a buildable, sensible stack — but it is an <strong>integration of three independent systems</strong>, not a product with a customization dial. Each pillar customizes differently, and the whole design follows from respecting that.</p>
+
+    <div class="callout">
+      <span class="eyebrow">The decision everything hinges on</span>
+      <p><strong>Let Discourse carry the bespoke, wireframe-driven UI. Keep Ghostfolio close to stock as an embedded portfolio module. Use WhatsApp for notifications only.</strong> Fighting that grain — pixel-matching Ghostfolio to a wireframe, or forcing WhatsApp to be the discussion surface — is where the project fails.</p>
+    </div>
+
+    <div class="cards c3">
+      <article class="card panel">
+        <span class="tag">Pillar 01 — Forum</span>
+        <h3>Discourse</h3>
+        <div class="meter"><span style="width:90%;background:linear-gradient(90deg,var(--green-2),var(--green))"></span></div>
+        <div class="meter-label"><span>Customization fit</span><span style="color:var(--ok)">Strong</span></div>
+        <p>First-class, runtime, git-native <strong>theme system</strong> reskins &amp; re-lays-out the UI from your wireframe — no fork, upgrade-safe.</p>
+      </article>
+      <article class="card panel">
+        <span class="tag">Pillar 02 — Portfolio</span>
+        <h3>Ghostfolio</h3>
+        <div class="meter"><span style="width:44%;background:linear-gradient(90deg,var(--warn),var(--costly))"></span></div>
+        <div class="meter-label"><span>Customization fit</span><span style="color:var(--warn)">Fork-based</span></div>
+        <p>No white-label system. Any rebrand = editing Angular source, a maintained fork, and an <strong>AGPLv3</strong> source-disclosure duty.</p>
+      </article>
+      <article class="card panel">
+        <span class="tag">Pillar 03 — Messaging</span>
+        <h3>WhatsApp</h3>
+        <div class="meter"><span style="width:30%;background:linear-gradient(90deg,var(--costly),var(--stop))"></span></div>
+        <div class="meter-label"><span>Fit as a forum</span><span style="color:var(--stop)">Constrained</span></div>
+        <p>Cannot be the forum. Official API is 1:1 / opt-in broadcast. Excellent as a <strong>notification &amp; support channel</strong>.</p>
+      </article>
+    </div>
+  </section>
+
+  <!-- 2. MATRIX -->
+  <section id="matrix">
+    <div class="sec-head"><span class="sec-num">02</span><h2>What's possible — and what isn't</h2></div>
+    <p class="lede">The whole engagement in one table. Each verdict is defended in the sections that follow and in the verification log.</p>
+    <div class="tw">
+      <table>
+        <thead><tr><th>Capability</th><th>Verdict</th><th>Why</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Reskin the forum</strong> to your brand &amp; wireframe</td><td><span class="pill ok">Fully possible</span></td><td>Discourse themes: colours, fonts, header/nav, cards, palettes</td></tr>
+          <tr><td>Custom forum <strong>homepage / landing</strong></td><td><span class="pill ok">Fully possible</span></td><td>First-class <span class="mono">custom-homepage</span> feature</td></tr>
+          <tr><td>Custom <strong>sidebar &amp; navigation</strong></td><td><span class="pill ok">Fully possible</span></td><td>Admin sidebar sections + JS Plugin API</td></tr>
+          <tr><td>Single sign-on across forum + portfolio</td><td><span class="pill ok">Possible</span></td><td>Shared external OIDC IdP (Keycloak / Authentik)</td></tr>
+          <tr><td>WhatsApp <strong>opt-in notifications &amp; support bot</strong></td><td><span class="pill ok">Possible</span></td><td>Official Cloud API + approved templates + opt-in</td></tr>
+          <tr><td>Replicate DesiSquare's <strong>look &amp; features</strong></td><td><span class="pill ok">Possible</span></td><td>Self-host + rebrand Ghostfolio</td></tr>
+          <tr><td><strong>Rebrand the portfolio app</strong> (name/logo/colours)</td><td><span class="pill warn">Fork required</span></td><td>Edit Angular source + rebuild; ongoing merge burden</td></tr>
+          <tr><td>Deep Discourse layout beyond plugin outlets</td><td><span class="pill costly">Costly / fragile</span></td><td><span class="mono">modifyClass</span> couples to core; breaks on upgrade</td></tr>
+          <tr><td>Pixel-match the <strong>portfolio app</strong> to a wireframe</td><td><span class="pill costly">Costly / discouraged</span></td><td>Angular Material rewrite; high upgrade fragility</td></tr>
+          <tr><td>WhatsApp <strong>group / community as the forum</strong></td><td><span class="pill stop">Not viable</span></td><td>Official Groups API caps at 8 members; unofficial libs = ToS ban risk</td></tr>
+          <tr><td>Copy DesiSquare's <strong>data or bespoke code</strong></td><td><span class="pill stop">Not possible</span></td><td>Only the open-source app can be replicated, not their content</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="legend" aria-hidden="true">
+      <span><i style="background:var(--ok)"></i> Fully supported</span>
+      <span><i style="background:var(--warn)"></i> Possible with engineering</span>
+      <span><i style="background:var(--costly)"></i> Costly / fragile</span>
+      <span><i style="background:var(--stop)"></i> Not feasible</span>
+    </div>
+  </section>
+
+  <!-- 3. THE DEMO -->
+  <section id="demo">
+    <div class="sec-head"><span class="sec-num">03</span><h2>What the demo actually is</h2></div>
+    <p class="lede"><code class="mono">desisquare-production.up.railway.app</code> is a <strong>self-hosted, rebranded Ghostfolio</strong> instance on Railway — the open-source wealth/portfolio tracker (Angular + NestJS + Prisma + PostgreSQL + Redis, delivered as a PWA).</p>
+    <div class="cards c2">
+      <article class="card panel">
+        <h3>What "give me what's in the example" scopes to</h3>
+        <ul class="clean check">
+          <li><strong>Self-host Ghostfolio</strong> on infrastructure you control</li>
+          <li><strong>Rebrand it</strong> — name, logo, palette, favicon, domain</li>
+          <li><strong>Wire it in</strong> to the forum (shared login) &amp; WhatsApp (alerts)</li>
+        </ul>
+      </article>
+      <article class="card panel">
+        <h3>What you get out of the box</h3>
+        <p>Home dashboard · holdings &amp; activities · allocations &amp; <strong>X-ray</strong> analysis · dividends · benchmarks · <strong>FIRE</strong> calculator · multi-account · CSV/JSON import · watchlist · Zen &amp; dark mode · public portfolio sharing · REST API.</p>
+      </article>
+    </div>
+    <div class="callout">
+      <span class="eyebrow">Honest caveat</span>
+      <p>Automated inspection can't load the live DOM (it returns <span class="mono">403</span> to non-browser fetches — normal for an SPA behind a proxy). It <em>is</em> rebranded Ghostfolio, but any DesiSquare-specific bespoke screens can't be confirmed from here. <strong>Step one is a live walkthrough with you</strong> to lock the exact scope — and to catch anything custom that would add cost. Their own member data and any bespoke code cannot be copied; only the open-source app can.</p>
+    </div>
+  </section>
+
+  <!-- 4. DISCOURSE -->
+  <section id="discourse">
+    <div class="sec-head"><span class="sec-num">04</span><h2>Discourse from your wireframe</h2></div>
+    <p class="lede">The strong pillar. Discourse's theme system reskins <em>and</em> re-lays-out the UI through SCSS, colour palettes, HTML injection and theme JavaScript (plugin outlets) — <strong>without forking core</strong>, which is why it stays upgrade-safe. Treat the wireframe as <strong>design direction, not a pixel contract</strong>.</p>
+    <div class="tw">
+      <table>
+        <thead><tr><th>Wireframe element</th><th>Feasibility</th><th>Mechanism</th></tr></thead>
+        <tbody>
+          <tr><td>Brand colours, type, spacing, buttons, cards, light/dark palettes</td><td><span class="pill ok">Fully</span></td><td>SCSS + 10-key colour schemes</td></tr>
+          <tr><td>Custom header / top nav / navbar</td><td><span class="pill ok">Fully</span></td><td>Theme components + header injection</td></tr>
+          <tr><td>Bespoke homepage replacing the topic list</td><td><span class="pill ok">Fully</span></td><td><span class="mono">custom-homepage</span> route + outlet</td></tr>
+          <tr><td>Custom sidebar, hero / section blocks</td><td><span class="pill ok">Fully</span></td><td>Sidebar API + plugin outlets</td></tr>
+          <tr><td>Replace a region <em>that has</em> a plugin outlet</td><td><span class="pill ok">Mostly</span></td><td>Wrapper outlet (<span class="mono">{{yield}}</span>)</td></tr>
+          <tr><td>Restructure a region with <em>no</em> outlet</td><td><span class="pill costly">Costly</span></td><td><span class="mono">modifyClass</span> — breaks on upgrade</td></tr>
+          <tr><td>Whole-template markup rewrites</td><td><span class="pill stop">Avoid</span></td><td><span class="mono">.hbs</span> overrides deprecated Nov 2024</td></tr>
+          <tr><td>A new server-backed page / route (new data)</td><td><span class="pill stop">Not a theme</span></td><td>Requires a Ruby plugin → self-host / Enterprise</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="margin-top:20px"><strong>Verdict:</strong> yes for branding, homepage, navigation, sidebar, hero and card/list styling — typically <strong>80–90% of a community wireframe</strong>. Build only against Glimmer-era APIs (the legacy "widget" system is being retired), and price any <span class="mono">modifyClass</span> or plugin work as higher-risk with an upgrade-testing retainer. Discourse also ships a <strong>built-in real-time Chat</strong> and mature SSO, and its licence is <strong>GPLv2</strong> (no network-use trigger).</p>
+  </section>
+
+  <!-- 5. GHOSTFOLIO -->
+  <section id="ghostfolio">
+    <div class="sec-head"><span class="sec-num">05</span><h2>Ghostfolio — the hard part</h2></div>
+    <p class="lede">Yes, its appearance can be customized — but by a fundamentally more expensive mechanism. <strong>Ghostfolio has no white-label / theming admin panel.</strong> Colours live in compiled SCSS; the name and logo are hard-coded in source. Every real rebrand means <strong>editing Angular source and maintaining a fork.</strong></p>
+
+    <div class="cards c2">
+      <article class="card panel">
+        <h3 style="color:var(--costly)">The #1 hidden cost: fork maintenance</h3>
+        <p>Ghostfolio ships <strong>~100 releases a year</strong>. Because your changes live inside the same files as upstream, every upgrade risks merge conflicts — realistically <strong>1–3 engineer-days/month</strong>, which usually <em>exceeds the entire server bill</em>. Under-scope it and you get a stale, unpatched fork.</p>
+      </article>
+      <article class="card panel">
+        <h3 style="color:var(--warn)">The licence you must accept: AGPLv3</h3>
+        <p>Hosting a <em>modified</em> Ghostfolio as a public service <strong>obliges you to offer your users your modified source</strong> (Section 13). Rebranding counts as modification. Satisfiable with a source link in the footer — but get the client's written acceptance <em>before</em> building.</p>
+      </article>
+    </div>
+
+    <div class="callout">
+      <span class="eyebrow">Recommendation — the load-bearing one</span>
+      <p>Scope Ghostfolio as a <strong>bounded reskin</strong> — palette, logo, name, favicon, feature-hiding — <strong>not</strong> a wireframe-driven layout rebuild. Push all bespoke UI into Discourse. Validate the reskin with a <strong>1-week fork spike</strong> before any fixed-price commitment. And don't use Ghostfolio's native "security-token" login for a community (no account recovery) — front it with the shared OIDC IdP.</p>
+    </div>
+    <p style="margin-top:18px"><strong>Data &amp; ops note:</strong> live quotes work free out of the box (Yahoo Finance + CoinGecko, no API key). But Yahoo is unofficial/rate-limited and thin on Indian tickers — budget a paid provider (EOD or Financial Modeling Prep, ~$20–80/mo) for production Indian-equity coverage. Ghostfolio stores all members in <strong>one shared database with app-level isolation</strong> — mandate per-user isolation security testing before opening a wealth community to it.</p>
+  </section>
+
+  <!-- 6. WHATSAPP -->
+  <section id="whatsapp">
+    <div class="sec-head"><span class="sec-num">06</span><h2>WhatsApp — the reality check</h2></div>
+    <p class="lede">WhatsApp <strong>cannot be the forum.</strong> Meta <em>did</em> add an official Groups API (Oct 2025) — but it caps groups at <strong>8 members</strong>, works only on business-created groups, and needs a verified Official Business Account. It's a concierge tool, not a community. The unofficial libraries that <em>can</em> drive real groups <strong>violate Meta's Terms and risk permanent number bans.</strong></p>
+
+    <h3>The right model is hybrid, not WhatsApp-only</h3>
+    <div class="tw">
+      <table>
+        <thead><tr><th>Need</th><th>Best channel</th><th>Why</th></tr></thead>
+        <tbody>
+          <tr><td>The actual forum / threaded discussion</td><td><strong>Discourse</strong></td><td>It's what it's for</td></tr>
+          <tr><td>On-platform real-time chat</td><td><strong>Discourse Chat</strong></td><td>Built-in, no extra tool</td></tr>
+          <tr><td>Opt-in push alerts to phones</td><td><strong>WhatsApp</strong> Cloud API</td><td>Reach — ~5× Telegram in India</td></tr>
+          <tr><td>Cost-free community broadcast at scale</td><td><strong>Telegram</strong> Bot API</td><td>Free; channels unlimited, groups to 200k</td></tr>
+          <tr><td>Two-way support Q&amp;A</td><td>WhatsApp bot</td><td>Inside the 24-hour service window</td></tr>
+          <tr><td>Delivery fallback</td><td>Email (SMTP)</td><td>Never depend solely on WhatsApp approval</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="margin-top:18px"><strong>Cost model:</strong> since Jul 2025 WhatsApp bills <strong>per delivered message</strong> by category. User-initiated replies and utility templates inside the service window are <strong>free</strong>; marketing is always billed (and <strong>blocked to US +1 numbers</strong> since Apr 2025). Engineer notifications as <em>utility</em> templates wherever legitimate — mis-classifying utility as marketing multiplies cost ~8×.</p>
+  </section>
+
+  <!-- 7. ARCHITECTURE -->
+  <section id="architecture">
+    <div class="sec-head"><span class="sec-num">07</span><h2>How the three become one product</h2></div>
+    <p class="lede">One brand, one login, three decoupled services behind a reverse proxy. Unification is a <strong>shared injected header</strong> — never iframes (framing headers + SPA cookies break cross-origin).</p>
+
+    <div class="arch panel" style="padding:26px 22px">
+      <div class="node wide accent"><div class="t">Members — web + mobile PWA</div><div class="s">one login · one brand</div></div>
+      <div class="flowline"></div>
+      <div class="node wide"><div class="t">Reverse proxy · Caddy / Traefik</div><div class="s">*.desisquare.com · TLS · host routing</div></div>
+      <div class="flowlabel">community.desisquare.com&nbsp;&nbsp;·&nbsp;&nbsp;app.desisquare.com</div>
+      <div class="row2">
+        <div class="node accent"><div class="t">Discourse</div><div class="s">forum + chat · theme = brand</div></div>
+        <div class="node"><div class="t">Ghostfolio</div><div class="s">portfolio · reskin only</div></div>
+      </div>
+      <div class="flowlabel">both consume OIDC ↓</div>
+      <div class="node wide accent"><div class="t">OIDC Identity Provider · Keycloak / Authentik</div><div class="s">single source of identity + phone-number mapping</div></div>
+      <div class="flowline"></div>
+      <div class="node wide"><div class="t">Automation hub · n8n</div><div class="s">Discourse webhooks in · poll Ghostfolio REST · dedupe → template + phone</div></div>
+      <div class="flowline"></div>
+      <div class="row3">
+        <div class="node"><div class="t">WhatsApp</div><div class="s">Cloud API via BSP</div></div>
+        <div class="node"><div class="t">Telegram</div><div class="s">free Bot API</div></div>
+        <div class="node"><div class="t">Email</div><div class="s">SMTP fallback</div></div>
+      </div>
+    </div>
+    <ul class="clean">
+      <li><strong>Identity:</strong> one external OIDC IdP both apps consume — <em>don't</em> make Discourse the master (its DiscourseConnect is proprietary; Ghostfolio only speaks OIDC).</li>
+      <li><strong>Events:</strong> Discourse emits webhooks; Ghostfolio has none, so portfolio events come from <strong>polling its REST API</strong> — budget the diffing logic.</li>
+      <li><strong>Decoupled by design</strong> — good architecture, and it keeps the AGPLv3 / GPLv2 licences from entangling.</li>
+    </ul>
+  </section>
+
+  <!-- 8. COST -->
+  <section id="cost">
+    <div class="sec-head"><span class="sec-num">08</span><h2>Cost, timeline &amp; roadmap</h2></div>
+    <p class="lede">Planning estimates; firm numbers follow a live demo walkthrough and the Ghostfolio reskin spike.</p>
+
+    <div class="cards c2">
+      <div class="panel card">
+        <h3>One-time build</h3>
+        <div class="tw" style="margin-top:14px;box-shadow:none;border:none">
+          <table style="min-width:0">
+            <tbody>
+              <tr><td>Discourse theme from wireframes</td><td class="num">2–4 wk</td></tr>
+              <tr><td>Ghostfolio bounded reskin + pipeline</td><td class="num">1–2 wk</td></tr>
+              <tr><td>WhatsApp onboarding + integration</td><td class="num">1.5–3 wk</td></tr>
+              <tr><td>SSO (external OIDC → both apps)</td><td class="num">1.5–3 wk</td></tr>
+              <tr><td>Automation hub + Ghostfolio polling</td><td class="num">1.5–3 wk</td></tr>
+              <tr><td>Infra, proxy, backups, email, hardening</td><td class="num">1.5–3 wk</td></tr>
+              <tr><td><strong>Total</strong></td><td class="num"><strong>~9–19 wk</strong></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p style="margin-top:8px">≈ <strong>$25k–$65k</strong> one-time, blended rate.</p>
+      </div>
+      <div class="panel card">
+        <h3>Monthly run cost</h3>
+        <div class="tw" style="margin-top:14px;box-shadow:none;border:none">
+          <table style="min-width:0">
+            <tbody>
+              <tr><td>Self-host infra (2 servers + backups)</td><td class="num">$60–110</td></tr>
+              <tr><td>Transactional email</td><td class="num">$0–20</td></tr>
+              <tr><td>Market data (EOD/FMP, if needed)</td><td class="num">$20–80</td></tr>
+              <tr><td>WhatsApp messaging</td><td class="num">variable</td></tr>
+              <tr><td style="color:var(--costly)"><strong>Ghostfolio fork maintenance</strong></td><td class="num" style="color:var(--costly)"><strong>$1.5k–5k</strong></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p style="margin-top:8px"><strong>The headline:</strong> the fork retainer and WhatsApp marketing spend dominate TCO — <em>not</em> servers. Budget them explicitly; never fold the fork into a flat fee.</p>
+      </div>
+    </div>
+
+    <h3>Phased delivery</h3>
+    <div class="road">
+      <div class="panel phase"><div class="pn">PHASE 0<small>wk 1–3</small></div><div><h3>Foundations</h3><p>Stock Discourse + stock Ghostfolio on hardened infra behind the proxy; email deliverability; backups; the OIDC IdP with both apps wired in. Ship the plumbing before the paint.</p></div></div>
+      <div class="panel phase"><div class="pn">PHASE 1<small>wk 3–7</small></div><div><h3>Branded MVP</h3><p>DesiSquare theme on Discourse (homepage, nav, palette) + bounded Ghostfolio reskin; WhatsApp utility-only notifications with a proper opt-in; disclaimers live everywhere.</p></div></div>
+      <div class="panel phase"><div class="pn">PHASE 2<small>wk 7–12+</small></div><div><h3>Depth</h3><p>Gamification / subscriptions / events plugins; consent-based marketing digests + Telegram broadcast; richer notification hub; deeper Ghostfolio fork work <em>only</em> once demand is validated.</p></div></div>
+    </div>
+  </section>
+
+  <!-- 9. COMPLIANCE -->
+  <section id="compliance">
+    <div class="sec-head"><span class="sec-num">09</span><h2>Compliance guardrails</h2></div>
+    <p class="lede">An investment community sits in the most scrutinized content zone. These are considerations to confirm with counsel — not legal advice.</p>
+    <div class="cards c2">
+      <article class="card panel"><span class="tag" style="color:var(--stop)">Highest legal risk</span><h3>SEBI / "finfluencer"</h3><p>SEBI's 2024–25 rules bar association with unregistered advice-givers; a Dec 2025 order impounded <strong>₹546+ crore</strong>. "Educational" framing is <em>not</em> a safe harbour if anyone gives buy/sell calls or return guarantees. Position as education + self-directed tracking only; get securities counsel on any paid tier.</p></article>
+      <article class="card panel"><span class="tag">Licences</span><h3>AGPLv3 &amp; GPLv2</h3><p>Ghostfolio (AGPLv3) → publish your modified source to users. Discourse (GPLv2) → distribution-only copyleft. Keep them as <strong>separate services</strong>; the licences are incompatible if code-combined.</p></article>
+      <article class="card panel"><span class="tag">Consent</span><h3>WhatsApp &amp; opt-in</h3><p>Named opt-in, no pre-checked boxes, separate promotional consent, STOP opt-out. Marketing to US (+1) numbers is blocked — use utility/auth or email there.</p></article>
+      <article class="card panel"><span class="tag">Data</span><h3>DPDP &amp; GDPR</h3><p>Portfolio data reveals net worth — treat as sensitive. India DPDP Act 2023 (Rules Nov 2025): purpose-specific consent, grievance officer, likely Significant Data Fiduciary duties. Add a GDPR flow if EU/UK members join. Pervasive <em>"not investment advice"</em> disclaimers everywhere.</p></article>
+    </div>
+  </section>
+
+  <!-- 10. RECOMMENDATIONS -->
+  <section id="recs">
+    <div class="sec-head"><span class="sec-num">10</span><h2>Final recommendations</h2></div>
+    <ul class="clean check">
+      <li><strong>Green-light the build as a phased integration project</strong> — Foundations → Branded MVP → Depth.</li>
+      <li><strong>Discourse carries the bespoke UI</strong> — git-hosted theme + components from your wireframes; treat the wireframe as direction, price plugin work separately.</li>
+      <li><strong>Ghostfolio stays close to stock</strong> — reskin only, fork-maintenance retainer budgeted visibly, written AGPLv3 acceptance first.</li>
+      <li><strong>WhatsApp is a notification/support channel, never the forum</strong> — utility-first templates, real opt-in; add Telegram + email; exclude unofficial bridges.</li>
+      <li><strong>One external OIDC IdP</strong>, shared injected header (not iframes), n8n as the events-to-notifications hub.</li>
+      <li><strong>Self-host</strong> for full theme/plugin control — managed Discourse tiers won't allow this customization at a reasonable price.</li>
+      <li><strong>Bake in compliance from day one</strong> — educational-only positioning, pervasive disclaimers, correct opt-in, DPDP/GDPR handling.</li>
+      <li><strong>Two concrete first steps:</strong> a live DesiSquare walkthrough to lock scope, and a 1-week Ghostfolio reskin spike to firm up the fork estimate.</li>
+    </ul>
+  </section>
+
+  <!-- 11. VERIFICATION -->
+  <section id="verify">
+    <div class="sec-head"><span class="sec-num">11</span><h2>What we double-checked</h2></div>
+    <p class="lede">The highest-stakes claims were independently fact-checked against primary sources. Three produced corrections — now reflected throughout.</p>
+    <div class="tw">
+      <table>
+        <thead><tr><th>Claim</th><th>Result</th></tr></thead>
+        <tbody>
+          <tr><td>WhatsApp official API can't touch groups</td><td><span class="pill warn">Corrected</span> — Groups API exists (Oct 2025) but caps at 8 members → still not a forum</td></tr>
+          <tr><td>Automating groups needs ToS-violating libraries</td><td><span class="pill warn">Corrected</span> — official 8-member path exists; unofficial libs remain ban-risk</td></tr>
+          <tr><td>WhatsApp per-message pricing + templates + opt-in</td><td><span class="pill ok">Confirmed</span></td></tr>
+          <tr><td>Ghostfolio AGPLv3 → network source-disclosure</td><td><span class="pill ok">Confirmed</span></td></tr>
+          <tr><td>Discourse GPLv2; deep theming but plugin needed beyond outlets</td><td><span class="pill ok">Confirmed</span></td></tr>
+          <tr><td>Ghostfolio has no runtime white-label → fork burden</td><td><span class="pill ok">Confirmed</span> — even the app name is hard-coded</td></tr>
+          <tr><td>Discourse supports DiscourseConnect + OIDC/OAuth SSO</td><td><span class="pill ok">Confirmed</span></td></tr>
+          <tr><td>The demo is rebranded Ghostfolio on Railway</td><td><span class="pill warn">Nuanced</span> — yes; exact routing unconfirmable live (403)</td></tr>
+          <tr><td>Discourse has built-in real-time Chat</td><td><span class="pill ok">Confirmed</span></td></tr>
+          <tr><td>Telegram Bot API far more group-friendly than WhatsApp</td><td><span class="pill ok">Confirmed</span> — WhatsApp still wins reach ~5:1 in India</td></tr>
+          <tr><td>Ghostfolio needs Postgres+Redis; real quotes need paid keys</td><td><span class="pill warn">Corrected</span> — free Yahoo/CoinGecko give live quotes; paid keys only for coverage</td></tr>
+          <tr><td>Discourse managed hosting gates custom plugins to higher tiers</td><td><span class="pill ok">Confirmed</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <div class="footnote">
+    <p><strong>BiGMo Consulting</strong> — engineering &amp; feasibility advisory. Prepared for scoping purposes. Legal, securities-regulatory, tax and data-protection points are flagged as considerations to confirm with qualified counsel in each relevant jurisdiction; they are not legal advice. Full per-claim source references (official Discourse / Ghostfolio / Meta developer docs, project repositories and licence texts) are retained in BiGMo's research record and available on request.</p>
+  </div>
+
+</div>
+
+<script>
+  (function () {
+    var btn = document.getElementById('themeBtn');
+    var icon = document.getElementById('themeIcon');
+    var txt = document.getElementById('themeTxt');
+    function current() {
+      var attr = document.documentElement.getAttribute('data-theme');
+      if (attr) return attr;
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    function apply(t) {
+      document.documentElement.setAttribute('data-theme', t);
+      icon.textContent = t === 'dark' ? '☾' : '☀';
+      txt.textContent = t === 'dark' ? 'Dark' : 'Light';
+    }
+    apply(current());
+    btn.addEventListener('click', function () {
+      apply(current() === 'dark' ? 'light' : 'dark');
+    });
+  })();
+</script>

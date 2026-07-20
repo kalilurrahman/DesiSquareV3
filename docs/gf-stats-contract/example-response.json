@@ -1,0 +1,97 @@
+{
+  "schema_version": "1.0",
+  "pseudonym": "nikhil_cfa",
+  "verified": {
+    "source": "ghostfolio",
+    "linked_since": "2026-01-12",
+    "last_verified_at": "2026-07-18T22:00:00Z",
+    "refresh": "daily"
+  },
+  "track_record": {
+    "start": "2024-09",
+    "months": 23,
+    "sufficient_history": true,
+    "min_months_required": 6
+  },
+  "returns": {
+    "monthly": [
+      { "month": "2024-09", "pct": 4.67 },
+      { "month": "2024-10", "pct": 2.59 },
+      { "month": "2024-11", "pct": 9.77 },
+      { "month": "2024-12", "pct": 1.21 },
+      { "month": "2025-01", "pct": 3.07 },
+      { "month": "2025-02", "pct": -9.62 },
+      { "month": "2025-03", "pct": -10.92 },
+      { "month": "2025-04", "pct": 4.48 },
+      { "month": "2025-05", "pct": 6.46 },
+      { "month": "2025-06", "pct": 13.28 },
+      { "month": "2025-07", "pct": 4.04 },
+      { "month": "2025-08", "pct": 0.27 },
+      { "month": "2025-09", "pct": 16.12 },
+      { "month": "2025-10", "pct": 3.1 },
+      { "month": "2025-11", "pct": -0.48 },
+      { "month": "2025-12", "pct": 2.05 },
+      { "month": "2026-01", "pct": 0.52 },
+      { "month": "2026-02", "pct": 3.51 },
+      { "month": "2026-03", "pct": -2.85 },
+      { "month": "2026-04", "pct": 7.34 },
+      { "month": "2026-05", "pct": 2.78 },
+      { "month": "2026-06", "pct": -4.31 },
+      { "month": "2026-07", "pct": 7.17 }
+    ],
+    "kpis": {
+      "ytd_pct": 14.36,
+      "one_year_pct": 39.43,
+      "two_year_annualised_pct": 36.26,
+      "max_drawdown_pct": -19.49,
+      "profitable_months_pct": 78.3
+    }
+  },
+  "benchmark": {
+    "id": "SP500TR",
+    "label": "S&P 500 TR",
+    "monthly": [
+      { "month": "2024-09", "pct": 2.02 },
+      { "month": "2024-10", "pct": -0.99 },
+      { "month": "2024-11", "pct": 5.73 },
+      { "month": "2024-12", "pct": -2.5 },
+      { "month": "2025-01", "pct": 2.7 },
+      { "month": "2025-02", "pct": -1.42 },
+      { "month": "2025-03", "pct": -5.75 },
+      { "month": "2025-04", "pct": -0.76 },
+      { "month": "2025-05", "pct": 6.15 },
+      { "month": "2025-06", "pct": 4.96 },
+      { "month": "2025-07", "pct": 2.24 },
+      { "month": "2025-08", "pct": 1.91 },
+      { "month": "2025-09", "pct": 3.53 },
+      { "month": "2025-10", "pct": 2.27 },
+      { "month": "2025-11", "pct": 0.05 },
+      { "month": "2025-12", "pct": -1.1 },
+      { "month": "2026-01", "pct": 1.6 },
+      { "month": "2026-02", "pct": 2.1 },
+      { "month": "2026-03", "pct": -1.2 },
+      { "month": "2026-04", "pct": 3.4 },
+      { "month": "2026-05", "pct": 1.1 },
+      { "month": "2026-06", "pct": -0.8 },
+      { "month": "2026-07", "pct": 2.6 }
+    ]
+  },
+  "risk": {
+    "band": "High",
+    "method": "stdev_monthly_returns",
+    "stdev_monthly_pct": 6.28
+  },
+  "allocation": [
+    { "label": "US Equity", "pct": 58 },
+    { "label": "India Equity", "pct": 22 },
+    { "label": "Debt / FD", "pct": 12 },
+    { "label": "Cash", "pct": 8 }
+  ],
+  "top_positions": [
+    { "symbol": "VTI", "name": "Vanguard Total Market", "weight_pct": 22.1, "return_pct": 11.2 },
+    { "symbol": "VXUS", "name": "Vanguard Intl ex-US", "weight_pct": 12.4, "return_pct": 6.8 },
+    { "symbol": "NVDA", "name": "NVIDIA", "weight_pct": 9.8, "return_pct": 32.4 },
+    { "symbol": "IBN", "name": "ICICI Bank ADR", "weight_pct": 4.2, "return_pct": 18.9 },
+    { "symbol": "HDB", "name": "HDFC Bank ADR", "weight_pct": 3.9, "return_pct": -2.1 }
+  ]
+}
