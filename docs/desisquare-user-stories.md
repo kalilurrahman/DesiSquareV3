@@ -19,23 +19,27 @@
 
 ## The v3 Discourse plugin set (the "power of Discourse" R4 leans on)
 
-| Machinery | Kind | Powers |
+| Machinery | Kind (verified Jul 2026) | Powers |
 |---|---|---|
-| MessageBus live updates | core | 16.1, 16.2, 16.5 live feed/thread/counter updates |
-| Presence (typing/replying) + user status | core | 16.3, 16.4 |
-| **Discourse Chat** | official plugin (bundled) | Epic 17 — corridor Squares, DMs, chat→topic escalation |
-| discourse-reactions | official plugin | Epic 3 pills (fixed set of 4) with live counts |
-| Native poll builder | core | 18.4 sentiment & discussion polls |
-| discourse-gamification | official plugin | 18.1 engagement leaderboards (#9-bounded) |
-| Badge system (custom badges) | core | 18.2 desi-themed badge ladder |
-| discourse-topic-voting | official plugin | 18.5 community roadmap voting |
-| discourse-calendar / discourse-post-event | official plugin | Epic 19 AMAs, rituals, RSVPs, ICS |
-| discourse-automation | official plugin | 14.3/14.5 auto-labelling, 19.2 scheduled ritual topics, 20.2 trending refresh |
-| Discourse AI (summarize, triage) | official plugin (LLM key) | 15.2 summaries, 14.3 label proposals, 19.5 event recaps |
-| Tags, tag groups, synonyms | core | Epic 14 labels, 20.1 ticker hubs |
-| Hot/Top lists (global + per category) | core | 2.1, 5.4, Epic 15 digests |
-| discourse-data-explorer | official plugin | 14.4 label metrics, 20.2 trending tickers |
-| discourse-follow | official plugin | 16.7 follow mavens/members (feeds, notifications) |
+| MessageBus live updates | core (always on) | 16.1, 16.2, 16.5 live feed/thread/counter updates |
+| Presence (typing/replying) + user status | core (user status: enable `enable_user_status`) | 16.3, 16.4 |
+| **Discourse Chat** | **core** (bundled since 3.0; gate via `chat_allowed_groups`) | Epic 17 — corridor Squares, threads, DMs, chat→topic transcripts |
+| discourse-reactions | bundled into core since 3.5 (enable via setting; fixed set via config) | Epic 3 pills (exactly 4) with live counts |
+| Native poll builder | core (plugins/poll) | 18.4 sentiment & discussion polls |
+| discourse-gamification | bundled into core mid-2025 (off by default) | 18.1 engagement leaderboards (#9-bounded) |
+| Badge system (custom badge SQL via `enable_badge_sql`, console — self-hosted freedom) | core | 18.2 desi-themed badge ladder |
+| discourse-topic-voting | bundled into core Jul 2025 (off by default, per-category) | 18.5 community roadmap voting |
+| Discourse Calendar & Events (post-event) | bundled into core since 3.5 (enable `calendar_enabled` + `discourse_post_event_enabled`) | Epic 19 AMAs, rituals, RSVPs, ICS, RSVP-driven event chat channels |
+| Automation (formerly discourse-automation) | core since 2024 | 14.3 auto-labelling triggers, 19.2 rituals, 20.2 trending refresh |
+| Watched-words **tag** action | core | 14.3/14.5 literal keyword/cashtag → label |
+| Discourse AI (summarize, llm_tagger/llm_triage) | official plugin + BYO LLM key (Claude supported) | 15.2 summaries, 14.3 semantic label proposals, 19.5 recaps |
+| Tags, tag groups, synonyms | core (creation/tagging gated by `*_allowed_groups`) | Epic 14 labels, 20.1 ticker hubs |
+| Hot/Top lists (global + per category) | core (anon-403 under login-required — teaser goes through the digest job's API-key proxy) | 2.1, 5.4, Epic 15 digests |
+| discourse-data-explorer | bundled into core Jul 2025 (staff-only) | 14.4 label metrics, 20.2 trending tickers |
+| discourse-whos-online | official plugin, **not** bundled (app.yml clone; count-only mode) | Epic 16 online-now signals (sized <100 concurrent) |
+| discourse-follow | official plugin, **not** bundled (app.yml clone) | 16.7 follow mavens/members |
+
+> **Ops note (12.4):** the mid-2025 core-bundling wave means upgrade runbooks must **remove** stale `app.yml` clone lines for gamification/solved/cakeday/calendar/topic-voting/data-explorer/automation (rebuilds fail otherwise); only discourse-ai, discourse-whos-online, and discourse-follow remain external clones on current versions.
 
 ---
 
@@ -141,6 +145,7 @@
 **3.1** As a **Member**, I want four public reaction pills — Helpful, Insightful, Actionable, Like — so that I can give structured feedback. **(AMENDED · v3: implemented via discourse-reactions, fixed set)**
 - Given any post/comment, When I tap a pill, Then it increments instantly, highlights as mine, and tapping again removes it.
 - Given the pill set, When I inspect the UI, Then exactly these four exist and no dislike/downvote exists; **the discourse-reactions configuration is locked to these four — members cannot add other emoji**.
+- Given native reactions semantics, When I pick a second pill on the same post, Then it replaces my first (one reaction per member per post — a deliberate structured-feedback choice, not a limitation to work around).
 - Given I react on mobile (W12), When I tap, Then the same behavior holds.
 - **Priority:** P0 · **Wireframe:** W3, W4 · **Systems:** Discourse (discourse-reactions)
 
@@ -522,7 +527,7 @@
 
 ## Epic 14 — Labels & Taxonomy *(R2 · carried from v2/F5, deepened)*
 
-> **Discourse mapping:** labels = Discourse **tags**; label sets = **tag groups** (optionally required per space); automated labelling = **discourse-automation** rules + **Discourse AI triage** (tag suggestions from curated sets — needs an LLM key) + watched-words auto-tag; governance = tag admin (rename, merge, synonyms, staff-only tags, min-trust-to-create).
+> **Discourse mapping:** labels = Discourse **tags**; label sets = **tag groups** (per-category required tag groups, min 1 from a set); automated labelling = **watched-words `tag` action** (core; literal keyword/regex → tag) + **Discourse AI `llm_tagger`/`llm_triage` automations** (semantic proposals from curated sets — needs an LLM key); governance = tag admin (rename, merge, synonyms, staff-only tag groups). *Note (verified Jul 2026): tag creation/tagging rights are gated by `*_allowed_groups` settings (the old min-trust settings were migrated to groups in 3.2); "keyword → tag" is not a stock automation script — watched-words is the native literal path.*
 
 **14.1** As a **Member**, I want to label my conversation when I post, so that it's findable by theme and ticker (R1/R2).
 - Given the composer (2.3), When I write, Then a label picker suggests from the space's curated label sets (tag groups) with type-ahead; I can apply up to 5 labels; investing spaces **require at least one** label before Post enables.
@@ -537,8 +542,8 @@
 - **Priority:** P0 · **Wireframe:** W8, W15 (F5) · **Systems:** Discourse (tag groups, synonyms)
 
 **14.3** As a **Community Admin**, I want **automated labelling** of new conversations, so that coverage doesn't depend on member diligence (R2: "if the tool allows automated labelling — use it").
-- Given discourse-automation rules (keyword/regex → label: "FCNR" → `fcnr`, "$NVDA"/cashtags → ticker labels), When a matching post is created or mirrored via wa-bridge, Then the label is applied within 60 seconds and marked **auto** in the label metadata.
-- Given Discourse AI is configured (LLM key present), When a new conversation has no label, Then AI triage proposes up to 3 labels from the curated sets **only** (never inventing new ones); proposals auto-apply and are flagged **auto** for review.
+- Given watched-words `tag` rules (keyword/regex → label: "FCNR" → `fcnr`, "$NVDA"/cashtags → ticker labels), When a matching post is created or mirrored via wa-bridge, Then the label is applied within 60 seconds and marked **auto** in the label metadata (watched-words auto-tag is not retroactive — a backfill job covers historical posts once at rollout).
+- Given Discourse AI is configured (LLM key present), When a new conversation has no label, Then the `llm_tagger` automation proposes up to 3 labels from the curated sets **only** (never inventing new ones); proposals auto-apply and are flagged **auto** for review.
 - Given the author edits labels afterwards, When they remove an auto label, Then it stays removed (member intent beats automation; the removal is logged for tuning).
 - **Priority:** P1 · **Wireframe:** W3, W4 (F5) · **Systems:** Discourse (discourse-automation, Discourse AI triage, watched words), wa-bridge
 
@@ -563,7 +568,7 @@
 
 ## Epic 15 — Public Landing & Summaries *(R3 · carried from v2/F6, deepened)*
 
-> **References:** Reddit's summary-card interface; Discord community "best of" digests. **Discourse mapping:** Hot/Top lists (global + per-category) + **Discourse AI topic summaries** (excerpt fallback) + custom-homepage theme; the signed-out teaser is served from a **cached digest payload** built by a scheduled job with an admin-scoped API key — member endpoints stay gated (#7-A).
+> **References:** Reddit's summary-card interface; Discord community "best of" digests. **Discourse mapping:** Hot/Top lists (global + per-category) + **Discourse AI topic summaries** (excerpt fallback). Under login-required, even `/top.json`/`/hot.json` 403 anonymously — which is exactly why the signed-out teaser is served from a **cached digest payload** built by a scheduled job with an admin-scoped API key (API-key JSON requests bypass the login wall by design; everything the job republishes is whitelisted field-by-field). Member-facing weekly digests (15.6) ride the core Activity Summary — scoped to joined communities *because* corridor categories are group-private (core has no "joined categories only" digest toggle; category security is the hard guarantee). Member endpoints stay gated (#7-A).
 
 **15.1** As a **Visitor**, I want the free landing page to show today's popular discussions as Reddit-style summary cards, so that I can see the community's value before joining (R3).
 - Given the signed-out W1, When it loads, Then below the join module a **"Popular this week"** digest renders: 5–10 cards, each with title, 2–3-sentence summary, space + label chips, engagement counts (reactions/comments), pseudonymous author (+ MAVEN ✓ badge where applicable), and relative age.
@@ -604,7 +609,7 @@
 
 ## Epic 16 — The Living Feed: Real-Time Presence & Updates *(NEW · v3 · R4)*
 
-> **Discourse mapping:** MessageBus (core) pushes topic-list and post-stream updates live; **presence** (core) powers typing/replying indicators; **user status** (core) puts an emoji+text status on avatars; discourse-follow adds a followed-activity feed. Everything here is a **member-only** surface: none of it renders signed-out (#7-A), and 10.5's "appear offline" suppresses all of it per member.
+> **Discourse mapping:** MessageBus (core) pushes topic-list and post-stream updates live; **presence** (core) powers typing/replying indicators — reply-presence is hard-scoped to logged-in members in core, so #7-A holds by construction; **user status** (core, enable `enable_user_status`) puts an emoji+text status on avatars; online-now signals come from **discourse-whos-online** (official plugin, count-only mode, sized for <100 concurrent — right for the demo scale); the 16.2 "reading now" count is a small theme component on a presence MessageBus channel (count only, no names); **discourse-follow** (official plugin) adds a followed-activity profile feed. Everything here is a **member-only** surface: none of it renders signed-out (#7-A), and 10.5's "appear offline" maps to core's `hide_presence` preference (split from hide-profile in 3.3) and suppresses all of it per member.
 
 **16.1** As a **Member**, I want new discussions to surface in my open feed without a refresh, so that the Square feels alive while I'm in it.
 - Given W3 is open, When posts are created in my joined scope, Then a live pill appears at the top ("3 new discussions — tap to see") within 10 seconds, and tapping it prepends the new cards without a full page reload.
@@ -652,7 +657,7 @@
 
 ## Epic 17 — Squares Chat *(NEW · v3 · R4)*
 
-> **Discourse mapping:** **Discourse Chat** (official, bundled): channels linked to categories (one Square per corridor), threads, DMs/group DMs, quote-to-topic transcripts, slow mode, per-channel permissions. Chat is the "Discord energy" surface; the forum stays the durable knowledge base — and 17.3 is the bridge between the two. Chat never renders signed-out (#7-A) and is excluded from the public digest and WhatsApp mirroring (#5 scope stays forum-only).
+> **Discourse mapping:** **Discourse Chat** (core since 3.0): public channels are category-backed (one Square per corridor category — channel visibility inherits category security), threads (per-channel opt-in), DMs/group DMs, quote-to-topic **transcripts** (`Chat::TranscriptService` renders selected messages as a styled transcript in a topic — the native mechanic behind 17.3's "Continue as discussion"). Access is group-gated via `chat_allowed_groups`. Retention is set deliberately: channel messages default to 90-day auto-delete (right for "chat is ephemeral, the forum is durable"); DM retention documented in the privacy policy. Chat is the "Discord energy" surface; the forum stays the durable knowledge base — and 17.3 is the bridge between the two. Chat never renders signed-out (#7-A) and is excluded from the public digest and WhatsApp mirroring (#5 scope stays forum-only).
 
 **17.1** As a **Member**, I want a live chat Square per corridor community, so that quick back-and-forth has a home that isn't the feed.
 - Given my joined corridor (e.g., US), When I open W16 (chat dock or full-page), Then its Square channel renders with live messages, member count, and the pinned "education, not advice" line (11.1).
@@ -672,7 +677,7 @@
 - **Priority:** P0 · **Wireframe:** W16 → W4 · **Systems:** Discourse Chat (quote/transcript), Discourse
 
 **17.4** As a **Moderator**, I want chat-native moderation tools, so that fast surfaces stay safe at speed.
-- Given a problem channel moment, When I enable slow mode or freeze the channel, Then posting is rate-limited/paused with a visible notice, without deleting history.
+- Given a problem channel moment, When I freeze the channel (read-only/closed status) or tighten the per-trust-level chat rate limits, Then posting pauses or slows with a visible notice, without deleting history. *(Core chat has no per-channel slow mode as of mid-2026 — pacing = channel status + `chat_allowed_messages_for_*` rate limits.)*
 - Given a flagged chat message (same 5 private reasons, #3), When it's flagged, Then it enters the W9 queue (9.1) with channel context, and removal hides it in-channel within 60 seconds leaving a neutral tombstone.
 - Given the denylist (11.3), When a chat message matches, Then it auto-routes to W9 exactly like a post.
 - **Priority:** P1 · **Wireframe:** W16, W9 · **Systems:** Discourse Chat, Discourse (automation)
@@ -693,7 +698,7 @@
 
 ## Epic 18 — Recognition & Playfulness *(NEW · v3 · R4)*
 
-> **Discourse mapping:** **discourse-gamification** (leaderboards over engagement scoring), core **badge system** (custom desi-themed ladder), native **poll builder**, **discourse-topic-voting** (roadmap voting). Bounded hard by **#9**: recognition ranks engagement, never money — no surface may rank members by returns, and gamification signals never borrow gf-stats data.
+> **Discourse mapping:** **Gamification** (core-bundled mid-2025; leaderboards over engagement scoring — every scorable event is an engagement action; no financial field exists in the scoring model, so #9 holds structurally), core **badge system** (custom desi-themed ladder via badge SQL — `enable_badge_sql`, a self-hosted freedom), native **poll builder** (`poll_default_public` flipped to false so polls are anonymous-by-default for pseudonymity; note: editing a poll after the 5-min grace window clears votes — moderators know this), **topic-voting** (core-bundled Jul 2025, per-category). Per-user leaderboard opt-out (10.5) is implemented the native way: a self-joinable "hide me from leaderboards" group wired into every leaderboard's excluded-groups list (gamification has no per-user toggle). Bounded hard by **#9**: recognition ranks engagement, never money — no surface may rank members by returns, and gamification signals never borrow gf-stats data.
 
 **18.1** As a **Member**, I want an engagement leaderboard for my corridor, so that showing up for the community is visible and fun (#9).
 - Given W18, When it loads, Then Weekly / Monthly / All-time leaderboards rank members by engagement points only (posts, replies, Helpful/Insightful/Actionable/Like received, accepted answers) — never by portfolio data (#9).
@@ -735,11 +740,12 @@
 
 ## Epic 19 — Live Events & AMAs *(NEW · v3 · R4)*
 
-> **Discourse mapping:** **discourse-calendar + discourse-post-event**: events live inside topics (RSVP going/interested, reminders, recurrence, ICS, timezone-aware rendering), with an upcoming-events list per category. Automation (19.2) creates ritual topics on schedule. Events are member-only surfaces; event titles may appear in the public digest only if their topic independently qualifies (15.1 rules).
+> **Discourse mapping:** **Discourse Calendar & Events** (core-bundled since 3.5; enable `calendar_enabled` + `discourse_post_event_enabled`): events live inside topics (event block in the first post; RSVP going/interested; up to 5 reminders; ICS; timezone-aware rendering), with an upcoming-events list and category calendars — plus **RSVP-driven event chat channels** (May 2025): members who RSVP are auto-added to a private chat channel for the event. Ritual topics (19.2) are created on schedule via Automation's recurring trigger where the stock scripts fit, else by the digest-job's API-key pattern (the stock topic-posting script posts into an *existing* topic). Privacy notes: personal ICS feed URLs embed a user API key — treated as secrets, regenerable; `bumpTopic` reminders bump publicly within category visibility, so member-only reminder types are the default. Events are member-only surfaces; event titles may appear in the public digest only if their topic independently qualifies (15.1 rules).
 
 **19.1** As a **Maven**, I want to schedule an AMA as an event topic, so that the community gets appointment-to-gather moments.
 - Given event creation in an investing space, When I publish "AMA: 401k rollovers for H-1B holders — Thu 8pm ET", Then the topic carries an event card (date/time in each viewer's timezone, RSVP going/interested, add-to-calendar ICS) and the `ama` label (14.2's Format set).
 - Given RSVPs, When members respond, Then the going/interested counts update live (16.5) and I can see the pseudonymous attendee list.
+- Given event chat integration is enabled, When a member RSVPs Going/Interested, Then they're auto-added to the AMA's private chat channel (17.1 mechanics) — the live room for the hour, quoted into the recap afterwards (19.5).
 - Given the AMA goes live, When start time hits, Then the topic pins to the top of its community feed for the duration and RSVPed members get an in-app "starting now" nudge.
 - Given AMA copy, When published, Then the denylist screen (11.3) has passed and the event card carries the educational disclaimer (11.1) — an AMA is education, never a pitch.
 - **Priority:** P0 · **Wireframe:** W17 · **Systems:** Discourse (post-event, calendar)
