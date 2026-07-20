@@ -2,7 +2,7 @@
 
 **Scope:** Product build **DesiSquareV3**, deployed on GCP per `deploy/gcp/` (discourse-1 + apps-1 VMs, Caddy TLS, GCS backups; demo mode on sslip.io hostnames). Systems: **Discourse** (Porcelain Slate theme + the v3 plugin set below), **Discourse Chat**, **Ghostfolio** (bounded reskin), **wa-bridge**, **gf-provisioner**, **gf-stats**, **WhatsApp Business Cloud API**, and the **digest job** (public teaser builder).
 **Positioning:** Educational community only. No investment advice. Non-negotiable constraints referenced inline: #3 flags private, #4 dollars owner-only / public % only, #5 WhatsApp consent + no E.164 leakage, #7-A public-teaser gate, #8 percent-only maven pipeline, **#9 recognition ranks engagement, never money (new in v3)**.
-**Lineage:** v1 (Phase 1, 70 stories) → v2 (Phase 1.5 + F4/F5/F6, 85 stories — archived at `docs/archive/desisquare-user-stories-v2.md`) → **v3 (this document, 115 stories)**. Stories carried from v2 keep their numbers; changes are marked **(AMENDED · v3)**; additions are marked **(NEW · v3)**.
+**Lineage:** v1 (Phase 1, 70 stories) → v2 (Phase 1.5 + F4/F5/F6, 85 stories — archived at `docs/archive/desisquare-user-stories-v2.md`) → **v3 (this document, 123 stories)**. Stories carried from v2 keep their numbers; changes are marked **(AMENDED · v3)**; additions are marked **(NEW · v3)**.
 
 ## What's new in v3 (client requirements, 20 Jul 2026)
 
@@ -12,6 +12,7 @@
 | **R2** | "Community conversations and interactions should be labelled … manually … automated if the tool allows … moderated by the moderator for effectiveness" | Epic 14 (carried, deepened) | Tags + tag groups (manual), discourse-automation + Discourse AI triage (automated), tag admin rename/merge/synonyms + label-quality view (moderated) |
 | **R3** | "Popular discussions, summaries should appear in the free landing page, and popular discussions in the group one chooses … Reddit-style summary interface, best of Discord discussions as reference" | Epic 15 (carried, deepened) + landing ticker strip (20.4) | Hot/Top lists (global + per category) + Discourse AI topic summaries + cached digest job + custom-homepage theme |
 | **R4** | **"The new version should be as lively and interactive as possible"** + "leverage the power of Discourse" | **New Epics 16–20** + amendments across Epics 2, 3, 10, 12, 15 | MessageBus live updates, presence, user status, **Discourse Chat**, discourse-reactions, native polls, discourse-gamification, badges, discourse-calendar/post-event, discourse-automation, Data Explorer |
+| **R5** | **Karma system** (carried from the parallel karma build, 20 Jul 2026): weighted earning + anti-gaming, byline chips, tiers, "top contributors by karma never returns", moderator karma effects, transparency page | **New Epic 21** + 7.7 five-signal credibility strip + 18.1 amendment | Gamification scoring + Solved accepted answers + scheduled badge queries (tiers) + theme components (chips/strip) |
 
 > **Constraint #9 (new, forced by R4):** *Recognition ranks engagement, never money.* No leaderboard, badge, streak, or trending surface may rank or score members by portfolio returns, and none may imply advice quality. Maven percentages appear **only** inside that maven's own W14 module (#8). Leaderboard and badge payloads are covered by the leak-sweep (12.5): zero % returns, zero currency, zero E.164.
 >
@@ -26,7 +27,7 @@
 | **Discourse Chat** | **core** (bundled since 3.0; gate via `chat_allowed_groups`) | Epic 17 — corridor Squares, threads, DMs, chat→topic transcripts |
 | discourse-reactions | bundled into core since 3.5 (enable via setting; fixed set via config) | Epic 3 pills (exactly 4) with live counts |
 | Native poll builder | core (plugins/poll) | 18.4 sentiment & discussion polls |
-| discourse-gamification | bundled into core mid-2025 (off by default) | 18.1 engagement leaderboards (#9-bounded) |
+| discourse-gamification | bundled into core mid-2025 (off by default) | Epic 21 karma + 18.1 leaderboards (#9-bounded) |
 | Badge system (custom badge SQL via `enable_badge_sql`, console — self-hosted freedom) | core | 18.2 desi-themed badge ladder |
 | discourse-topic-voting | bundled into core Jul 2025 (off by default, per-category) | 18.5 community roadmap voting |
 | Discourse Calendar & Events (post-event) | bundled into core since 3.5 (enable `calendar_enabled` + `discourse_post_event_enabled`) | Epic 19 AMAs, rituals, RSVPs, ICS, RSVP-driven event chat channels |
@@ -323,6 +324,12 @@
 - Given a maven bio or module description containing prohibited phrases (from a maintained denylist, e.g., "guaranteed returns"), When saved, Then it's blocked or routed to the W9 queue for review.
 - **Priority:** P0 · **Wireframe:** W14 · **Systems:** Discourse, gf-stats
 
+**7.7** *(NEW · v3 · R5)* As a **Member**, I want a five-signal credibility strip on every maven profile, so that trust rests on more than one number.
+- Given `nikhil_cfa`'s W14 profile, When it renders between the header and the privacy ribbon, Then five signals show: **Credential** (verified, with date — 7.5), **Karma tier** (Epic 21), **Accepted answers** (count), **Tenure** (member since), and **Track-record proof** (shared / not shared — 7.1).
+- Given the maven flips the performance toggle OFF (7.4), When the strip re-renders (≤60s), Then **only** the proof signal changes to "not shared" — the other four stand untouched (consent removes proof, never reputation).
+- Given the strip's payload, When inspected, Then it contains no currency and no % returns — the proof signal is a shared/not-shared state, not a number (#8; numbers live only inside the W14 module itself).
+- **Priority:** P1 · **Wireframe:** W14 · **Systems:** Discourse (theme component), gf-stats (proof state only)
+
 ---
 
 ## Epic 8 — WhatsApp Integration
@@ -486,7 +493,7 @@
 
 **12.5** As a **Platform Operator**, I want a leak-sweep CI job that scans public surfaces for privacy violations, so that constraints #3/#4/#5/#7-A/#8/#9 are machine-enforced. **(AMENDED · v3: chat, presence, leaderboard, and event surfaces added to the sweep)**
 - Given the sweep, When it runs on every deploy and nightly, Then it crawls signed-out pages (expecting the #7-A boundary: the curated digest may render, but member endpoints 403, teaser cards contain no private-community content, no currency values, no E.164 numbers, and thread deep-links gate), non-owner W6/W14 pages and gf-stats endpoints (expecting zero currency values, #4/#8), recent mirrored posts (expecting zero E.164 patterns, #5), and checks that flag indicators are absent for non-mods (#3).
-- **Given the v3 surfaces, When the sweep runs, Then chat endpoints 403 anonymously (17.6), presence/online data never appears in signed-out payloads (16.6), and leaderboard/badge payloads contain no % returns or currency (#9, 18.6).**
+- **Given the v3 surfaces, When the sweep runs, Then chat endpoints 403 anonymously (17.6), presence/online data never appears in signed-out payloads (16.6), and leaderboard/badge/karma payloads (incl. byline chips and the 7.7 credibility strip) contain no % returns or currency (#9, 18.6, 21.3).**
 - Given any violation, When detected, Then the pipeline fails/alerts with the offending URL and matched pattern.
 - Given a clean run, When it completes, Then a dated pass record is stored for compliance review.
 - **Priority:** P0 · **Wireframe:** W1, W6, W14 · **Systems:** gf-stats, wa-bridge, Discourse, Ghostfolio
@@ -700,8 +707,8 @@
 
 > **Discourse mapping:** **Gamification** (core-bundled mid-2025; leaderboards over engagement scoring — every scorable event is an engagement action; no financial field exists in the scoring model, so #9 holds structurally), core **badge system** (custom desi-themed ladder via badge SQL — `enable_badge_sql`, a self-hosted freedom), native **poll builder** (`poll_default_public` flipped to false so polls are anonymous-by-default for pseudonymity; note: editing a poll after the 5-min grace window clears votes — moderators know this), **topic-voting** (core-bundled Jul 2025, per-category). Per-user leaderboard opt-out (10.5) is implemented the native way: a self-joinable "hide me from leaderboards" group wired into every leaderboard's excluded-groups list (gamification has no per-user toggle). Bounded hard by **#9**: recognition ranks engagement, never money — no surface may rank members by returns, and gamification signals never borrow gf-stats data.
 
-**18.1** As a **Member**, I want an engagement leaderboard for my corridor, so that showing up for the community is visible and fun (#9).
-- Given W18, When it loads, Then Weekly / Monthly / All-time leaderboards rank members by engagement points only (posts, replies, Helpful/Insightful/Actionable/Like received, accepted answers) — never by portfolio data (#9).
+**18.1** As a **Member**, I want an engagement leaderboard for my corridor, so that showing up for the community is visible and fun (#9). **(AMENDED · v3+R5: ranks by karma)**
+- Given W18, When it loads, Then Weekly / Monthly / All-time leaderboards rank members by **karma** (Epic 21 scoring: pill-weighted reactions, accepted answers — engagement only), with tier chips and the scoring legend — never by portfolio data (#9).
 - Given the scoring config, When an admin edits weights, Then gf-stats fields are structurally unavailable as inputs (the scoring source list simply doesn't include them).
 - Given my row, When I view the board, Then I see my rank, points breakdown, and trend; given 10.5 opt-out, Then I'm absent and see a quiet "you're opted out" note where my row would be.
 - Given the board renders, When inspected, Then no % returns, no currency, no E.164 (leak-sweep 12.5 covers the payload; #9).
@@ -809,6 +816,56 @@
 
 ---
 
+## Epic 21 — Karma & Tiers *(NEW · v3 · R5 — carried from the parallel karma build)*
+
+> **Origin:** built and browser-verified in the parallel session (its "Epic 16 / W17 / Stage 8C / F7"); carried into v3 as **R5** with numbering remapped (their W17 karma page ≡ **W18** here; their runbook Stage 8C is ported to `docs/runbooks/demo-install-01-discourse.md`). **Discourse mapping:** karma = Gamification scoring (core-bundled): uniform like-points natively, with per-pill differential weights applied by a small scheduled scoring query; per-space **accepted answers** via the Solved plugin (core-bundled, enabled per investing space); **tier badges via scheduled badge queries** (badge SQL); byline karma chips and the credibility strip are theme components. Bounded by **#9** — karma is engagement-only, structurally blind to gf-stats.
+>
+> **Weights (v1, confirmed pending client sign-off):** Actionable **+3** · Helpful **+3** · Insightful **+2** · Like **+1** · Accepted answer **+5** · Flag upheld against your content **−5**. Rationale: practically useful answers outrank merely interesting ones. Weights live in one config table; every change must be dated on the transparency page (21.7) — never silent.
+
+**21.1** As a **Member**, I want to earn karma from the community's structured feedback on my contributions, so that sustained helpfulness becomes visible reputation.
+- Given the weights table above, When my post/comment receives a pill reaction or an accepted answer, Then my karma increases by the configured weight within one scoring cycle (≤15 min), and removals/undos reverse it symmetrically.
+- Given my content is removed by moderation (9.2), When the removal lands, Then all karma that content earned is reversed (21.6).
+- Given the weights change, When the new table takes effect, Then historical karma is recomputed only if the change explicitly says so, and the transparency page (21.7) records the dated change either way.
+- **Priority:** P0 · **Wireframe:** W3, W4, W18 · **Systems:** Discourse (gamification, Solved, scheduled scoring query)
+
+**21.2** As a **Compliance Officer**, I want anti-gaming rules enforced on karma earning, so that reputation can't be manufactured.
+- Given my own content, When I attempt to react to it, Then no reaction is possible (native) and no karma accrues from self-actions.
+- Given a day cap (e.g., 50 reaction-karma/day per earner), When the cap is reached, Then further same-day reactions still render socially but accrue no karma, with no public indication of the cap state.
+- Given a reciprocal-reaction ring (A⇄B high-frequency mutual reactions) or sockpuppet pattern, When the scheduled detection query flags it, Then a W9-adjacent mod report is created and confirmed rings forfeit the gamed karma (logged in 9.5).
+- **Priority:** P0 · **Wireframe:** W9, W18 · **Systems:** Discourse (rate limits, Data Explorer detection query)
+
+**21.3** As a **Member**, I want karma visible wherever people appear — a byline chip with an explainer, so that reputation context travels with every contribution.
+- Given any byline (W3 feed cards, W4 threads, W13 results, W16 chat), When it renders, Then a karma chip ("▲ 2.8k") appears with a tooltip explaining what karma is and linking to the transparency page (21.7).
+- Given a profile result in W13 Profiles, When it renders, Then the member's **tier chip** (21.4) renders beside the pseudonym.
+- Given any karma surface, When inspected, Then it shows engagement-derived numbers only — never % returns, never currency (#9; leak-sweep 12.5 covers karma payloads).
+- **Priority:** P1 · **Wireframe:** W3, W4, W13, W18 · **Systems:** Discourse (theme component)
+
+**21.4** As a **Member**, I want karma tiers with small unlocks, so that reputation opens doors instead of just counting up.
+- Given the tier ladder (New Arrival 0 · Regular 100 · Trusted 500 · Anchor 2,000 · Luminary 10,000), When I cross a threshold, Then the tier badge is granted by the scheduled badge query within a day and a quiet toast celebrates it (18.3 style).
+- Given tier-gated abilities (e.g., Regular: request new labels 14.1; Trusted: propose events 19.1-adjacent; Anchor: label-curation suggestions), When my tier changes, Then the unlock applies via the corresponding group membership within the same cycle.
+- Given tiers, When any surface renders them, Then tier names never imply financial standing or advice quality (#9; 7.6 denylist applies to tier copy).
+- **Priority:** P2 · **Wireframe:** W18, W5, W6 · **Systems:** Discourse (badge SQL, groups)
+
+**21.5** As a **Member**, I want a "Top contributors" rail on the feed — by karma, never by returns, so that the community's helpers are celebrated in plain sight (#9).
+- Given the W3 right rail, When it renders, Then "Top contributors — by karma, never by returns" lists the top 5 with tier chips and karma deltas for the week, plus a one-line scoring legend linking to 21.7.
+- Given the full W18 leaderboard (18.1), When it renders, Then it ranks by karma using the same scoring source, with the same #9 banner.
+- Given a member who opted out (10.5), When either surface renders, Then they are absent from both.
+- **Priority:** P1 · **Wireframe:** W3, W18 · **Systems:** Discourse (gamification)
+
+**21.6** As a **Moderator**, I want moderation outcomes to feed karma — the "karma effects" hook W9 parked in Phase 2, so that reputation reflects conduct, not just popularity.
+- Given a flag I uphold (content removed, 9.2), When the action completes, Then the author's karma reverses that content's earnings and applies the −5 upheld-flag weight, and the effect is logged in the audit trail (9.5) — the flagger's identity stays private (#3).
+- Given a flag I dismiss (9.3), When the action completes, Then the author's karma is untouched (dismissals are karma-neutral by design).
+- Given repeated upheld violations (e.g., 3 in 30 days), When the threshold trips, Then a temporary karma freeze applies (earning paused, chip unchanged) and the case is queued for admin review — no public shaming surface exists.
+- **Priority:** P1 · **Wireframe:** W9, W18 · **Systems:** Discourse (gamification, review queue)
+
+**21.7** As a **Member**, I want a "How karma works" transparency page, so that reputation rules are public, stable, and changes are accountable.
+- Given the page (linked from every karma chip tooltip and the W18 legend), When it renders, Then it shows the full weights table, the tier ladder, the anti-gaming rules in plain language, and the #9 statement ("karma measures engagement, never money").
+- Given any weight or rule change, When it ships, Then the page's **changelog appends a dated entry** (what changed, why, effective date) — silent changes are a spec violation and the leak-sweep-adjacent config test fails the deploy.
+- Given a signed-out visitor, When the landing links "how karma works", Then a static copy renders with zero member data (#7-A: no names, no scores — rules only).
+- **Priority:** P1 · **Wireframe:** W18, W1 · **Systems:** Discourse, digest job (static copy)
+
+---
+
 ## Story-Count Summary
 
 | # | Epic | P0 | P1 | P2 | Total |
@@ -819,7 +876,7 @@
 | 4 | Search & Discovery *(R1 ticker/label)* | 5 | 2 | 1 | 8 |
 | 5 | Communities & Corridors | 3 | 2 | 0 | 5 |
 | 6 | Portfolio & Privacy | 5 | 1 | 0 | 6 |
-| 7 | Maven Trust & Performance Proof | 5 | 1 | 0 | 6 |
+| 7 | Maven Trust & Performance Proof *(+7.7 NEW · R5)* | 5 | 2 | 0 | 7 |
 | 8 | WhatsApp Integration | 5 | 2 | 0 | 7 |
 | 9 | Moderation | 4 | 1 | 0 | 5 |
 | 10 | Settings & Consent *(+10.5 NEW)* | 1 | 3 | 1 | 5 |
@@ -833,8 +890,11 @@
 | 18 | **Recognition & Playfulness (NEW · R4)** | 2 | 2 | 2 | 6 |
 | 19 | **Live Events & AMAs (NEW · R4)** | 1 | 3 | 1 | 5 |
 | 20 | **Market Pulse (NEW · R1+R4)** | 1 | 3 | 1 | 5 |
-| | **Total** | **60** | **42** | **13** | **115** |
+| 21 | **Karma & Tiers (NEW · R5)** | 2 | 4 | 1 | 7 |
+| | **Total** | **62** | **47** | **14** | **123** |
 
 **Reading guide:** P0 = the v3 demo cannot ship without it (every constraint-bearing story — #3, #4, #5, #7-A, #8, #9 — is P0, plus the marquee moment of each new epic). P1 = strongly expected for a credible "Living Square" demo. P2 = stretch. Every story is testable as written; the leak-sweep CI (12.5) is the automated backstop for all six privacy/compliance constraints, and the demo drawer (12.7) is how stakeholders exercise the corpus end-to-end — now including the liveliness showcases.
+
+**v3 karma increment (20 Jul 2026, later same day):** +8 stories (115 → 123). **R5** carries the parallel session's karma build into v3: **Epic 21 — Karma & Tiers** (weighted earning Actionable/Helpful +3 > Insightful +2 > Like +1 · accepted answer +5 · upheld flag −5, pending client confirmation; anti-gaming: no self-reactions, day caps, ring detection; byline chips; tier ladder with unlocks; "Top contributors — by karma, never by returns" rail; moderator karma effects — the hook W9 parked in Phase 2; dated-changelog transparency page), **7.7** five-signal maven credibility strip (only the proof signal reacts to the 7.4 consent toggle), and **18.1 amended** to rank by karma. Numbering remap from the parallel session: their Epic 16 → our Epic 21; their W17 karma page → our W18; their Stage 8C → ported into runbook 01. Karma is #9-bounded end-to-end and its payloads join the 12.5 leak-sweep.
 
 **v3 changelog (20 Jul 2026):** +30 stories over v2 (85 → 115); 18 v2 stories amended in place (1.1, 1.7, 2.2, 3.1, 4.5, 4.6, 8.3, 9.1, 10.3, 10.4, 11.1, 11.3, 12.1, 12.4, 12.5, 12.7, 13.2, 14.5 — amendments marked inline). New constraint **#9** (recognition ranks engagement, never money). New epics: **16 The Living Feed** (MessageBus live updates, presence, user status, follow), **17 Squares Chat** (Discourse Chat: corridor Squares, threads, chat→discussion promotion, chat moderation), **18 Recognition & Playfulness** (engagement leaderboards, desi badge ladder, celebrations, polls, roadmap voting), **19 Live Events & AMAs** (calendar/post-event AMAs, automated rituals, recaps), **20 Market Pulse** (ticker hubs, trending tickers, cashtag chips, landing ticker strip). R1/R2/R3 (the client's restated search/label/landing-summary requirements) are carried from v2's F4/F5/F6 and deepened via 4.5/4.6 amendments, 14.5→20.1 hub linkage, and 20.4's landing strip. Everything new rides native Discourse machinery — the plugin-set table at the top is the definitive list.

@@ -217,6 +217,21 @@ Hot is core now (since 3.4 it's even in the default `top_menu`). Exact settings:
 
 ---
 
+## Stage 8C — Karma: scoring, tiers, accepted answers *(ported from the parallel karma build · corpus Epic 21)*
+
+Karma = the Gamification plugin's score with DesiSquare's weights, plus tier badges. All three plugins involved (gamification, solved, data-explorer) are core-bundled (2025+) — enable, don't clone.
+
+1. **Enable & baseline scoring:** Admin → All site settings → `discourse_gamification_enabled` = true. In **Admin → Plugins → Gamification** create the default leaderboard ("Top contributors"), visible to members. Set the score weights (uniform layer): `like received` = 1, `solution accepted` = 5, `flag agreed (against author)` = −5, `posts/topics created` = 0 (participation alone earns nothing — feedback does, per Epic 21).
+2. **Per-pill differential (+2 Actionable/Helpful, +1 Insightful on top of the like point):** native scoring treats all reactions as likes, so the differential rides a **scheduled scoring query** (Data Explorer query reading `discourse_reactions_reactions` by emoji, feeding gamification's custom score events nightly). The weights table lives in that one query — it is the single place weights change, and every change must be mirrored as a dated entry on the "How karma works" page (corpus 21.7).
+3. **Per-space accepted answers:** Admin → All site settings → `solved_enabled` = true, then per investing category (Stocks & ETFs, Taxes & FEMA, 401k & Retirement, Ask the community) tick **Allow topic owner and staff to mark a reply as the solution** (category setting). Watercooler stays off.
+4. **Tier badges via scheduled badge queries:** flip `enable_badge_sql` from the console (`./launcher enter app && rails c` → `SiteSetting.enable_badge_sql = true`), then create five badges (New Arrival 0 · Regular 100 · Trusted 500 · Anchor 2,000 · Luminary 10,000) whose SQL selects members over each karma threshold; schedule = daily. Each tier badge grants its unlock group (label-request, event-proposal, curation-suggestion groups per corpus 21.4).
+5. **Anti-gaming (corpus 21.2):** self-likes are impossible natively; set `max_likes_per_day` to a sane cap; add the ring-detection Data Explorer query (reciprocal reactions A⇄B above threshold/week → staff report). Confirmed rings: remove the gamed score via a corrective score event, log in the mod audit trail.
+6. **Byline chips + credibility strip:** theme components (karma chip on bylines with tooltip → transparency page; five-signal strip on maven profiles — corpus 7.7). Both read the gamification score/tier only — never gf-stats (#9).
+
+**Checkpoint 8C:** a reaction changes the recipient's karma within one scoring cycle; `/leaderboard` renders "Top contributors — by karma, never by returns" with tier chips; reacting to your own post is impossible; the day cap suppresses karma (not the reaction) past the threshold; the transparency page shows the weights table and a dated changelog entry; leak-sweep pass shows karma payloads contain no currency or % returns.
+
+---
+
 ## Stage 9 — Webhooks + API key (gf-provisioner, notifications)
 
 1. **API key (for gf-provisioner's Discourse API calls and wa-bridge posting):** **Admin → Advanced → API keys** (`/admin/api/keys`) → **New API key** → Description `gf-provisioner`, User Level **Single user** (a dedicated `system-integration` admin user is cleaner than All users), **Scope: Granular** — grant only what the script needs (e.g. `users: show`, `topics: write` for wa-bridge). Copy the key once — it is shown a single time. Calls use headers `Api-Key: <key>` and `Api-Username: <user>`.

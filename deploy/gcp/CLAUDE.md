@@ -1,6 +1,6 @@
 # CLAUDE.md — DesiSquare GCP deployment package
 
-You (Claude Code) are deploying DesiSquare: Discourse (community) + Ghostfolio (portfolio) + WhatsApp bridge on GCP. The user's existing app stays on Railway during the demo. Read `README.md` for the file map and `RUNBOOK.md` for full production steps.
+You (Claude Code) are deploying DesiSquare: Discourse (community) + Ghostfolio (portfolio) + WhatsApp bridge on GCP. The user's existing app stays on Railway during the demo. Read `README.md` for the file map and `RUNBOOK.md` for full production steps. If the user references an increment (F0–F5), work from `REQUIREMENTS.md`: complete only that increment and finish with its acceptance table.
 
 ## Modes — ask the user which one first
 

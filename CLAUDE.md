@@ -6,7 +6,7 @@ This repository is the **product source of truth** for DesiSquare V3 ("The Livin
 
 - **Canonical spec:** `docs/desisquare-user-stories.md` — 115 stories / 20 epics. Story numbers are stable across versions; v2 is archived in `docs/archive/`.
 - **Prototypes are single-file HTML** (`docs/desisquare-wireframes-v4-prototype.html` is current) — vanilla JS, hash-routed, no build step, no external requests. Open directly in a browser. Keep them dependency-free if you edit them.
-- **Deploying:** everything under `deploy/gcp/` — read `deploy/gcp/CLAUDE.md` first; it defines DEMO mode (no domain, sslip.io, ~1 hour) vs PRODUCTION mode (RUNBOOK.md). Never print or commit secrets; `.env` stays on the VM.
+- **Deploying:** everything under `deploy/gcp/` — read `deploy/gcp/CLAUDE.md` first; it defines DEMO mode (no domain, sslip.io, ~1 hour) vs PRODUCTION mode (RUNBOOK.md). If the user references an increment (F0–F5), work from `deploy/gcp/REQUIREMENTS.md`: complete only that increment and finish with its acceptance table. Never print or commit secrets; `.env` stays on the VM.
 
 ## Non-negotiable product constraints (bind every change)
 
