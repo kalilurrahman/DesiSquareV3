@@ -40,6 +40,8 @@
 |---|---|
 | **Prompted-deploy entry point** (DEMO mode: no domain, sslip.io + HTTPS, ~1h; PRODUCTION via RUNBOOK) | `deploy/gcp/CLAUDE.md` |
 | **Incremental requirements register F0–F5** (one increment per session, acceptance tables; ready-to-paste prompts) | `deploy/gcp/REQUIREMENTS.md` |
+| **Railway pack** — verdict (Ghostfolio clean; Discourse demo-only on frozen Bitnami image; SMTP = Pro plan), runbook Paths A/B, env samples | `deploy/railway/` |
+| **50-user community simulation & acceptance suite** (personas, dialogues, UC1–UC14, report generator, mock self-test 14/14) | `test/community-sim/` |
 | Roadmap (architecture, phases, costs, risks) · RUNBOOK (day-by-day go-live) | `deploy/gcp/roadmap.md`, `deploy/gcp/RUNBOOK.md` |
 | Provision / install / backups / teardown scripts, apps-stack compose, wa-bridge service, WhatsApp setup | `deploy/gcp/scripts/…`, `deploy/gcp/apps-stack/…`, `deploy/gcp/wa-bridge/…`, `deploy/gcp/whatsapp/…` |
 

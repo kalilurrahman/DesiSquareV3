@@ -33,13 +33,16 @@ Six non-negotiable constraints bound everything: **#3** flags private · **#4** 
 | `docs/gf-stats-contract/` | gf-stats API contract v1.0 (%-only maven service) + golden response + whitelist serializer + **leak-sweep CI test** (`node leak-sweep.test.mjs`). |
 | `docs/runbooks/` | Demo-server install runbooks 00–03 (Discourse, Ghostfolio, WhatsApp), adversarially fact-checked — incl. **Stage 8C** (karma scoring, tiers, accepted answers). |
 | `docs/archive/desisquare-user-stories-v2.md` | The v2 corpus (85 stories) this version supersedes. |
+| **`deploy/railway/`** | **Railway deployment pack** (researched Jul 2026): honest verdict + runbook for all-Railway demo vs recommended hybrid (Ghostfolio on Railway, Discourse on the GCP VM), env samples, SMTP/Pro-plan and frozen-Bitnami-image caveats. |
+| **`test/community-sim/`** | **50-user community simulation & acceptance suite**: 50 pseudonymous personas, 15 corridor dialogues (59 replies), reactions/accepted answers/poll/AMA/flags, then 14 acceptance use-cases (UC1–UC14) with a generated Markdown report. Runs against any live Discourse; 14/14 PASS self-test checked in. |
 | **`deploy/gcp/`** | **The GCP deployment package**: provisioning scripts, Discourse install, apps-stack compose (Ghostfolio + Postgres + Redis + wa-bridge + Caddy), backups, teardown, WhatsApp setup, roadmap + RUNBOOK, and **`REQUIREMENTS.md`** — the F0–F5 incremental requirements register (one increment per session, each ending in an acceptance table). `deploy/gcp/CLAUDE.md` makes it a prompted deploy — demo mode needs no domain (sslip.io + real HTTPS), ~1 hour end-to-end, `scripts/99-teardown.sh` to stop billing. |
 
 ## Quick start
 
 - **Read the product:** open `docs/desisquare-user-stories.md`.
 - **Feel the product:** open `docs/desisquare-wireframes-v4-prototype.html` in a browser. Sign in as `quiet_lotus` (member), `nikhil_cfa` (maven), or `desisquare_mod` (moderator) — or stay signed out to see the public teaser gate (#7-A).
-- **Deploy the demo:** point Claude Code at `deploy/gcp/` (it picks up `CLAUDE.md`) with a billing-enabled GCP project; demo mode is the default.
+- **Deploy the demo:** point Claude Code at `deploy/gcp/` (it picks up `CLAUDE.md`) with a billing-enabled GCP project; demo mode is the default. For Railway, read `deploy/railway/README.md` first — Ghostfolio is clean, Discourse-on-Railway is demo-only.
+- **Prove it lives:** once a Discourse is up, `DISCOURSE_URL=… DISCOURSE_API_KEY=… node test/community-sim/run.mjs` seeds 50 members + real dialogues and runs the 14-point acceptance suite.
 
 ## The v3 Discourse plugin set
 

@@ -53,29 +53,43 @@ const version = about.json?.about?.version ?? 'unknown';
 console.log(`  Discourse ${version} at ${BASE}`);
 results.phases.preflight = { version };
 
-// ---------- Phase 1: structure (categories + tags) ----------
+// ---------- Phase 1: structure (settings + categories + tag group) ----------
 console.log('\n== Phase 1: structure ==');
+// Instance prep (fail-soft — WARNs surface in UC checks if these stay off):
+for (const [k, v] of [['tagging_enabled', 'true'], ['solved_enabled', 'true'],
+  ['allow_solved_on_all_topics', 'true'], ['enable_user_status', 'true']]) {
+  const r = await api.setSiteSetting(k, v);
+  if (!r.ok) console.warn(`  site setting ${k}: HTTP ${r.status} (plugin absent or non-admin key?)`);
+}
 const catIds = {};
 for (const s of SPACES) {
   const r = await api.ensureCategory(s);
   if (!r.ok) console.warn(`  category "${s.name}": ${r.error}`);
   else catIds[s.name] = r.id;
 }
-console.log(`  categories ready: ${Object.keys(catIds).length}/${SPACES.length}`);
-results.phases.structure = { categories: Object.keys(catIds).length };
+// Pre-create the label taxonomy as a tag group so non-staff personas can APPLY
+// (not mint) tags — regular users lack create_tag rights by default.
+const tg = await api.ensureTagGroup({ name: 'DesiSquare labels', tags: TAGS });
+if (!tg.ok) console.warn(`  tag group: ${tg.error}`);
+console.log(`  categories ready: ${Object.keys(catIds).length}/${SPACES.length}; tag group ${tg.ok ? 'ready' : 'FAILED'}`);
+results.phases.structure = { categories: Object.keys(catIds).length, tagGroup: tg.ok };
 
 // ---------- Phase 2: users ----------
 console.log('\n== Phase 2: 50 users + 1 flag-exercise account ==');
 const allPersonas = [...PERSONAS, SPAMMER];
-let created = 0, existed = 0, failed = [];
+let created = 0, existed = 0, tl2 = 0, failed = [];
 for (const p of allPersonas) {
   const r = await api.createUser({
     username: p.u, email: `${p.u}@${EMAIL_DOMAIN}`, password: PASSWORD, bio: p.bio,
   });
-  if (r.ok) { r.existed ? existed++ : created++; }
-  else failed.push(`${p.u}: ${r.error}`);
+  if (r.ok) {
+    r.existed ? existed++ : created++;
+    // TL2: escapes new-user posting limits; polls need TL1+. Fail-soft.
+    const uid = r.id ?? await api.userId(p.u);
+    if (uid) { const t = await api.setTrustLevel({ userId: uid, level: 2 }); if (t.ok) tl2++; }
+  } else failed.push(`${p.u}: ${r.error}`);
 }
-console.log(`  created ${created}, already existed ${existed}, failed ${failed.length}`);
+console.log(`  created ${created}, already existed ${existed}, TL2 bumped ${tl2}, failed ${failed.length}`);
 failed.slice(0, 5).forEach(f => console.log(`   ! ${f}`));
 results.phases.users = { created, existed, failed };
 uc('UC1', 'User provisioning: 50 pseudonymous members active & postable (story 1.2/1.4 analog)',
@@ -85,15 +99,25 @@ uc('UC1', 'User provisioning: 50 pseudonymous members active & postable (story 1
 console.log('\n== Phase 3: seeding dialogues ==');
 const topicIndex = {}; // key -> {topicId, postIds[]}
 let topics = 0, replies = 0, likes = 0, accepts = 0, likeFails = 0;
+const NOW = Date.now();
+let di = 0;
 for (const d of DIALOGUES) {
+  // Backdate for a realistic timeline: topics spread over the past ~12 days,
+  // replies landing 40min–8h apart after their topic.
+  const topicAt = new Date(NOW - (DIALOGUES.length - di) * 19 * 3600 * 1000);
   const t = await api.createTopic({
     title: d.title, raw: d.body, categoryId: catIds[d.space], tags: d.tags, as: d.by,
+    createdAt: topicAt.toISOString(),
   });
+  di++;
   if (!t.ok) { console.warn(`  topic "${d.title.slice(0, 40)}…": ${t.error}`); continue; }
   topics++;
   const postIds = [t.postId];
+  let ri = 1;
   for (const [user, body] of d.r) {
-    const rr = await api.reply({ topicId: t.topicId, raw: body, as: user });
+    const replyAt = new Date(topicAt.getTime() + ri * (40 + (ri * 37) % 440) * 60 * 1000);
+    const rr = await api.reply({ topicId: t.topicId, raw: body, as: user, createdAt: replyAt.toISOString() });
+    ri++;
     if (rr.ok) { replies++; postIds.push(rr.postId); }
     else console.warn(`  reply by ${user}: ${rr.error}`);
   }
@@ -138,8 +162,10 @@ for (const spec of [SPAM_POST, LOW_EFFORT_POST]) {
     title: spec.title, raw: spec.body, categoryId: catIds[spec.space], tags: spec.tags, as: spec.by,
   });
   if (!t.ok) { console.warn(`  flag-target topic failed: ${t.error}`); continue; }
+  // spam solicitation → type 8 (spam); low-effort → type 4 (inappropriate)
+  const flagType = spec === SPAM_POST ? 8 : 4;
   for (const who of spec.flaggedBy) {
-    const fr = await api.flag({ postId: t.postId, as: who, type: 8 });
+    const fr = await api.flag({ postId: t.postId, as: who, type: flagType });
     if (fr.ok) flagged++;
     else console.warn(`  flag by ${who}: ${fr.error}`);
   }

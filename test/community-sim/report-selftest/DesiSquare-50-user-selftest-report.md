@@ -2,7 +2,7 @@
 
 # DesiSquare — 50-User Community Simulation Report
 
-**Target:** http://127.0.0.1:3939 · Discourse mock-3.5.0 · run 2026-07-20T06:41:32.046Z
+**Target:** http://127.0.0.1:3939 · Discourse mock-3.5.0 · run 2026-07-20T06:44:58.805Z
 **Outcome:** 14 passed · 0 warnings · 0 failed (of 14 use-cases)
 
 ## What was simulated

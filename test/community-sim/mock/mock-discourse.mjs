@@ -45,6 +45,13 @@ createServer(async (req, res) => {
   if (path === '/about.json') return json(res, 200, { about: { version: 'mock-3.5.0', login_required: true } });
   if (path === '/site.json') return json(res, 200, { login_required: true });
 
+  if (path.match(/^\/admin\/users\/\d+\/trust_level\.json$/) && req.method === 'PUT')
+    return json(res, 200, { success: 'OK' });
+  if (path.match(/^\/admin\/site_settings\/[\w_]+\.json$/) && req.method === 'PUT')
+    return json(res, 200, { success: 'OK' });
+  if (path === '/tag_groups.json' && req.method === 'POST')
+    return json(res, 200, { tag_group: { id: 1, name: params.name } });
+
   if (path === '/categories.json' && req.method === 'GET')
     return json(res, 200, { category_list: { categories: db.categories } });
   if (path === '/categories.json' && req.method === 'POST') {
