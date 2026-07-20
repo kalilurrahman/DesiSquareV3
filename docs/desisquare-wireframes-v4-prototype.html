@@ -443,6 +443,31 @@
   .chinput button{background:var(--accent); color:var(--accent-ink); border-radius:100px; font-weight:700; font-size:12.5px; padding:8px 16px}
   .slownote{font-family:var(--mono); font-size:9.5px; color:var(--maven); padding:4px 14px; background:var(--maven-bg)}
 
+  /* karma & tiers (Epic 21 · R5) — engagement numbers only, never % returns or currency (#9) */
+  .kchip{display:inline-flex; align-items:center; gap:3px; font-family:var(--mono); font-size:9.5px; font-weight:800; color:var(--pos); background:var(--pos-bg); border-radius:5px; padding:1px 6px; white-space:nowrap; cursor:help}
+  .kchip:hover{text-decoration:underline}
+  .tierchip{font-family:var(--mono); font-size:9px; font-weight:800; letter-spacing:.04em; border-radius:4px; padding:1px 6px; white-space:nowrap; text-transform:uppercase; cursor:help}
+  .tierchip.t0{background:var(--card2); color:var(--mute); border:1px solid var(--line)}
+  .tierchip.t1{background:var(--card2); color:var(--ink2); border:1px solid var(--line)}
+  .tierchip.t2{background:var(--pos-bg); color:var(--pos)}
+  .tierchip.t3{background:var(--accent-soft); color:var(--accent)}
+  .tierchip.t4{background:var(--maven-bg); color:var(--maven)}
+  .toprow{display:flex; align-items:center; gap:7px; padding:7px 0; border-top:1px solid var(--line); font-size:12.5px}
+  .toprow:first-of-type{border-top:none}
+  .toprow .kd{margin-left:auto; font-family:var(--mono); font-size:10.5px; font-weight:700; color:var(--pos); white-space:nowrap}
+  /* five-signal credibility strip (7.7) */
+  .sigstrip{display:flex; flex-wrap:wrap; margin-top:14px; border:1px solid var(--line); border-radius:var(--rs); background:var(--card2); overflow:hidden}
+  .sig{flex:1 1 120px; min-width:112px; padding:9px 12px; border-left:1px solid var(--line)}
+  .sig:first-child{border-left:none}
+  .sig .l{font-family:var(--mono); font-size:9px; letter-spacing:.08em; text-transform:uppercase; color:var(--mute)}
+  .sig .v{font-weight:700; font-size:12.5px; margin-top:3px}
+  .sig .v .sub{font-weight:600; color:var(--mute); font-size:10.5px}
+  /* transparency page tables (21.7) */
+  .ktable{width:100%; border-collapse:collapse; font-size:12.5px}
+  .ktable th{font-family:var(--mono); font-size:9.5px; letter-spacing:.07em; text-transform:uppercase; color:var(--mute); text-align:left; padding:6px 8px; border-bottom:1px solid var(--line2)}
+  .ktable td{padding:7px 8px; border-top:1px solid var(--line); vertical-align:top}
+  .ktable td.w{font-family:var(--mono); font-weight:800; white-space:nowrap}
+
   @media (prefers-reduced-motion: reduce){
     .livepill,.post.fresh,.pill.pulse,.chmsg.newin{animation:none}
     .pollopt i{transition:none}
@@ -534,13 +559,15 @@ var ALLOC = [
 ];
 
 var PROFILES = [
-  {id:"nikhil_cfa", init:"NC", av:"--avatarA", maven:true, shared:true,  cred:"CFA · ex-Fidelity PM",        meta:"maven since Jan 2026 · 214 reactions received", status:["🪔","earnings week — heads down"]},
-  {id:"priya_ea",   init:"PE", av:"--avatarC", maven:true, shared:false, cred:"CPA · EA · cross-border tax", meta:"maven since Feb 2026 · 178 reactions received"},
-  {id:"quiet_lotus",init:"QL", av:"--avatarB", maven:false, cred:"",     meta:"member since Mar 2026 · 47 reactions received"},
-  {id:"first_gen_saver",init:"FG", av:"--avatarD", maven:false, cred:"", meta:"member since Apr 2026 · 21 reactions received"},
-  {id:"meera_g",    init:"MG", av:"--avatarC", maven:false, cred:"",     meta:"member since May 2026 · 33 reactions received", status:["📚","reading FEMA circulars"]},
-  {id:"chai_and_charts", init:"CH", av:"--avatarA", maven:false, cred:"", meta:"member since Jun 2026 · 12 reactions received"},
-  {id:"desisquare_mod",init:"DM", av:"--avatarD", maven:false, cred:"",  meta:"moderator"}
+  {id:"nikhil_cfa", init:"NC", av:"--avatarA", maven:true, shared:true,  cred:"CFA · ex-Fidelity PM",        meta:"maven since Jan 2026 · 214 reactions received", status:["🪔","earnings week — heads down"],
+   karma:12400, accepted:38, since:"2024", verified:"12 May 2026"},
+  {id:"priya_ea",   init:"PE", av:"--avatarC", maven:true, shared:false, cred:"CPA · EA · cross-border tax", meta:"maven since Feb 2026 · 178 reactions received",
+   karma:4800, accepted:31, since:"2025", verified:"3 Jun 2026"},
+  {id:"quiet_lotus",init:"QL", av:"--avatarB", maven:false, cred:"",     meta:"member since Mar 2026 · 47 reactions received", karma:950},
+  {id:"first_gen_saver",init:"FG", av:"--avatarD", maven:false, cred:"", meta:"member since Apr 2026 · 21 reactions received", karma:540},
+  {id:"meera_g",    init:"MG", av:"--avatarC", maven:false, cred:"",     meta:"member since May 2026 · 33 reactions received", status:["📚","reading FEMA circulars"], karma:2800},
+  {id:"chai_and_charts", init:"CH", av:"--avatarA", maven:false, cred:"", meta:"member since Jun 2026 · 12 reactions received", karma:240},
+  {id:"desisquare_mod",init:"DM", av:"--avatarD", maven:false, cred:"",  meta:"moderator", karma:380}
 ];
 var COMMUNITIES = [
   {id:"us-investment", nm:"US Investment",  vis:"PUBLIC",  sub:"4,823 members · 142 online · free", joined:true,  ic:"US", desc:"The main corridor for desi money questions in the US."},
@@ -686,34 +713,35 @@ var EVENTS = [
    when:"Thu Jul 9 · concluded · 61 attended", labels:[["ama",0],["fema",0]],
    recap:"Top themes: order-of-operations for the remittance scheme, when the 15CB certificate is actually required, and NRO-to-NRE transfer myths. Most-helpful answer: start with the CA certificate — the bank steps are the fast part."}
 ];
-/* Leaderboard (Epic 18) — engagement points ONLY, never portfolio data (#9). */
+/* Leaderboard (Epic 18, amended by 21.5) — ranks by KARMA, engagement only, never portfolio data (#9).
+   weekly/monthly rows carry karma earned in the period; alltime = the profile karma totals. */
 var LEADER = {
   weekly:[
-    {id:"priya_ea",        pts:128, d:1,  posts:4, replies:19, helpfuls:41},
-    {id:"nikhil_cfa",      pts:121, d:-1, posts:3, replies:14, helpfuls:52},
-    {id:"meera_g",         pts:96,  d:2,  posts:2, replies:23, helpfuls:18},
-    {id:"quiet_lotus",     pts:88,  d:3,  posts:3, replies:11, helpfuls:21},
-    {id:"first_gen_saver", pts:61,  d:0,  posts:2, replies:9,  helpfuls:12},
-    {id:"chai_and_charts", pts:54,  d:-2, posts:1, replies:12, helpfuls:9},
-    {id:"desisquare_mod",  pts:38,  d:0,  posts:1, replies:8,  helpfuls:5}
+    {id:"priya_ea",        k:212, d:1,  posts:4, replies:19, helpfuls:41},
+    {id:"nikhil_cfa",      k:186, d:-1, posts:3, replies:14, helpfuls:52},
+    {id:"meera_g",         k:154, d:2,  posts:2, replies:23, helpfuls:18},
+    {id:"quiet_lotus",     k:117, d:3,  posts:3, replies:11, helpfuls:21},
+    {id:"first_gen_saver", k:64,  d:0,  posts:2, replies:9,  helpfuls:12},
+    {id:"chai_and_charts", k:41,  d:-2, posts:1, replies:12, helpfuls:9},
+    {id:"desisquare_mod",  k:28,  d:0,  posts:1, replies:8,  helpfuls:5}
   ],
   monthly:[
-    {id:"nikhil_cfa",      pts:502, d:0,  posts:11, replies:56, helpfuls:188},
-    {id:"priya_ea",        pts:471, d:1,  posts:13, replies:61, helpfuls:152},
-    {id:"quiet_lotus",     pts:301, d:2,  posts:9,  replies:38, helpfuls:64},
-    {id:"meera_g",         pts:287, d:-1, posts:6,  replies:59, helpfuls:51},
-    {id:"first_gen_saver", pts:203, d:0,  posts:7,  replies:26, helpfuls:38},
-    {id:"chai_and_charts", pts:141, d:1,  posts:3,  replies:31, helpfuls:22},
-    {id:"desisquare_mod",  pts:126, d:-1, posts:2,  replies:29, helpfuls:14}
+    {id:"nikhil_cfa",      k:820, d:0,  posts:11, replies:56, helpfuls:188},
+    {id:"priya_ea",        k:764, d:1,  posts:13, replies:61, helpfuls:152},
+    {id:"quiet_lotus",     k:402, d:2,  posts:9,  replies:38, helpfuls:64},
+    {id:"meera_g",         k:371, d:-1, posts:6,  replies:59, helpfuls:51},
+    {id:"first_gen_saver", k:218, d:0,  posts:7,  replies:26, helpfuls:38},
+    {id:"chai_and_charts", k:96,  d:1,  posts:3,  replies:31, helpfuls:22},
+    {id:"desisquare_mod",  k:84,  d:-1, posts:2,  replies:29, helpfuls:14}
   ],
   alltime:[
-    {id:"nikhil_cfa",      pts:2140, d:0, posts:38, replies:112, helpfuls:214},
-    {id:"priya_ea",        pts:1893, d:0, posts:41, replies:97,  helpfuls:178},
-    {id:"quiet_lotus",     pts:842,  d:1, posts:22, replies:74,  helpfuls:47},
-    {id:"first_gen_saver", pts:611,  d:-1,posts:18, replies:52,  helpfuls:21},
-    {id:"meera_g",         pts:540,  d:0, posts:9,  replies:88,  helpfuls:33},
-    {id:"chai_and_charts", pts:238,  d:0, posts:5,  replies:41,  helpfuls:12},
-    {id:"desisquare_mod",  pts:377,  d:0, posts:6,  replies:63,  helpfuls:19}
+    {id:"nikhil_cfa",      k:12400, d:0, posts:38, replies:112, helpfuls:214},
+    {id:"priya_ea",        k:4800,  d:0, posts:41, replies:97,  helpfuls:178},
+    {id:"meera_g",         k:2800,  d:1, posts:9,  replies:88,  helpfuls:33},
+    {id:"quiet_lotus",     k:950,   d:0, posts:22, replies:74,  helpfuls:47},
+    {id:"first_gen_saver", k:540,   d:-1,posts:18, replies:52,  helpfuls:21},
+    {id:"desisquare_mod",  k:380,   d:0, posts:6,  replies:63,  helpfuls:19},
+    {id:"chai_and_charts", k:240,   d:0, posts:5,  replies:41,  helpfuls:12}
   ]
 };
 var BADGES = [
@@ -762,10 +790,37 @@ var CHAT_SCRIPT = {
 var CHAT_SIM_IDX = {};
 var nextPostId = 100;
 
+/* ============================= KARMA & TIERS (Epic 21 · R5) ============================= */
+/* Karma = weighted engagement only (gamification scoring + Solved) — structurally blind to
+   gf-stats (#9): no % returns, no currency, ever. Weights live here; changes are dated (21.7). */
+var TIERS = [["New Arrival",0],["Regular",100],["Trusted",500],["Anchor",2000],["Luminary",10000]];
+var KWEIGHTS = [
+  ["Actionable reaction received","+3"],
+  ["Helpful reaction received","+3"],
+  ["Insightful reaction received","+2"],
+  ["Like received","+1"],
+  ["Accepted answer (Solved)","+5"],
+  ["Flag upheld against your content","−5"]
+];
+var KCHANGELOG = [
+  ["20 Jul 2026","initial weights: Actionable/Helpful +3, Insightful +2, Like +1, accepted answer +5, upheld flag −5","v1 launch — confirmed pending client sign-off"]
+];
+function tierIdx(k){ var t=0; for(var i=0;i<TIERS.length;i++) if(k>=TIERS[i][1]) t=i; return t; }
+function fmtKarma(v){ return v>=1000 ? (Math.round(v/100)/10)+"k" : String(v); }
+function tierChipHTML(k){
+  var i = tierIdx(k||0);
+  return '<span class="tierchip t'+i+'" title="tier ladder: New Arrival 0 · Regular 100 · Trusted 500 · Anchor 2,000 · Luminary 10,000 (21.4)">'+TIERS[i][0]+"</span>";
+}
+/* byline karma chip (21.3) — member-only, links to the transparency view */
+function kchipHTML(p){
+  if(!state.role || !p || p.karma==null) return "";
+  return ' <a class="kchip" href="#/karma" title="Karma — earned from Helpful/Insightful/Actionable/Like reactions and accepted answers. Never from portfolio performance. Tap for how karma works.">▲ '+fmtKarma(p.karma)+"</a>";
+}
+
 /* ============================= STATE + ROUTER ============================= */
 var state = { role:null, tab:"all", range:"Max", mtab:"overview", nikShared:true, sort:"popular",
   /* v4 */ labelSort:"popular", lbTab:"weekly", followed:{}, myReactions:{}, firstReactionDone:false,
-  liveDone:false, chatOpen:false, chatChannel:null, slowMode:false, bridgeEarned:false };
+  liveDone:false, chatOpen:false, chatChannel:null, frozen:false, bridgeEarned:false };
 var REDUCED = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 var app = document.getElementById("app");
 var view = document.getElementById("view");
@@ -803,6 +858,7 @@ function route(){
   else if(h.indexOf("#/review")===0) renderReview();
   else if((m = h.match(/^#\/label\/([\w-]+)/))) renderLabel(m[1].toLowerCase());
   else if(h.indexOf("#/events")===0) renderEvents();
+  else if(h.indexOf("#/karma")===0){ state.lbTab="karma"; renderRecognition(); }
   else if(h.indexOf("#/recognition")===0) renderRecognition();
   else if((m = h.match(/^#\/maven\/([\w-]+)/))) renderMaven(m[1]);
   else if(h.indexOf("#/search")===0){
@@ -845,6 +901,7 @@ function whoHTML(p, linkMaven){
     ? '<a class="who" href="#/maven/'+p.id+'">'+p.id+"</a>"
     : '<span class="who">'+p.id+"</span>";
   var out = name + (p.maven?' <span class="mavenchip">MAVEN ✓</span>':"");
+  out += kchipHTML(p);   /* karma byline chip (21.3) — member-only, like everything karma */
   /* user status (16.4) — member-only; never renders signed-out (#7-A) */
   if(p.status && state.role) out += ' <span class="status" title="member status (16.4) — suppressed by appear-offline (10.5)">'+p.status[0]+" "+esc(p.status[1])+"</span>";
   return out;
@@ -911,6 +968,12 @@ function renderFeed(){
     '<a class="evrow" href="#/events"><b>AMA: 401k rollovers for H-1B holders</b><br><span class="w">Thu 8:00 PM ET · nikhil_cfa · '+EVENTS[0].going+' going</span></a>'
     +'<a class="evrow" href="#/events"><b>📈 US Market Week</b><br><span class="w">Mon 9:00 AM ET · auto-ritual · poll open</span></a>';
 
+  /* 21.5 — Top contributors: by karma, never by returns (#9) */
+  var topRail = LEADER.weekly.slice(0,5).map(function(r){
+    var p = pf(r.id) || {karma:0};
+    return '<div class="toprow">'+tierChipHTML(p.karma)+'<span style="font-weight:700">'+r.id+'</span><span class="kd" title="karma earned this week — engagement only (#9)">▲ +'+r.k+' this wk</span></div>';
+  }).join("");
+
   var sorted = sortPosts(POSTS, state.sort);
   var sortTabs =
     '<div class="sorttabs" role="group" aria-label="Feed sort">'
@@ -943,6 +1006,8 @@ function renderFeed(){
     +'<div class="card pad"><p class="railhead">US Investment</p><div class="stat"><b style="color:var(--ink)">4,823</b> members · <span class="pos">● 142 online</span></div></div>'
     +'<div class="card pad" style="margin-top:14px"><p class="railhead">Trending tickers</p>'+trendRail
     +'<p style="font-size:10.5px;color:var(--mute);margin:10px 0 0">discussion velocity — counts of conversations, never prices or member holdings (20.2 · #4/#8)</p></div>'
+    +'<div class="card pad" style="margin-top:14px"><p class="railhead">Top contributors — by karma, never by returns</p>'+topRail
+    +'<p style="font-size:10.5px;color:var(--mute);margin:10px 0 0">Actionable/Helpful +3 · Insightful +2 · Like +1 · Accepted answer +5 · <a href="#/karma" style="color:var(--accent);font-weight:700">how karma works →</a></p></div>'
     +'<div class="card pad" style="margin-top:14px"><p class="railhead">Upcoming events</p>'+evRail+"</div>"
     +'<div class="card pad" style="margin-top:14px"><p class="railhead">Mavens in this community</p>'+mavenRail
     +'<p style="font-size:11px;color:var(--mute);margin:10px 0 0">YTD chip shows only for mavens sharing performance (% only · #8). Tap a maven for the proof page.</p></div>'
@@ -1061,7 +1126,7 @@ function profCard(p,q){
     ? '<span class="conchip num" title="Return YTD · % only — $ never shown">'+fmtPct(STATS.ytd,true)+" YTD</span>"
     : (p.maven?'<span class="vischip">performance not shared</span>':"");
   return '<div class="rescard profrow">'+avatarHTML(p,36)
-  +"<div>"+whoHTML(p)+'<div class="meta">'+(p.cred?p.cred+" · ":"")+p.meta+"</div></div>"
+  +"<div>"+whoHTML(p)+(p.karma!=null?" "+tierChipHTML(p.karma):"")+'<div class="meta">'+(p.cred?p.cred+" · ":"")+p.meta+"</div></div>"
   +'<div style="margin-left:auto;display:flex;gap:8px;align-items:center">'+perf
   +(p.maven?'<a class="joinbtn" href="#/maven/'+p.id+'">View proof</a>':"")+"</div></div>";
 }
@@ -1136,6 +1201,20 @@ function renderMaven(id){
   var p = pf(id) || pf("nikhil_cfa");
   var shared = p.id==="nikhil_cfa" ? state.nikShared : !!p.shared;
 
+  /* 7.7 — five-signal credibility strip. Sits between header and privacy ribbon.
+     Wired to the SAME consent state as the W14 module collapse (state.nikShared via `shared`):
+     flipping the W7 toggle OFF changes ONLY the proof signal — the other four stand
+     (consent removes proof, never reputation). No currency, no % — proof is a state, not a number (#8). */
+  var kt = tierIdx(p.karma||0);
+  var sigstrip =
+  '<div class="sigstrip" title="five-signal credibility strip (7.7) — trust rests on more than one number">'
+    +'<div class="sig"><div class="l">Credential</div><div class="v">'+(p.cred?esc(p.cred.split("·")[0].trim()):"—")+' <span class="sub">verified '+(p.verified||"2026")+"</span></div></div>"
+    +'<div class="sig"><div class="l">Karma tier</div><div class="v">'+tierChipHTML(p.karma)+' <span class="sub num">▲'+fmtKarma(p.karma||0)+"</span></div></div>"
+    +'<div class="sig"><div class="l">Accepted answers</div><div class="v num">'+(p.accepted!=null?p.accepted:0)+"</div></div>"
+    +'<div class="sig"><div class="l">Tenure</div><div class="v">member since '+(p.since||"2026")+"</div></div>"
+    +'<div class="sig" id="sigproof"><div class="l">Track-record proof</div><div class="v '+(shared?"pos":"")+'">'+(shared?"Shared ✓":'<span style="color:var(--mute)">Not shared</span>')+"</div></div>"
+  +"</div>";
+
   var header =
   '<a class="backlink" href="#/feed">← Feed</a>'
   +'<div class="card pad">'
@@ -1145,6 +1224,7 @@ function renderMaven(id){
     +'<div class="chips"><span class="conchip">✓ credential reviewed</span><span class="conchip">✓ desi check</span><span class="conchip">✓ email verified</span></div></div>'
     +'<button class="followbtn">Follow</button></div>'
   +'<div class="standing"><span><b>38</b> posts</span><span><b>112</b> comments</span><span><b>214</b> reactions received</span><span><b>72%</b> helpful rate</span><span>'+esc(p.meta.split("·")[0].trim())+"</span></div>"
+  + sigstrip
   +(shared
     ?'<div class="ribbon"><span class="lock">🔒</span><span>Performance verified via linked <b>Ghostfolio</b> · <b>% only — ₹/$ never shown</b> (constraint #8) · updated daily · last verified today</span></div>'
     :"")
@@ -1688,42 +1768,79 @@ function renderEvents(){
   });
 }
 
-/* ============================= RECOGNITION (W18 · Epic 18) ============================= */
+/* ============================= RECOGNITION (W18 · Epic 18 + 21) ============================= */
+/* Amended by 21.5: ranks by KARMA (same scoring source as the byline chips), with tier chips
+   and the "How karma works" transparency view (21.7). Still hard-bounded by #9. */
 function renderRecognition(){
   clearRouteTimers();
-  var rows = LEADER[state.lbTab];
-  var tabs = [["weekly","Weekly"],["monthly","Monthly"],["alltime","All-time"]];
+  var tabs = [["weekly","Weekly"],["monthly","Monthly"],["alltime","All-time"],["karma","How karma works"]];
   function hasBadge(nm){
     if(nm==="Bridge Builder" && state.bridgeEarned) return true;
     return !!((EARNED[state.role]||{})[nm]);
   }
-  view.innerHTML =
-  '<div class="framelabel"><span class="wnum">W18</span><h1>Leaderboard — recognition &amp; playfulness</h1><span class="note">NEW · Epic 18 — engagement only, hard-bounded by #9</span></div>'
-  +'<a class="backlink" href="#/feed">← Feed</a>'
-  +'<div class="cols" style="grid-template-columns:minmax(0,680px)"><div>'
-  +'<div class="ribbon" style="margin:0 0 14px"><span class="lock">🏛</span><span><b>Ranks engagement — never portfolio performance (#9).</b> Scoring inputs structurally exclude gf-stats: no % returns, no currency, ever.</span></div>'
-  +'<div class="sorttabs" role="group" aria-label="Leaderboard period">'
-  + tabs.map(function(t){ return '<button aria-pressed="'+(state.lbTab===t[0])+'" data-lbtab="'+t[0]+'">'+t[1]+"</button>"; }).join("")
-  +'<span class="note">hover a row for the points breakdown</span></div>'
-  +'<div class="card">'+rows.map(function(r,i){
-      var p = pf(r.id) || {id:r.id, init:r.id.slice(0,2).toUpperCase(), av:"--avatarD"};
+  var inner;
+  if(state.lbTab==="karma"){
+    /* 21.7 — transparency page: weights, tiers, anti-gaming, dated changelog */
+    inner =
+    '<div class="card pad" id="karmapage">'
+    +'<p class="railhead">How karma works — the transparency page (21.7)</p>'
+    +'<p style="font-size:13px;color:var(--ink2);margin:0 0 14px"><b>Karma measures engagement, never money (#9).</b> It is earned from the community’s structured feedback on your contributions — never from portfolio performance, returns, or anything gf-stats knows. Weight changes are never silent: every change lands in the dated changelog below.</p>'
+    +'<p class="shead" style="margin:0 0 6px">Weights — v1</p>'
+    +'<table class="ktable"><thead><tr><th>Action</th><th>Karma</th></tr></thead><tbody>'
+    + KWEIGHTS.map(function(w){ return '<tr><td>'+w[0]+'</td><td class="w '+(w[1].charAt(0)==="−"?"neg":"pos")+'">'+w[1]+"</td></tr>"; }).join("")
+    +"</tbody></table>"
+    +'<p class="shead" style="margin:18px 0 8px">Tier ladder</p>'
+    +'<div class="pillrow">'+TIERS.map(function(t,i){
+        return '<span class="tierchip t'+i+'" style="font-size:10px;padding:3px 10px">'+t[0]+" · "+t[1].toLocaleString("en-US")+"</span>";
+      }).join("")+"</div>"
+    +'<p style="font-size:11px;color:var(--mute);margin:6px 0 0">Tiers unlock small abilities — Regular: request new labels (14.1) · Trusted: propose events · Anchor: label-curation suggestions (21.4). Tier names never imply financial standing.</p>'
+    +'<p class="shead" style="margin:18px 0 6px">Anti-gaming rules (21.2) — in plain language</p>'
+    +'<ul style="margin:0;padding-left:18px;font-size:12.5px;color:var(--ink2);line-height:1.75">'
+    +'<li><b>No self-reactions</b> — natively impossible; nothing you do to your own content earns karma.</li>'
+    +'<li><b>Day cap</b> — at most 50 reaction-karma per day; further reactions still render socially but earn nothing (no public cap indicator).</li>'
+    +'<li><b>Reciprocal-ring detection</b> — high-frequency mutual reaction patterns are flagged to moderator review; confirmed rings forfeit the gamed karma.</li>'
+    +'<li><b>Moderation feeds karma (21.6)</b> — an upheld flag reverses that content’s earnings and applies −5; dismissed flags are karma-neutral; flagger identity stays private (#3).</li>'
+    +"</ul>"
+    +'<p class="shead" style="margin:18px 0 6px">Changelog — dated, never silent</p>'
+    +'<table class="ktable" id="kchangelog"><thead><tr><th>Date</th><th>Change</th><th>Note</th></tr></thead><tbody>'
+    + KCHANGELOG.map(function(c){ return '<tr><td class="w">'+c[0]+"</td><td>"+c[1]+"</td><td style='color:var(--mute)'>"+c[2]+"</td></tr>"; }).join("")
+    +"</tbody></table>"
+    +"</div>"
+    +'<p style="font-size:11.5px;color:var(--mute);margin-top:12px">Linked from every karma chip tooltip and the W3 scoring legend. A signed-out copy would render rules only — zero member data (#7-A).</p>';
+  } else {
+    var rows = LEADER[state.lbTab];
+    var isAll = state.lbTab==="alltime";
+    inner =
+    '<div class="card">'+rows.map(function(r,i){
+      var p = pf(r.id) || {id:r.id, init:r.id.slice(0,2).toUpperCase(), av:"--avatarD", karma:0};
       var me = r.id===state.role;
       var arrow = r.d>0 ? '<span class="tr pos">▲'+r.d+"</span>"
                 : r.d<0 ? '<span class="tr neg">▼'+(-r.d)+"</span>"
                 : '<span class="tr" style="color:var(--mute)">–</span>';
-      return '<div class="lbrow'+(me?" me":"")+'" title="'+r.posts+" posts · "+r.replies+" replies · "+r.helpfuls+" helpfuls received = "+r.pts+' engagement pts">'
+      return '<div class="lbrow'+(me?" me":"")+'" title="'+r.posts+" posts · "+r.replies+" replies · "+r.helpfuls+" helpfuls received → "+(isAll?fmtKarma(r.k):"+"+r.k)+' karma (weights: Actionable/Helpful +3 · Insightful +2 · Like +1 · accepted +5)">'
         +'<span class="rk num">'+(i+1)+"</span>"+arrow+avatarHTML(p,26)
         +'<span class="who" style="font-weight:700">'+r.id+"</span>"
         +(p.maven?' <span class="mavenchip">MAVEN ✓</span>':"")
+        +" "+tierChipHTML(p.karma)
         +(me?' <span class="youchip">YOU</span>':"")
-        +'<span class="pts num" style="margin-left:auto">'+r.pts+" pts</span></div>";
+        +'<span class="pts num" style="margin-left:auto">'+(isAll?fmtKarma(r.k):"+"+r.k)+" karma</span></div>";
     }).join("")+"</div>"
-  +'<p class="shead">Badge ladder — desi-themed, participation only (18.2)</p>'
-  +'<div class="card pad badgegrid">'+BADGES.map(function(bd){
-      var ok = hasBadge(bd.nm);
-      return '<div class="badge'+(ok?"":" no")+'" title="'+esc(bd.d)+' — badges derive from participation events only, never portfolio performance (#9)"><div class="ic">'+bd.ic+'</div><div class="nm">'+bd.nm+'</div><div class="d">'+esc(bd.d)+'</div><div class="st '+(ok?"ok":"nope")+'">'+(ok?"EARNED":"NOT YET")+"</div></div>";
-    }).join("")+"</div>"
-  +'<p style="font-size:11.5px;color:var(--mute);margin-top:12px">Your first reaction of this session fires a small celebration (18.3) — go tap a Helpful on the feed. Promoting a chat exchange earns Bridge Builder 🌉 (17.3). Opted-out members are absent from the board (10.5).</p>'
+    +'<p class="shead">Badge ladder — desi-themed, participation only (18.2)</p>'
+    +'<div class="card pad badgegrid">'+BADGES.map(function(bd){
+        var ok = hasBadge(bd.nm);
+        return '<div class="badge'+(ok?"":" no")+'" title="'+esc(bd.d)+' — badges derive from participation events only, never portfolio performance (#9)"><div class="ic">'+bd.ic+'</div><div class="nm">'+bd.nm+'</div><div class="d">'+esc(bd.d)+'</div><div class="st '+(ok?"ok":"nope")+'">'+(ok?"EARNED":"NOT YET")+"</div></div>";
+      }).join("")+"</div>"
+    +'<p style="font-size:11.5px;color:var(--mute);margin-top:12px">Your first reaction of this session fires a small celebration (18.3) — go tap a Helpful on the feed. Promoting a chat exchange earns Bridge Builder 🌉 (17.3). Opted-out members are absent from the board (10.5).</p>';
+  }
+  view.innerHTML =
+  '<div class="framelabel"><span class="wnum">W18</span><h1>Leaderboard — recognition &amp; karma</h1><span class="note">Epics 18+21 — ranks by karma, engagement only, hard-bounded by #9</span></div>'
+  +'<a class="backlink" href="#/feed">← Feed</a>'
+  +'<div class="cols" style="grid-template-columns:minmax(0,680px)"><div>'
+  +'<div class="ribbon" style="margin:0 0 14px"><span class="lock">🏛</span><span><b>Ranks engagement — never portfolio performance (#9).</b> Karma measures engagement, never money — scoring inputs structurally exclude gf-stats: no % returns, no currency, ever.</span></div>'
+  +'<div class="sorttabs" role="group" aria-label="Leaderboard period">'
+  + tabs.map(function(t){ return '<button aria-pressed="'+(state.lbTab===t[0])+'" data-lbtab="'+t[0]+'">'+t[1]+"</button>"; }).join("")
+  +(state.lbTab==="karma"?"":'<span class="note">hover a row for the karma breakdown</span>')+"</div>"
+  + inner
   +"</div></div>";
 
   Array.prototype.forEach.call(view.querySelectorAll("[data-lbtab]"), function(b){
@@ -1762,6 +1879,7 @@ function syncChat(){
   }
   btn.hidden = false;
   updateChatDot();
+  renderDock();   /* keep the open dock consistent with the current role (freeze view, mod chip) */
 }
 function updateChatDot(){
   var any = CHANNELS.some(function(c){ return c.unread>0; });
@@ -1777,6 +1895,7 @@ function msgGroupsHTML(chid){
     out += '<div class="chmsg">'+avatarHTML(p,26)
       +'<div class="bd"><div class="hd"><span class="who">'+who+"</span>"
       +(p.maven?' <span class="mavenchip">MAVEN ✓</span>':"")
+      + kchipHTML(p)
       +" · "+(msgs[start].when||"now")+"</div>"
       + body
       +'<button class="promote" data-gstart="'+start+'" title="creates a labelled W4 discussion with a quoted transcript — the anti-Discord-amnesia move (17.3)">⤴ Continue as discussion</button></div></div>';
@@ -1811,22 +1930,27 @@ function renderDock(){
   }
 
   var ch = chanById(state.chatChannel);
-  var slow = state.role==="desisquare_mod"
-    ? '<button class="slowchip" id="slowchip" aria-pressed="'+state.slowMode+'" title="moderator only — rate-limits posting without deleting history (17.4)">🐢 slow mode</button>'
+  /* 17.4 — moderator freeze (core chat has no per-channel slow mode): read-only for
+     non-mods, visible notice, history untouched. */
+  var isMod = state.role==="desisquare_mod";
+  var freeze = isMod
+    ? '<button class="slowchip" id="freezechip" aria-pressed="'+state.frozen+'" title="Freeze channel (read-only) — moderator only; posting pauses with a visible notice, history untouched (17.4)">❄️ freeze channel</button>'
     : "";
+  var frozenForMe = state.frozen && !isMod;
   dock.innerHTML =
-    '<div class="chhdr"><button class="back" id="chback" aria-label="Back to channels">‹</button> '+ch.nm+' <span class="sub">· '+ch.members+" members</span>"+slow+'<button class="x" id="chx" aria-label="Close chat">✕</button></div>'
+    '<div class="chhdr"><button class="back" id="chback" aria-label="Back to channels">‹</button> '+ch.nm+' <span class="sub">· '+ch.members+" members</span>"+freeze+'<button class="x" id="chx" aria-label="Close chat">✕</button></div>'
     +'<div class="chpin">📌 Education, not investment advice</div>'
-    +(state.slowMode?'<div class="slownote">🐢 slow mode on — 30s between messages · visible notice, history untouched (17.4)</div>':"")
+    +(state.frozen?'<div class="slownote">❄️ channel frozen (read-only) — visible notice, history untouched (17.4)</div>':"")
     +'<div class="chmsgs" id="chmsgs">'+msgGroupsHTML(ch.id)+"</div>"
     +'<div class="chtyping" id="chtyping" aria-live="polite"></div>'
-    +'<div class="chinput"><input id="chin" placeholder="Message '+ch.nm+'…" maxlength="240" autocomplete="off" aria-label="Message '+ch.nm+'"><button id="chsend">Send</button></div>';
+    +'<div class="chinput"><input id="chin" placeholder="'+(frozenForMe?"Channel frozen — read-only":"Message "+ch.nm+"…")+'" maxlength="240" autocomplete="off" aria-label="Message '+ch.nm+'"'+(frozenForMe?" disabled":"")+'><button id="chsend"'+(frozenForMe?" disabled style='opacity:.5'":"")+'>Send</button></div>';
 
   dock.querySelector("#chx").addEventListener("click", function(){ state.chatOpen=false; renderDock(); });
   dock.querySelector("#chback").addEventListener("click", function(){ state.chatChannel=null; renderDock(); });
-  if(slow) dock.querySelector("#slowchip").addEventListener("click", function(){ state.slowMode=!state.slowMode; renderDock(); });
+  if(freeze) dock.querySelector("#freezechip").addEventListener("click", function(){ state.frozen=!state.frozen; renderDock(); });
   var input = dock.querySelector("#chin");
   function send(){
+    if(state.frozen && !isMod) return;   /* read-only while frozen (17.4) */
     var v = input.value.trim();
     if(!v) return;
     CHAT_MSGS[ch.id].push({who:state.role, when:"now", t:v});
@@ -1837,7 +1961,7 @@ function renderDock(){
   input.addEventListener("keydown", function(e){ if(e.key==="Enter") send(); });
   wireMsgActions();
   scrollMsgs();
-  startChatSim(ch.id);
+  if(!state.frozen) startChatSim(ch.id);   /* frozen = nobody posts, incl. the sim */
 }
 function refreshMsgs(){
   var ch = chanById(state.chatChannel);
@@ -1866,13 +1990,13 @@ function startChatSim(chid){
   function step(){
     if(i >= script.length) return;
     addChatTimer(setTimeout(function(){
-      if(state.chatChannel!==chid || !state.chatOpen) return;
+      if(state.chatChannel!==chid || !state.chatOpen || state.frozen) return;
       var ty = document.getElementById("chtyping");
       if(ty) ty.innerHTML = '<span class="pdots"><i></i><i></i><i></i></span> <b>'+script[i].who+"</b>&nbsp;is typing…";
       addChatTimer(setTimeout(function(){
         var ty2 = document.getElementById("chtyping");
         if(ty2) ty2.innerHTML = "";
-        if(state.chatChannel!==chid || !state.chatOpen) return;
+        if(state.chatChannel!==chid || !state.chatOpen || state.frozen) return;
         CHAT_MSGS[chid].push({who:script[i].who, when:"now", t:script[i].t});
         i++;
         CHAT_SIM_IDX[chid] = i;
