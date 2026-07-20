@@ -1,0 +1,14 @@
+{
+  "name": "desisquare-gf-provisioner",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "DesiSquare Ghostfolio provisioner (Script 2). On Discourse registration (verified email) it creates/links a Ghostfolio account, serves a portfolio summary for the profile card, and mints a single-click SSO deep-link. Zero runtime dependencies for the stub: the Ghostfolio client is mocked behind a seam.",
+  "engines": { "node": ">=18" },
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "test": "node --test",
+    "smoke": "node scripts/smoke.js"
+  }
+}

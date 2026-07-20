@@ -1,0 +1,15 @@
+{
+  "name": "desisquare-wa-bridge",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "DesiSquare WhatsApp bridge (Script 1). Mirrors designated WhatsApp group messages into Discourse as the mapped member, and sends forum notifications out via the WhatsApp Cloud API. Zero runtime dependencies for the stub: the WhatsApp client is mocked behind a seam where whatsapp-web.js plugs in.",
+  "engines": { "node": ">=18" },
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "test": "node --test",
+    "smoke": "node scripts/smoke.js",
+    "install:wa": "npm install --no-save whatsapp-web.js qrcode-terminal"
+  }
+}

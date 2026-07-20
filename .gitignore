@@ -1,0 +1,15 @@
+# Dependencies
+node_modules/
+
+# Service runtime state (JSON-file persistence; recreated on boot)
+**/data/
+**/state.json
+
+# Local secrets — never commit; samples are .env.example
+.env
+**/.env
+!**/.env.example
+
+# OS / editor
+.DS_Store
+*.log

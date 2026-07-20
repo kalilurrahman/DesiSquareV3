@@ -1,0 +1,16 @@
+{
+  "_note": "Per-corridor WhatsApp Business (WABA) sender registry (DS-183, roadmap OMN-S03/OMN-S10). Copy to corridor-senders.json (git-ignored) and fill as corridors open — a corridor's readiness gate (GLO-S01) requires its row. Template packs are approved per locale in Meta Business Manager.",
+  "US": {
+    "wabaId": "WABA_ID_HERE",
+    "phoneNumberId": "PHONE_NUMBER_ID_HERE",
+    "displayNumber": "+1 555 0100",
+    "templatePack": "en-US-v1",
+    "quietHoursDefault": { "startHour": 4, "endHour": 13 },
+    "status": "pending-registration"
+  },
+  "CA": { "status": "opens-with-corridor", "templatePack": "en-CA-v1" },
+  "UK": { "status": "opens-with-corridor", "templatePack": "en-GB-v1" },
+  "GCC": { "status": "opens-with-corridor", "templatePack": "en-AE-v1", "quietHoursNote": "Jummah-aware scheduling via preference center (OMN-S10)" },
+  "SG": { "status": "opens-with-corridor", "templatePack": "en-SG-v1" },
+  "AU": { "status": "opens-with-corridor", "templatePack": "en-AU-v1" }
+}

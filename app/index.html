@@ -1,0 +1,1262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DesiSquare</title>
+<style>
+  /* ===== Design tokens (handoff README §8 — exact values) ===== */
+  :root{
+    --paper:#F6F5F1; --surface:#FFFFFF; --ink:#1D1D1F; --body:#3C3C40; --dim:#6E6E73;
+    --faint:#A4A4A9; --hairline:#E4E2DB; --wash:#F1EFE9;
+    --teal:#0F766E; --teal-hover:#0B5F58; --teal-tint:#E8F1EF;
+    --saffron:#C05621; --saffron-tint:#F9EDE3;
+    --good:#2F7D4F; --good-tint:#E7F2EA; --bad:#B3452E; --bad-tint:#F8E9E4;
+    --amber:#8A6D1F; --amber-tint:#F7EFDD;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;font-size:13.5px;line-height:1.55}
+  a{color:var(--teal);text-decoration:none}
+  a:hover{color:var(--teal-hover)}
+  input::placeholder,textarea::placeholder{color:var(--faint)}
+  button{font-family:inherit}
+  @keyframes om-toast{0%{opacity:0;transform:translate(-50%,8px)}12%{opacity:1;transform:translate(-50%,0)}85%{opacity:1}100%{opacity:0}}
+
+  /* topbar */
+  .topbar{position:sticky;top:0;z-index:60;background:rgba(255,255,255,0.94);backdrop-filter:blur(10px);border-bottom:1px solid var(--hairline)}
+  .topbar-in{max-width:1280px;margin:0 auto;display:flex;align-items:center;gap:16px;height:54px;padding:0 20px}
+  .logo{display:flex;align-items:center;gap:8px;cursor:pointer;flex:none}
+  .logo .diamond{width:10px;height:10px;background:var(--saffron);transform:rotate(45deg);display:block}
+  .logo .word{font-size:18px;font-weight:700;letter-spacing:-0.02em}
+  .search{flex:1;max-width:420px;background:var(--wash);border:1px solid transparent;border-radius:999px;padding:8px 16px;font-size:13px;font-family:inherit;color:var(--ink);outline:none}
+  .search:focus{border-color:var(--teal);background:var(--surface)}
+  .countrybtn{display:flex;align-items:center;gap:7px;background:var(--surface);border:1px solid var(--hairline);border-radius:999px;padding:6px 12px;font-size:13px;font-weight:600;cursor:pointer;color:var(--ink)}
+  .countrybtn:hover{border-color:var(--teal)}
+  .menu{position:absolute;right:0;top:40px;background:var(--surface);border:1px solid var(--hairline);border-radius:12px;box-shadow:0 8px 28px rgba(29,29,31,0.10);padding:6px;width:230px;z-index:70}
+  .menulabel{font-size:10.5px;font-weight:700;letter-spacing:0.08em;color:var(--dim);text-transform:uppercase;padding:8px 10px 4px}
+  .crow{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:8px;font-size:13px;cursor:pointer;color:var(--ink)}
+  .crow:hover{background:var(--wash)}
+  .crow.on{background:var(--teal-tint);font-weight:700;color:var(--teal-hover)}
+  .karma-pill{display:flex;align-items:center;gap:6px;background:var(--teal-tint);border-radius:999px;padding:6px 12px;cursor:pointer;flex:none}
+
+  /* shell */
+  .shell{max-width:1280px;margin:0 auto;display:grid;grid-template-columns:216px 1fr;gap:24px;padding:20px 20px 80px;align-items:start}
+  .sidebar{position:sticky;top:74px;display:flex;flex-direction:column;gap:20px}
+  .navitem{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:9px;font-size:13.5px;font-weight:550;color:var(--body);cursor:pointer;border:1px solid transparent}
+  .navitem.on{font-weight:700;background:var(--surface);border:1px solid var(--hairline);color:var(--ink)}
+  .sp-row{display:flex;align-items:center;gap:8px;padding:6.5px 12px;border-radius:8px;font-size:13px;color:var(--body);cursor:pointer}
+  .sp-row.on{font-weight:700;background:#ECEAE2;color:var(--ink)}
+  .seclabel{font-size:10.5px;font-weight:700;letter-spacing:0.08em;color:var(--dim);text-transform:uppercase}
+
+  /* cards + controls */
+  .card{background:var(--surface);border:1px solid var(--hairline);border-radius:12px}
+  .btn-pri{background:var(--teal);border:1px solid var(--teal);color:#fff;border-radius:8px;padding:6px 14px;font-size:12.5px;font-weight:600;cursor:pointer;flex:none}
+  .btn-pri:hover{background:var(--teal-hover);border-color:var(--teal-hover)}
+  .btn-ghost{background:var(--surface);border:1px solid var(--hairline);color:var(--ink);border-radius:8px;padding:6px 14px;font-size:12.5px;font-weight:600;cursor:pointer;flex:none}
+  .btn-profile:hover{border-color:var(--teal);color:var(--teal)}
+  .hovbg-teal:hover{background:var(--teal-hover) !important} /* teal→teal-hover for inline-styled teal surfaces (proto style-hover) */
+  .cprompt{flex:1;background:var(--wash);border-radius:999px;padding:9px 16px;font-size:13.5px;color:var(--dim);cursor:text}
+  .cprompt:hover{background:#ECEAE2}
+  .cbody{border:1px solid var(--hairline);border-radius:10px;padding:10px 12px;font-size:13.5px;font-family:inherit;color:var(--ink);min-height:74px;resize:vertical;outline:none}
+  .cbody:focus{border-color:var(--teal)}
+  .kbsearch{width:100%;background:var(--surface);border:1px solid var(--hairline);border-radius:12px;padding:13px 18px;font-size:14px;font-family:inherit;color:var(--ink);outline:none}
+  .kbsearch:focus{border-color:var(--teal)}
+  .comments-link{font-size:12px;color:var(--dim);cursor:pointer}
+  .comments-link:hover{color:var(--teal)}
+  .pill{display:inline-flex;align-items:center;gap:5px;white-space:nowrap;background:var(--surface);border:1px solid var(--hairline);color:var(--dim);border-radius:999px;padding:3.5px 11px;font-size:12px;font-weight:600;cursor:pointer}
+  .pill.on{background:var(--teal-tint);border-color:var(--teal);color:var(--teal-hover);font-weight:700}
+  .chip{white-space:nowrap;background:var(--surface);border:1px solid var(--hairline);color:var(--dim);border-radius:999px;padding:4px 13px;font-size:12px;font-weight:600;cursor:pointer}
+  .chip.on{background:var(--ink);border-color:var(--ink);color:#fff}
+  .toggle{background:var(--surface);border:1px solid var(--hairline);color:var(--dim);border-radius:999px;padding:5px 13px;font-size:12px;font-weight:600;cursor:pointer;flex:none}
+  .toggle.on{background:var(--teal);border-color:var(--teal);color:#fff;font-weight:700}
+  .sig{font-size:11px;font-weight:800;border-radius:6px;padding:3px 9px;letter-spacing:0.03em;flex:none}
+  .sig-buy{background:var(--good-tint);color:var(--good)} .sig-sell{background:var(--bad-tint);color:var(--bad)}
+  .sig-hold{background:var(--amber-tint);color:var(--amber)} .sig-upd{background:var(--wash);color:var(--dim)}
+  .maven-badge{background:var(--teal-tint);color:var(--teal-hover);font-size:10.5px;font-weight:700;border-radius:5px;padding:1.5px 7px}
+  .wa-badge{background:var(--wash);color:var(--dim);font-size:10.5px;font-weight:600;border-radius:5px;padding:1.5px 7px}
+  .livebadge{background:var(--teal-tint);color:var(--teal-hover);font-size:9px;font-weight:800;border-radius:4px;padding:1px 6px;letter-spacing:0.06em;vertical-align:2px}
+  .av{border-radius:50%;color:#fff;display:grid;place-items:center;font-weight:700;flex:none;cursor:pointer}
+
+  /* toast + disclaimer */
+  .toast{position:fixed;left:50%;bottom:52px;transform:translateX(-50%);background:var(--ink);color:#fff;font-size:13px;font-weight:600;border-radius:999px;padding:10px 20px;z-index:100;animation:om-toast 2.6s ease forwards;box-shadow:0 8px 28px rgba(29,29,31,0.25);white-space:nowrap}
+  .disclaimer{position:fixed;left:0;right:0;bottom:0;z-index:50;background:rgba(246,245,241,0.96);backdrop-filter:blur(6px);border-top:1px solid var(--hairline);color:var(--dim);font-size:11.5px;text-align:center;padding:7px 12px}
+
+  @media (max-width:1080px){ .rail{display:none} .twocol{grid-template-columns:1fr !important} }
+  @media (max-width:820px){ .shell{grid-template-columns:1fr} .sidebar{display:none} }
+</style>
+</head>
+<body>
+
+<!-- ===================== TOP BAR ===================== -->
+<div class="topbar">
+  <div class="topbar-in">
+    <div class="logo" onclick="A.go('feed')">
+      <span class="diamond"></span><span class="word">DesiSquare</span>
+    </div>
+    <input id="topq" class="search" placeholder="Search posts, tickers, knowledge… (Enter)"
+      oninput="A.setQ(this.value)" onkeydown="if(event.key==='Enter')A.searchEnter()">
+    <div style="flex:1"></div>
+    <div id="countrywrap" style="position:relative;flex:none"></div>
+    <div class="karma-pill" title="Your karma" onclick="A.go('me')">
+      <span style="width:6px;height:6px;background:var(--teal);transform:rotate(45deg);display:block"></span>
+      <span style="font-size:13px;font-weight:700;color:var(--teal-hover)">1,284</span>
+      <span style="font-size:11.5px;color:var(--teal-hover)">karma</span>
+    </div>
+    <div class="av" style="width:32px;height:32px;background:#54428E;font-size:12px" onclick="A.go('me')">QL</div>
+  </div>
+</div>
+
+<!-- ===================== SHELL ===================== -->
+<div class="shell">
+  <div class="sidebar" id="sidebar"></div>
+  <div id="main"></div>
+</div>
+
+<div class="disclaimer" id="disclaimer">Community content is educational discussion — <b>not investment advice</b>. Do your own research.</div>
+<div id="toasthost"></div>
+
+<script>
+'use strict';
+/* =====================================================================
+   DesiSquare product app — hash-routed recreation of the hi-fi prototype
+   (design_handoff_desisquare_build/design-refs/DesiSquare Prototype.dc.html).
+   Seed content mirrors the prototype exactly so demo == design; live data
+   from the local stack augments it (LIVE chips) and degrades gracefully.
+   ===================================================================== */
+
+/* ---------- seed data (mirrors the prototype) ---------- */
+const AV = { teal:'#0F766E', plum:'#54428E', saffron:'#C05621', slate:'#4A5568', moss:'#5F7D4F', wine:'#8E4256' };
+
+const MAVENS = [
+  { id:'ns', name:'Nikhil Sharma', handle:'@nikhil_cfa', av:AV.teal, cred:'CFA · ex-Fidelity PM, 12y',
+    creds:['CFA Charterholder','Ex-Fidelity PM · 12y','Series 65'], karma:8421, followers:1240, responseTime:'in ~2h',
+    about:'Long-horizon index-plus investing for immigrant households. I publish every call I make — judge me on the record, not the resume.',
+    blurb:'Index-plus portfolios, position sizing, and the discipline to do less.', special:['Equities','Retirement'],
+    dims:[['Community',92],['Performance',88],['Reviews',96],['Responsiveness',81]],
+    docs:[{name:'2026 NRI Tax Checklist.pdf',meta:'PDF · 312 downloads'},{name:'Rebalancing policy (public).pdf',meta:'PDF · 178 downloads'}],
+    reviews:[{stars:'★★★★★',by:'@first_gen_saver',text:'Explained my 401(k) rollover in one thread. Saved me a $400 consult.'},
+             {stars:'★★★★★',by:'@dallas_desi',text:'His SELL tags saved me from my own FOMO twice this year.'}],
+    signals:[
+      {date:'Jul 8', kind:'SELL', note:'NVDA trim 3% into strength, back to target', since:'−1.2%', good:true},
+      {date:'Jun 24',kind:'BUY',  note:'VTI — redeploy trim proceeds',               since:'+2.4%', good:true},
+      {date:'May 12',kind:'HOLD', note:'MSFT through earnings volatility',           since:'+5.1%', good:true},
+      {date:'Apr 3', kind:'BUY',  note:'BRK.B on cash-pile discount',                since:'+7.9%', good:true}
+    ] },
+  { id:'pd', name:'Priya Desai', handle:'@priya_taxes', av:AV.wine, cred:'CPA · EA · cross-border tax, 9y',
+    creds:['CPA','Enrolled Agent','Cross-border tax · 9y'], karma:7186, followers:986, responseTime:'in ~4h',
+    about:'US–India tax without the fear-mongering. FEMA, DTAA, FBAR — ask in public so the answer helps the next thousand families.',
+    blurb:'Cross-border tax: DTAA, FEMA, FBAR, and what actually gets audited.', special:['Tax'],
+    dims:[['Community',95],['Performance',74],['Reviews',97],['Responsiveness',88]],
+    docs:[{name:'H-1B mid-year tax moves.pdf',meta:'PDF · 421 downloads'},{name:'FBAR filing walkthrough.pdf',meta:'PDF · 356 downloads'}],
+    reviews:[{stars:'★★★★★',by:'@quiet_lotus',text:'The only person who made DTAA make sense. Public answers, no upsell.'},
+             {stars:'★★★★☆',by:'@maple_nri',text:'Thorough. Wish she covered Canada too.'}],
+    signals:[{date:'Jul 2', kind:'UPDATE', note:'Mid-year estimated-tax reminder thread', since:'—', good:true}] },
+  { id:'ar', name:'Arjun Rao', handle:'@arjun_quant', av:AV.slate, cred:'CFP® · quant PM',
+    creds:['CFP®','Quant PM · 8y'], karma:5904, followers:742, responseTime:'in ~1d',
+    about:'Rules-based momentum with strict drawdown control. Higher risk, fully disclosed — never more than a sleeve of your portfolio.',
+    blurb:'Systematic momentum sleeves with published rules and drawdown limits.', special:['Equities'],
+    dims:[['Community',78],['Performance',93],['Reviews',84],['Responsiveness',62]],
+    docs:[{name:'Momentum Sleeve rulebook v3.pdf',meta:'PDF · 203 downloads'}],
+    reviews:[{stars:'★★★★☆',by:'@chai_and_charts',text:'Slow to reply but the model docs are gold-standard transparent.'}],
+    signals:[
+      {date:'Jul 9', kind:'BUY',  note:'AVGO at 4% — momentum entry per rulebook', since:'+0.8%',  good:true},
+      {date:'Jun 12',kind:'SELL', note:'SMCI exit on trend break',                 since:'+11.3%', good:true}
+    ] }
+];
+
+const MODELS = [
+  { id:'m1', owner:'ns', name:'Steady Compounder', strategy:'Large-cap quality over an index core · monthly rebalance',
+    cagr:'+14.2%', since:'since Jan 2024', vsSpy:'+2.1%', vsGood:true, risk:'Moderate', dd:'−9% max DD', followers:412,
+    pts:[4,4,4,3,4,3,4,5,5,4,6,4,5,6,7], note:'Tracked by DesiSquare from declared entries/exits, net of costs' },
+  { id:'m2', owner:'ns', name:'Dividend Ladder', strategy:'Income-first · qualified dividends · low turnover',
+    cagr:'+9.8%', since:'since Jun 2024', vsSpy:'−1.3%', vsGood:false, risk:'Low', dd:'−5% max DD', followers:238,
+    pts:[3,3,4,4,4,5,4,5,5,5,6,5,6,6,6], note:'Underperforms bull markets by design — steadier income' },
+  { id:'m3', owner:'ar', name:'Momentum Sleeve', strategy:'Rules-based momentum · 10-name sleeve · hard stops',
+    cagr:'+21.4%', since:'since Mar 2024', vsSpy:'+9.3%', vsGood:true, risk:'High', dd:'−18% max DD', followers:186,
+    pts:[3,4,5,3,2,4,6,5,7,5,8,6,9,8,10], note:'Sleeve sizing capped at 15% by the published rulebook' }
+];
+
+const KB = [
+  { id:'k1', title:'FCNR deposits: rates, tax treatment, and when they beat T-bills', space:'Taxes & FEMA', from:'Converted from a 14-reply thread', helpful:89, updated:'Jun 2026', keys:['fcnr','deposit','nre','nro'] },
+  { id:'k2', title:'DTAA basics: how NRIs avoid getting taxed twice', space:'Taxes & FEMA', from:'Converted from office hours', helpful:124, updated:'May 2026', keys:['dtaa','double','treaty'] },
+  { id:'k3', title:'401(k) → India: your rollover options, ranked', space:'401k & Retirement', from:'Converted from a 22-reply thread', helpful:156, updated:'Jun 2026', keys:['401','rollover','ira'] },
+  { id:'k4', title:'Roth vs Traditional on H-1B: a decision tree', space:'401k & Retirement', from:'Written by Priya Desai · community-reviewed', helpful:98, updated:'Apr 2026', keys:['roth','h1b','h-1b','traditional'] },
+  { id:'k5', title:'Sending money home: remittance rails compared (fees, FX, timing)', space:'NRI Banking', from:'Converted from a 31-reply thread', helpful:143, updated:'Jul 2026', keys:['remit','send money','transfer','wise'] }
+];
+
+const EVENTS = [
+  { mo:'Jul', day:'14', title:'Office hours: cross-border tax', sub:'Priya Desai · WhatsApp Live' },
+  { mo:'Jul', day:'18', title:'Mid-year portfolio checkup', sub:'Nikhil Sharma · group call' },
+  { mo:'Jul', day:'25', title:'Watercooler: chai & charts', sub:'casual hangout · everyone' }
+];
+
+const TRENDING = [
+  { name:'Priya Desai',     initials:'PD', av:AV.wine,    note:'Maven · 3 answers → KB',      delta:'+186' },
+  { name:'quant_aunty',     initials:'QA', av:AV.moss,    note:'Peer · options explainers',   delta:'+142' },
+  { name:'Nikhil Sharma',   initials:'NS', av:AV.teal,    note:'Maven · NVDA trim call',      delta:'+128' },
+  { name:'chai_and_charts', initials:'CC', av:AV.saffron, note:'Watercooler legend',          delta:'+97'  },
+  { name:'first_gen_saver', initials:'FS', av:AV.plum,    note:'Best question of the week',   delta:'+64'  }
+];
+
+const COUNTRIES = [
+  { code:'US', flag:'🇺🇸', name:'United States' }, { code:'CA', flag:'🇨🇦', name:'Canada' },
+  { code:'UK', flag:'🇬🇧', name:'United Kingdom' }, { code:'AE', flag:'🇦🇪', name:'UAE' },
+  { code:'AU', flag:'🇦🇺', name:'Australia' }, { code:'SG', flag:'🇸🇬', name:'Singapore' }
+];
+
+const SPACES = [
+  { id:'all',    name:'All posts',         count:''  }, { id:'stocks', name:'Stocks & ETFs',     count:214 },
+  { id:'tax',    name:'Taxes & FEMA',      count:178 }, { id:'retire', name:'401k & Retirement', count:131 },
+  { id:'re',     name:'Real Estate',       count:96  }, { id:'help',   name:'Ask the community', count:84  },
+  { id:'water',  name:'Watercooler',       count:152 }
+];
+
+const rx = (h,i,a,l) => ({ helpful:{n:h,on:false}, insightful:{n:i,on:false}, actionable:{n:a,on:false}, like:{n:l,on:false} });
+
+/* ---------- state ---------- */
+const state = {
+  view:'feed', space:'all', activePost:null, activeMaven:null, dirFilter:'All', meTab:'posts',
+  q:'', kbQ:'', replyText:'', countryOpen:false,
+  country: localStorage.getItem('ds.country') || 'US',
+  composer:false, cTitle:'', cBody:'', cSpace:'help', cSignal:'None', fbFor:null,
+  dupes:[], dupesLive:false,
+  following:{ pd:true }, followingModels:{ m1:true }, pfPublic:false, mirror:true, notifs:true, p2InKb:false,
+  communities: {
+    US: [
+      { id:'usinv',    name:'US Investment',    type:'common',  members:'4,823', online:142, joined:true,  desc:'The common free community for desi investors in the US — moderated by DesiSquare, public-first, zero cost.' },
+      { id:'re',       name:'NRI Real Estate',  type:'public',  members:'1,976', online:38,  joined:false, desc:'US and India property: financing on visas, cross-border rentals, REITs vs the Gurgaon flat.' },
+      { id:'options',  name:'Options & Income', type:'public',  members:'812',   online:21,  joined:false, desc:'Covered calls, cash-secured puts, hedging. No lottery tickets.' },
+      { id:'fire',     name:'Desi FIRE',        type:'private', members:'640',   online:17,  joined:false, requested:false, desc:'Early-retirement math for immigrant families balancing two countries. Request or get invited.' },
+      { id:'founders', name:'Founders & Equity',type:'private', members:'355',   online:9,   joined:false, requested:false, desc:'Startup equity, 83(b), secondaries, QSBS — founder-to-founder.' }
+    ],
+    CA: [
+      { id:'cainv', name:'Canada Investment', type:'common', members:'1,204', online:44, joined:false, desc:'The common free community for desi investors in Canada — TFSA, RRSP, FHSA and more.' },
+      { id:'maple', name:'Maple Real Estate', type:'public', members:'512',   online:12, joined:false, desc:'GTA & Vancouver property, pre-construction, rentals back home.' }
+    ],
+    UK: [
+      { id:'ukinv', name:'UK Investment',   type:'common', members:'868', online:25, joined:false, desc:'ISAs, SIPPs, and NRI money matters for desis in the UK.' },
+      { id:'ukisa', name:'ISA Maximalists', type:'public', members:'301', online:8,  joined:false, desc:'Getting every pound of the allowance working.' }
+    ],
+    AE: [
+      { id:'aeinv', name:'UAE Investment',    type:'common', members:'1,552', online:61, joined:false, desc:'Tax-free income ≠ plan-free life. The Gulf desi money community.' },
+      { id:'gold',  name:'Gold & Remittance', type:'public', members:'423',   online:15, joined:false, desc:'Gold, dirham FDs, and timing INR transfers.' }
+    ],
+    AU: [
+      { id:'auinv', name:'Australia Investment', type:'common', members:'644', online:19, joined:false, desc:'Super, franking credits and India money for desi Aussies.' }
+    ],
+    SG: [
+      { id:'sginv', name:'Singapore Investment', type:'common', members:'702', online:28, joined:false, desc:'CPF, SRS and cross-border planning for desis in Singapore.' }
+    ]
+  },
+  posts: [
+    { id:'p1', space:'stocks', author:'Nikhil Sharma', initials:'NS', av:AV.teal, maven:'ns', time:'2h', via:'web', signal:'SELL · NVDA',
+      title:'Trimming NVDA into strength — back to target weights',
+      body:'Cut 3% into today’s pop, proceeds to VTI. Valuation alone isn’t a sell thesis, but position sizing is. Model updated with the exact lots.',
+      bodyFull:'Cut 3% into today’s pop, proceeds to VTI. Valuation alone isn’t a sell thesis, but position sizing is — NVDA had drifted to 11% of the Steady Compounder when the rule says 8%.\n\nThis is the boring, repeatable part of investing: rebalance when the rule says so, not when it feels good. Full lot detail is on the model page, stamped as usual.',
+      chip:'Model · Steady Compounder', rx:rx(9,23,14,31), flagged:null,
+      comments:[
+        { author:'quant_aunty', initials:'QA', av:AV.moss, time:'1h', text:'The discipline is the alpha. Copying the 8% cap rule for my own sheet.' },
+        { author:'first_gen_saver', initials:'FS', av:AV.plum, time:'44m', text:'Does the trim change your 2026 CAGR posted on the model?' }
+      ] },
+    { id:'p2', space:'tax', author:'first_gen_saver', initials:'FS', av:AV.plum, time:'5h', via:'web', signal:null,
+      title:'FCNR deposits at 5.1% — am I missing a catch vs T-bills?',
+      body:'Bank is pitching 5.1% on a 2-year FCNR. T-bills pay similar with zero India paperwork. What actually breaks the tie for an NRI on H-1B?',
+      bodyFull:'Bank is pitching 5.1% on a 2-year FCNR. T-bills pay similar with zero India paperwork. What actually breaks the tie for an NRI on H-1B?\n\nI’ve read the brochure version — tax-free in India, repatriable — but I want the catches from people who actually held one to maturity.',
+      chip:null, rx:rx(21,8,5,12), flagged:null,
+      comments:[
+        { author:'dallas_desi', initials:'DD', av:AV.saffron, time:'4h', text:'Held two to maturity. The paperwork is fine — the catch is breaking one early: you forfeit most interest.' },
+        { author:'Priya Desai', initials:'PD', av:AV.wine, maven:'pd', time:'3h', answer:true, text:'Three real catches: (1) premature withdrawal usually forfeits interest below 1 year and re-prices the rest; (2) FCNR interest is India-tax-free but US-taxable — it lands on your 1040 and needs FBAR if accounts cross $10k; (3) repatriation is clean, but only from the FCNR — once you move it to NRO, you’re in TDS territory. If you’ll be US-resident both years, T-bills win on simplicity unless you specifically want INR-hedged dollars parked in India.' },
+        { author:'first_gen_saver', initials:'FS', av:AV.plum, time:'2h', text:'This is exactly what the brochure never says. Thank you 🙏' }
+      ] },
+    { id:'p5', space:'tax', author:'Priya Desai', initials:'PD', av:AV.wine, maven:'pd', time:'8h', via:'web', signal:'UPDATE',
+      title:'Mid-year tax moves for H-1B households — the 20-minute checklist',
+      body:'Estimated taxes if you had RSU vests, FBAR if India accounts crossed $10k, and the Roth window if income dipped. Checklist PDF attached.',
+      bodyFull:'Estimated taxes if you had RSU vests, FBAR if India accounts crossed $10k, and the Roth window if income dipped. Checklist PDF attached — 20 minutes now saves an April headache.',
+      chip:'Attached · H-1B mid-year tax moves.pdf', rx:rx(48,19,37,22), flagged:null,
+      comments:[{ author:'quiet_lotus', initials:'QL', av:AV.plum, time:'6h', text:'Done in 18 minutes. The FBAR reminder was the one I’d have missed.' }] },
+    { id:'p4', space:'help', author:'dallas_desi', initials:'DD', av:AV.saffron, time:'11h', via:'whatsapp', signal:null,
+      title:'Parents visiting for 6 months — which visitor insurance actually pays claims?',
+      body:'Every plan looks identical until someone’s in the ER. Real claim experiences please, not affiliate links.',
+      bodyFull:'Every plan looks identical until someone’s in the ER. Real claim experiences please, not affiliate links.\n\nDad is 68, pre-existing BP. Looking at 6-month coverage, Texas.',
+      chip:null, rx:rx(17,4,9,8), flagged:null,
+      comments:[{ author:'quant_aunty', initials:'QA', av:AV.moss, time:'9h', text:'Filed a real claim with one of the big two last year — paid, but only because we pre-authorized. Writing up details tonight.' }] },
+    { id:'p6', space:'stocks', author:'Arjun Rao', initials:'AR', av:AV.slate, maven:'ar', time:'1d', via:'web', signal:'BUY · AVGO',
+      title:'Momentum Sleeve adds AVGO at 4% — entry per rulebook',
+      body:'Trend and relative-strength triggers both fired. Stop at −12% as always. This is a sleeve, not a portfolio — sizing rules in the doc.',
+      bodyFull:'Trend and relative-strength triggers both fired. Stop at −12% as always. This is a sleeve, not a portfolio — sizing rules in the doc.',
+      chip:'Model · Momentum Sleeve', rx:rx(6,15,11,9), flagged:null,
+      comments:[] },
+    { id:'p3', space:'water', author:'chai_and_charts', initials:'CC', av:AV.saffron, time:'1d', via:'web', signal:null,
+      title:'Portfolio down 2%, chai consumption up 40%.',
+      body:'Balanced, as all things should be. Monday market meditation thread — drop your coping beverage. ☕',
+      bodyFull:'Balanced, as all things should be. Monday market meditation thread — drop your coping beverage. ☕',
+      chip:null, rx:rx(4,2,1,87), flagged:null,
+      comments:[{ author:'quiet_lotus', initials:'QL', av:AV.plum, time:'22h', text:'Filter chai, no sugar — like my expense ratio.' }] }
+  ],
+  modQueue: [
+    { id:'q1', reason:'Self-Marketing', meta:'@wealth_guru_77 · in Ask the community · 2h', quote:'DM me for my premium signals group — guaranteed 3% monthly, first week free. Limited spots!!', flags:9, status:'pending' },
+    { id:'q2', reason:'Misleading', meta:'@moon_bets · in Stocks & ETFs · 6h', quote:'FDs are a scam, real desis are 100% in leveraged ETFs. My uncle turned 10L into 2Cr.', flags:5, status:'pending' }
+  ]
+};
+
+/* ---------- LIVE data (all optional — seeded content is the fallback) ---------- */
+const LIVE = { ai:false, wa:null, metrics:{}, signals:{} }; // metrics keyed by local model id, signals by maven id
+const api = (p, opt) => fetch(p, opt).then(r => r.ok ? r.json() : Promise.reject(new Error(r.status))).catch(() => null);
+
+async function loadLive() {
+  const [ai, wa] = await Promise.all([api('/api/ai/health'), api('/api/wa/health')]);
+  if (ai && ai.ok) LIVE.ai = true;
+  if (wa && wa.ok) LIVE.wa = wa;
+  await loadModelsLive();
+  safeRender();
+}
+
+// models-service (spec: GET /users/:id/models, GET /models/:id/metrics, GET /users/:id/signals)
+async function loadModelsLive() {
+  for (const mv of MAVENS) {
+    // models-service keys users by their pseudonym username (Discourse post.username), e.g. nikhil_cfa
+    const uid = encodeURIComponent(String(mv.handle || '').replace(/^@/, '') || mv.id);
+    const [ms, sigs] = await Promise.all([
+      api('/api/models/users/' + uid + '/models'),
+      api('/api/models/users/' + uid + '/signals')
+    ]);
+    const list = Array.isArray(ms) ? ms : (ms && Array.isArray(ms.models) ? ms.models : []);
+    for (const lm of list) {
+      const local = MODELS.find(x => x.name.toLowerCase() === String(lm.name || '').toLowerCase());
+      if (!local) continue;
+      const met = await api('/api/models/models/' + encodeURIComponent(lm.id) + '/metrics');
+      if (met && !met.error) LIVE.metrics[local.id] = met;
+    }
+    const rows = Array.isArray(sigs) ? sigs : (sigs && Array.isArray(sigs.signals) ? sigs.signals : []);
+    if (rows.length) LIVE.signals[mv.id] = rows;
+  }
+}
+
+function safeRender() { // don't yank focus from a mid-typing user
+  const ae = document.activeElement;
+  if (ae && (ae.tagName === 'INPUT' || ae.tagName === 'TEXTAREA')) return;
+  render();
+}
+
+/* ---------- helpers ---------- */
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const MINUS = '−';
+
+function fmtPct(v, signed) {
+  if (v == null) return '—';
+  if (typeof v === 'string') return v;
+  const n = Math.abs(v) <= 1.5 ? v * 100 : v; // tolerate fraction or percent units
+  const sign = n < 0 ? MINUS : (signed === false ? '' : '+');
+  return sign + Math.abs(n).toFixed(1) + '%';
+}
+function fmtSincePct(v) { // sincePct is percent units per the models-service spec (−1.2 → −1.2%)
+  if (v == null) return '—';
+  if (typeof v === 'string') return v;
+  return (v < 0 ? MINUS : '+') + Math.abs(v).toFixed(1) + '%';
+}
+function fmtDD(v) {
+  if (v == null) return null;
+  if (typeof v === 'string') return v;
+  const n = Math.abs(v) <= 1.5 ? Math.abs(v) * 100 : Math.abs(v);
+  return MINUS + Math.round(n) + '% max DD';
+}
+function fmtDate(iso) {
+  const d = new Date(iso);
+  if (isNaN(d)) return String(iso || '');
+  return d.toLocaleString('en-US', { month:'short', day:'numeric' });
+}
+function sigClass(kind) {
+  const k = String(kind || '').split(' ')[0];
+  return k === 'BUY' ? 'sig sig-buy' : k === 'SELL' ? 'sig sig-sell' : k === 'HOLD' ? 'sig sig-hold' : 'sig sig-upd';
+}
+function avatar(color, initials, size, onclick) {
+  const s = size || 34;
+  return '<div class="av" style="width:' + s + 'px;height:' + s + 'px;background:' + color + ';font-size:' + Math.round(s * 0.36) + 'px"' +
+    (onclick ? ' onclick="' + onclick + '"' : '') + '>' + esc(initials) + '</div>';
+}
+function spark(pts, color) {
+  const W = 120, H = 34, max = Math.max.apply(null, pts), min = Math.min.apply(null, pts), span = (max - min) || 1;
+  const p = pts.map((v, i) => (i * (W / (pts.length - 1))).toFixed(1) + ',' + (H - 4 - ((v - min) / span) * (H - 8)).toFixed(1)).join(' ');
+  return '<svg width="120" height="34" viewBox="0 0 120 34" style="flex:none;display:block"><polyline points="' + p +
+    '" style="fill:none;stroke:' + (color || '#0F766E') + ';stroke-width:2;stroke-linejoin:round;stroke-linecap:round"></polyline></svg>';
+}
+
+let toastTimer = null;
+function toast(t) {
+  const host = document.getElementById('toasthost');
+  host.innerHTML = '';
+  const el = document.createElement('div');
+  el.className = 'toast'; el.textContent = t;
+  host.appendChild(el);
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { host.innerHTML = ''; }, 2600);
+}
+
+/* ---------- hash router ---------- */
+let suppressHash = false;
+function hashFor() {
+  switch (state.view) {
+    case 'feed': return state.space && state.space !== 'all' ? '#/feed/' + state.space : '#/';
+    case 'post': return '#/post/' + state.activePost;
+    case 'maven': return '#/maven/' + state.activeMaven;
+    default: return '#/' + state.view;
+  }
+}
+function applyHash() {
+  const h = location.hash.replace(/^#\/?/, '');
+  const [seg, arg] = h.split('/');
+  if (!seg || seg === 'feed') { state.view = 'feed'; state.space = (seg === 'feed' && arg && SPACES.some(s => s.id === arg)) ? arg : 'all'; }
+  else if (seg === 'post' && state.posts.some(p => p.id === arg)) { state.view = 'post'; state.activePost = arg; }
+  else if (seg === 'maven' && MAVENS.some(m => m.id === arg)) { state.view = 'maven'; state.activeMaven = arg; }
+  else if (['home','directory','kb','me','settings','mod'].includes(seg)) state.view = seg;
+  else state.view = 'feed';
+}
+window.addEventListener('hashchange', () => {
+  if (suppressHash) { suppressHash = false; return; }
+  state.countryOpen = false; state.fbFor = null;
+  applyHash(); render(); window.scrollTo(0, 0);
+});
+
+/* ---------- app actions ---------- */
+const A = {
+  go(view, extra) {
+    Object.assign(state, { countryOpen:false, fbFor:null }, extra || {});
+    state.view = view;
+    const h = hashFor();
+    if (location.hash !== h) { suppressHash = true; location.hash = h; }
+    render(); window.scrollTo(0, 0);
+  },
+  openPost(id)   { A.go('post',  { activePost: id }); },
+  openMaven(id)  { A.go('maven', { activeMaven: id }); },
+  pickSpace(id)  { A.go('feed',  { space: id }); },
+
+  /* top bar */
+  setQ(v) { state.q = v; },
+  searchEnter() { A.go('kb', { kbQ: state.q }); },
+  toggleCountry() { state.countryOpen = !state.countryOpen; renderCountry(); },
+  pickCountry(code) {
+    state.country = code; localStorage.setItem('ds.country', code);
+    const c = COUNTRIES.find(x => x.code === code);
+    A.go('home'); toast('Home base: ' + c.name);
+  },
+
+  /* composer */
+  openComposer()  { state.composer = true;  render(); const el = document.getElementById('ctitle'); if (el) el.focus(); },
+  closeComposer() { state.composer = false; state.dupes = []; state.dupesLive = false; render(); },
+  setCTitle(v)    { state.cTitle = v; scheduleDedup(); },
+  setCBody(v)     { state.cBody = v; },
+  pickCSpace(id)  { state.cSpace = id; renderComposerChips(); },
+  pickCSignal(k)  { state.cSignal = k; renderComposerChips(); },
+  upvoteExisting() {
+    state.composer = false; state.cTitle = ''; state.cBody = ''; state.dupes = []; state.dupesLive = false;
+    render(); toast('Upvoted the existing question — you’ll be notified on updates');
+  },
+  submitPost() {
+    if (!state.cTitle.trim()) { toast('Give it a title first'); return; }
+    const sig = state.cSignal === 'None' ? null : state.cSignal;
+    state.posts.unshift({
+      id:'new' + Date.now(), space:state.cSpace, author:'quiet_lotus', initials:'QL', av:AV.plum, time:'now', via:'web',
+      signal:sig, title:state.cTitle, body:state.cBody || '—', bodyFull:state.cBody || '—', chip:null,
+      rx:rx(0,0,0,0), flagged:null, comments:[]
+    });
+    const spName = (SPACES.find(x => x.id === state.cSpace) || {}).name || 'the community';
+    state.composer = false; state.cTitle = ''; state.cBody = ''; state.cSignal = 'None'; state.dupes = []; state.dupesLive = false;
+    render(); toast('Posted to ' + spName);
+  },
+
+  /* reactions + flags */
+  toggleRx(pid, key) {
+    const p = state.posts.find(x => x.id === pid); if (!p) return;
+    const r = p.rx[key];
+    r.on = !r.on; r.n += r.on ? 1 : -1;
+    render();
+    if (r.on) toast('+1 ' + key.charAt(0).toUpperCase() + key.slice(1) + ' — karma sent to ' + p.author);
+  },
+  fbToggle(pid) { state.fbFor = state.fbFor === pid ? null : pid; render(); },
+  flag(pid, label) {
+    const p = state.posts.find(x => x.id === pid); if (!p) return;
+    p.flagged = label; state.fbFor = null;
+    render(); toast('Flagged as ' + label + ' — moderators notified');
+  },
+
+  /* follows */
+  followMaven(id) {
+    state.following[id] = !state.following[id];
+    const m = MAVENS.find(x => x.id === id);
+    render(); toast(state.following[id] ? 'Following ' + m.name : 'Unfollowed ' + m.name);
+  },
+  followModel(id) {
+    state.followingModels[id] = !state.followingModels[id];
+    const m = MODELS.find(x => x.id === id);
+    render(); toast(state.followingModels[id] ? 'Following model · ' + m.name : 'Stopped following ' + m.name);
+  },
+
+  /* post detail */
+  setReply(v) { state.replyText = v; },
+  sendReply() {
+    if (!state.replyText.trim()) return;
+    const p = state.posts.find(x => x.id === state.activePost); if (!p) return;
+    p.comments.push({ author:'quiet_lotus', initials:'QL', av:AV.plum, time:'now', text:state.replyText });
+    state.replyText = '';
+    render(); toast('Reply posted');
+  },
+  convertToKb() { state.p2InKb = true; render(); toast('Answer promoted to the knowledge base'); },
+
+  /* home */
+  joinCommunity(id) {
+    const comms = state.communities[state.country] || [];
+    const c = comms.find(x => x.id === id); if (!c) return;
+    if (c.joined) { A.go('feed'); return; }
+    if (c.type === 'private') { c.requested = true; render(); toast('Request sent to ' + c.name + ' moderators'); }
+    else { c.joined = true; render(); toast('Welcome to ' + c.name); }
+  },
+
+  /* directory / kb / me */
+  pickDirFilter(f) { state.dirFilter = f; render(); },
+  setKbQ(v) { state.kbQ = v; const el = document.getElementById('kblist'); if (el) el.innerHTML = kbListHTML(); },
+  pickMeTab(t) { state.meTab = t; render(); },
+
+  /* settings toggles (act immediately, with toasts) */
+  togglePortfolio() {
+    state.pfPublic = !state.pfPublic;
+    render(); toast(state.pfPublic ? 'Portfolio is now public on your profile' : 'Portfolio is now private');
+  },
+  toggleMirror() {
+    state.mirror = !state.mirror;
+    render(); toast(state.mirror ? 'WhatsApp mirroring on' : 'WhatsApp mirroring off');
+  },
+  toggleNotifs() {
+    state.notifs = !state.notifs;
+    render(); toast(state.notifs ? 'WhatsApp notifications on' : 'WhatsApp notifications off');
+  },
+
+  /* moderation */
+  modBan(id) {
+    const q = state.modQueue.find(x => x.id === id); if (!q) return;
+    q.status = 'banned'; render(); toast('Penalty applied — posting blocked 3 days');
+  },
+  modDismiss(id) {
+    const q = state.modQueue.find(x => x.id === id); if (!q) return;
+    q.status = 'dismissed'; render(); toast('Flags dismissed');
+  }
+};
+
+/* ---------- dedup-as-you-type (debounced ≥300 ms; ai-service when up, seed KB otherwise) ---------- */
+let dedupTimer = null, dedupSeq = 0;
+function scheduleDedup() { clearTimeout(dedupTimer); dedupTimer = setTimeout(runDedup, 320); }
+async function runDedup() {
+  const t = state.cTitle.trim(); const seq = ++dedupSeq;
+  let dupes = [], live = false;
+  if (t.length > 3) {
+    if (LIVE.ai) {
+      const r = await api('/api/ai/ask', {
+        method:'POST', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify({ question: t })
+      });
+      if (seq !== dedupSeq) return; // stale response
+      if (r && Array.isArray(r.citations)) {
+        dupes = r.citations.filter(c => (c.score || 0) >= 0.25).slice(0, 2).map(c => ({ title: c.title || c.id }));
+        live = dupes.length > 0;
+      }
+    }
+    if (!dupes.length) {
+      dupes = KB.filter(k => k.keys.some(x => t.toLowerCase().includes(x))).slice(0, 2).map(k => ({ title: k.title }));
+    }
+  }
+  if (seq !== dedupSeq) return;
+  state.dupes = dupes; state.dupesLive = live;
+  const box = document.getElementById('dupbox');
+  if (box) box.outerHTML = dupboxHTML();
+}
+function dupboxHTML() {
+  if (!state.dupes.length) return '<div id="dupbox"></div>';
+  return '<div id="dupbox" style="border:1px solid #EAD9A8;background:#FCF7EA;border-radius:10px;padding:10px 12px">' +
+    '<div style="font-size:12px;font-weight:700;color:var(--amber)">Already answered? Upvote instead of re-asking — one answer should help many.' +
+    (state.dupesLive ? ' <span class="livebadge">LIVE</span>' : '') + '</div>' +
+    state.dupes.map(d =>
+      '<div style="display:flex;align-items:center;gap:8px;margin-top:7px">' +
+        '<span style="flex:1;font-size:12.5px;color:var(--ink)">' + esc(d.title) + '</span>' +
+        '<button onclick="A.upvoteExisting()" style="background:#FFFFFF;border:1px solid #8A6D1F;color:#8A6D1F;border-radius:7px;padding:3px 10px;font-size:11.5px;font-weight:600;cursor:pointer">Upvote existing</button>' +
+      '</div>').join('') +
+    '</div>';
+}
+
+/* ---------- shared fragments ---------- */
+function mavenBadge() { return '<span class="maven-badge">MAVEN ✓</span>'; }
+function pillsHTML(p) {
+  const RX = [['helpful','👍 Helpful'],['insightful','💡 Insightful'],['actionable','📈 Actionable'],['like','❤️ Like']];
+  return RX.map(([key, label]) =>
+    '<button class="pill' + (p.rx[key].on ? ' on' : '') + '" onclick="A.toggleRx(\'' + p.id + '\',\'' + key + '\')">' +
+    label + (p.rx[key].n ? ' ' + p.rx[key].n : '') + '</button>').join('');
+}
+function postMeta(p) {
+  const spaceName = (SPACES.find(s => s.id === p.space) || {}).name || p.space;
+  const mv = p.maven ? MAVENS.find(m => m.id === p.maven) : null;
+  return spaceName + ' · ' + p.time + (mv ? ' · ' + mv.cred : '');
+}
+function flagMenuHTML(p) {
+  if (state.fbFor !== p.id) return '';
+  const FB = ['Misleading','Low effort','Spam','Toxic','Self-Marketing'];
+  return '<div class="menu" style="top:26px;width:190px">' +
+    '<div style="font-size:10.5px;font-weight:700;letter-spacing:0.06em;color:var(--dim);text-transform:uppercase;padding:6px 9px 3px">Flag with a reason</div>' +
+    FB.map(label => '<div onclick="A.flag(\'' + p.id + '\',\'' + label + '\')" style="display:flex;gap:8px;align-items:center;padding:6px 9px;border-radius:7px;font-size:12.5px;cursor:pointer" onmouseover="this.style.background=\'#F8E9E4\'" onmouseout="this.style.background=\'\'">' + label + '</div>').join('') +
+    '</div>';
+}
+function authorRow(p, avSize) {
+  return '<div style="display:flex;align-items:center;gap:9px">' +
+    avatar(p.av, p.initials, avSize || 34, p.maven ? 'A.openMaven(\'' + p.maven + '\')' : null) +
+    '<div style="flex:1;min-width:0">' +
+      '<div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap">' +
+        '<span style="font-size:13px;font-weight:700;cursor:' + (p.maven ? 'pointer' : 'default') + '"' + (p.maven ? ' onclick="A.openMaven(\'' + p.maven + '\')"' : '') + '>' + esc(p.author) + '</span>' +
+        (p.maven ? mavenBadge() : '') +
+        (p.via === 'whatsapp' ? '<span class="wa-badge">via WhatsApp</span>' : '') +
+      '</div>' +
+      '<div style="font-size:11.5px;color:var(--dim)">' + esc(postMeta(p)) + '</div>' +
+    '</div>' +
+    (p.signal ? '<span class="' + sigClass(p.signal) + '">' + esc(p.signal) + '</span>' : '') +
+  '</div>';
+}
+function postCardHTML(p) {
+  return '<div class="card" style="padding:14px 18px 10px">' +
+    '<div style="display:flex;align-items:center;gap:9px">' +
+      avatar(p.av, p.initials, 34, p.maven ? 'A.openMaven(\'' + p.maven + '\')' : null) +
+      '<div style="flex:1;min-width:0">' +
+        '<div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap">' +
+          '<span style="font-size:13px;font-weight:700;cursor:' + (p.maven ? 'pointer' : 'default') + '"' + (p.maven ? ' onclick="A.openMaven(\'' + p.maven + '\')"' : '') + '>' + esc(p.author) + '</span>' +
+          (p.maven ? mavenBadge() : '') +
+          (p.via === 'whatsapp' ? '<span class="wa-badge">via WhatsApp</span>' : '') +
+        '</div>' +
+        '<div style="font-size:11.5px;color:var(--dim)">' + esc(postMeta(p)) + '</div>' +
+      '</div>' +
+      (p.signal ? '<span class="' + sigClass(p.signal) + '">' + esc(p.signal) + '</span>' : '') +
+      '<div style="position:relative">' +
+        '<button title="Give structured feedback" onclick="A.fbToggle(\'' + p.id + '\')" style="background:none;border:none;color:var(--faint);font-size:16px;cursor:pointer;padding:2px 6px">⋯</button>' +
+        flagMenuHTML(p) +
+      '</div>' +
+    '</div>' +
+    '<div onclick="A.openPost(\'' + p.id + '\')" style="cursor:pointer;padding:9px 0 2px">' +
+      '<div style="font-size:15.5px;font-weight:650;line-height:1.35">' + esc(p.title) + '</div>' +
+      '<div style="font-size:13.5px;color:var(--body);line-height:1.55;margin-top:5px">' + esc(p.body) + '</div>' +
+      (p.chip ? '<div style="display:inline-flex;align-items:center;gap:6px;margin-top:8px;border:1px solid var(--hairline);border-radius:8px;padding:4px 10px;font-size:11.5px;color:var(--dim);background:#FAFAF8">' + esc(p.chip) + '</div>' : '') +
+    '</div>' +
+    (p.flagged ? '<div style="font-size:11.5px;color:var(--bad);padding:4px 0">Flagged as “' + esc(p.flagged) + '” — sent privately to moderators.</div>' : '') +
+    '<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;border-top:1px solid var(--wash);margin-top:8px;padding:8px 0 6px">' +
+      pillsHTML(p) +
+      '<span style="flex:1"></span>' +
+      '<span class="comments-link" onclick="A.openPost(\'' + p.id + '\')">' + p.comments.length + (p.comments.length === 1 ? ' comment' : ' comments') + '</span>' +
+    '</div>' +
+  '</div>';
+}
+function followBtn(kind, id, on, labelOn, labelOff) {
+  return '<button class="' + (on ? 'btn-ghost' : 'btn-pri') + '" onclick="A.' + kind + '(\'' + id + '\')">' + (on ? labelOn : labelOff) + '</button>';
+}
+
+/* ---------- composer ---------- */
+function composerHTML() {
+  if (!state.composer) {
+    return '<div class="card" style="padding:14px 16px">' +
+      '<div style="display:flex;align-items:center;gap:10px">' +
+        avatar(AV.plum, 'QL', 34) +
+        '<div class="cprompt" onclick="A.openComposer()">Share an idea, a question, or a signal…</div>' +
+      '</div></div>';
+  }
+  return '<div class="card" style="padding:14px 16px"><div style="display:flex;flex-direction:column;gap:10px">' +
+    '<input id="ctitle" value="' + esc(state.cTitle) + '" oninput="A.setCTitle(this.value)" placeholder="Title — make it searchable for the next person" style="border:none;outline:none;font-size:16px;font-weight:650;font-family:inherit;color:var(--ink);padding:2px 0;background:transparent">' +
+    dupboxHTML() +
+    '<textarea class="cbody" oninput="A.setCBody(this.value)" placeholder="Details, numbers, links. Public-first: your answer becomes searchable knowledge.">' + esc(state.cBody) + '</textarea>' +
+    '<div id="cspaces" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">' + cSpaceChipsHTML() + '</div>' +
+    '<div id="csignals" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">' + cSignalChipsHTML() + '</div>' +
+    '<div style="display:flex;gap:8px;justify-content:flex-end;border-top:1px solid var(--wash);padding-top:10px">' +
+      '<button onclick="A.closeComposer()" style="background:var(--surface);border:1px solid var(--hairline);color:var(--dim);border-radius:8px;padding:8px 14px;font-size:13px;font-weight:600;cursor:pointer">Cancel</button>' +
+      '<button class="hovbg-teal" onclick="A.submitPost()" style="background:var(--teal);border:none;color:#fff;border-radius:8px;padding:8px 18px;font-size:13px;font-weight:600;cursor:pointer">Post</button>' +
+    '</div>' +
+  '</div></div>';
+}
+function cSpaceChipsHTML() {
+  return '<span style="font-size:11.5px;color:var(--dim);margin-right:2px">Space</span>' +
+    SPACES.filter(x => x.id !== 'all').map(x =>
+      '<button class="chip' + (state.cSpace === x.id ? ' on' : '') + '" onclick="A.pickCSpace(\'' + x.id + '\')">' + esc(x.name) + '</button>').join('');
+}
+function cSignalChipsHTML() {
+  return '<span style="font-size:11.5px;color:var(--dim);margin-right:2px">Signal</span>' +
+    ['None','BUY','SELL','HOLD','UPDATE'].map(k =>
+      '<button class="chip' + (state.cSignal === k ? ' on' : '') + '" onclick="A.pickCSignal(\'' + k + '\')">' + k + '</button>').join('') +
+    '<span style="font-size:11px;color:var(--faint)">tag buy/sell calls so they’re tracked on your record</span>';
+}
+function renderComposerChips() {
+  const sp = document.getElementById('cspaces'), sg = document.getElementById('csignals');
+  if (sp) sp.innerHTML = cSpaceChipsHTML();
+  if (sg) sg.innerHTML = cSignalChipsHTML();
+}
+
+/* ---------- views ---------- */
+function feedView() {
+  const spaceObj = SPACES.find(x => x.id === state.space) || SPACES[0];
+  const visPosts = state.posts.filter(p => state.space === 'all' || p.space === state.space);
+  return '<div class="twocol" style="display:grid;grid-template-columns:1fr 300px;gap:24px;align-items:start">' +
+    '<div style="display:flex;flex-direction:column;gap:12px;min-width:0">' +
+      composerHTML() +
+      '<div style="display:flex;align-items:baseline;gap:10px;padding:2px 4px">' +
+        '<span style="font-size:14px;font-weight:700">' + esc(spaceObj.name) + '</span>' +
+        '<span style="font-size:12px;color:var(--dim)">' + (state.space === 'all' ? 'Latest across US Investment' : 'Space in US Investment · latest first') + '</span>' +
+      '</div>' +
+      visPosts.map(postCardHTML).join('') +
+    '</div>' +
+    '<div class="rail" style="display:flex;flex-direction:column;gap:14px">' + feedRailHTML() + '</div>' +
+  '</div>';
+}
+function feedRailHTML() {
+  return '<div class="card" style="padding:16px 18px">' +
+      '<div style="font-size:14.5px;font-weight:700">US Investment</div>' +
+      '<div style="font-size:12.5px;color:var(--dim);line-height:1.5;margin-top:4px">The common free community for desi investors in the US. Run by DesiSquare moderators — public-first, no DMs-for-advice.</div>' +
+      '<div style="display:flex;gap:14px;margin-top:10px;font-size:12.5px">' +
+        '<span><b>4,823</b> <span style="color:var(--dim)">members</span></span>' +
+        '<span style="display:flex;align-items:center;gap:5px"><span style="width:7px;height:7px;border-radius:50%;background:var(--good);display:inline-block"></span><b>142</b> <span style="color:var(--dim)">online now</span></span>' +
+      '</div>' +
+    '</div>' +
+    '<div class="card" style="padding:16px 18px">' +
+      '<div class="seclabel">Mavens in this community</div>' +
+      MAVENS.map(m => {
+        const on = !!state.following[m.id];
+        return '<div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--wash)">' +
+          avatar(m.av, m.name.split(' ').map(x => x[0]).join(''), 34, 'A.openMaven(\'' + m.id + '\')') +
+          '<div style="flex:1;min-width:0">' +
+            '<div style="font-size:13px;font-weight:700;cursor:pointer" onclick="A.openMaven(\'' + m.id + '\')">' + esc(m.name) + '</div>' +
+            '<div style="font-size:11.5px;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + esc(m.cred) + '</div>' +
+          '</div>' +
+          followBtn('followMaven', m.id, on, 'Following ✓', 'Follow') +
+        '</div>';
+      }).join('') +
+      '<div onclick="A.go(\'directory\')" style="font-size:12px;color:var(--teal);font-weight:600;cursor:pointer;padding-top:9px">Browse the expert directory →</div>' +
+    '</div>' +
+    '<div class="card" style="padding:16px 18px">' +
+      '<div style="display:flex;align-items:baseline;gap:8px"><div class="seclabel" style="flex:1">Calendar</div><span style="font-size:10.5px;color:var(--faint)">by moderators</span></div>' +
+      EVENTS.map(e =>
+        '<div style="display:flex;gap:11px;padding:9px 0;border-bottom:1px solid var(--wash);align-items:flex-start">' +
+          '<div style="flex:none;width:40px;text-align:center;background:var(--wash);border-radius:8px;padding:4px 0"><div style="font-size:10px;font-weight:700;color:var(--dim);text-transform:uppercase">' + e.mo + '</div><div style="font-size:15px;font-weight:700;line-height:1.1">' + e.day + '</div></div>' +
+          '<div style="flex:1;min-width:0"><div style="font-size:12.5px;font-weight:650;line-height:1.35">' + esc(e.title) + '</div><div style="font-size:11.5px;color:var(--dim);margin-top:2px">' + esc(e.sub) + '</div></div>' +
+        '</div>').join('') +
+      '<div style="font-size:11.5px;color:var(--dim);padding-top:8px">Live sessions run on WhatsApp — link drops here 10 min before.</div>' +
+    '</div>' +
+    '<div class="hovbg-teal" onclick="A.go(\'kb\')" style="background:var(--teal);border-radius:12px;padding:14px 18px;color:#fff;cursor:pointer">' +
+      '<div style="font-size:13px;font-weight:700">New here? Start with the knowledge base</div>' +
+      '<div style="font-size:12px;opacity:0.85;margin-top:3px;line-height:1.45">The community’s best answers, kept current — so nobody asks twice.</div>' +
+    '</div>';
+}
+
+function homeView() {
+  const country = COUNTRIES.find(c => c.code === state.country) || COUNTRIES[0];
+  const comms = state.communities[state.country] || [];
+  const typeMap = { common:['COMMON · FREE','background:var(--teal-tint);color:var(--teal-hover)'], public:['PUBLIC','background:var(--wash);color:var(--dim)'], private:['PRIVATE','background:var(--saffron-tint);color:var(--saffron)'] };
+  return '<div class="twocol" style="display:grid;grid-template-columns:1fr 300px;gap:24px;align-items:start">' +
+    '<div style="min-width:0">' +
+      '<div style="padding:2px 4px 12px">' +
+        '<div style="font-size:19px;font-weight:700;letter-spacing:-0.01em">Communities in ' + esc(country.name) + '</div>' +
+        '<div style="font-size:13px;color:var(--dim);margin-top:3px">Join what fits. Private communities take requests or invites. Switch country from the top bar.</div>' +
+      '</div>' +
+      '<div style="display:flex;flex-direction:column;gap:10px">' +
+        comms.map(c => {
+          const [typeLabel, typeCss] = typeMap[c.type];
+          const joinLabel = c.joined ? 'Joined ✓' : (c.type === 'private' ? (c.requested ? 'Requested…' : 'Request to join') : 'Join');
+          const tile = c.type === 'common' ? AV.teal : c.type === 'private' ? AV.saffron : AV.slate;
+          const initials = c.name.split(' ').map(x => x[0]).join('').slice(0, 2).toUpperCase();
+          return '<div class="card" style="padding:16px 18px;display:flex;gap:14px;align-items:flex-start">' +
+            '<div style="width:44px;height:44px;border-radius:12px;background:' + tile + ';color:#fff;display:grid;place-items:center;font-size:14px;font-weight:700;flex:none">' + initials + '</div>' +
+            '<div style="flex:1;min-width:0">' +
+              '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">' +
+                '<span style="font-size:15px;font-weight:700">' + esc(c.name) + '</span>' +
+                '<span style="' + typeCss + ';font-size:10px;font-weight:800;border-radius:5px;padding:2px 8px;letter-spacing:0.04em">' + typeLabel + '</span>' +
+              '</div>' +
+              '<div style="font-size:13px;color:var(--body);line-height:1.5;margin-top:4px">' + esc(c.desc) + '</div>' +
+              '<div style="font-size:12px;color:var(--dim);margin-top:6px">' + c.members + ' members · ' + c.online + ' online now</div>' +
+            '</div>' +
+            '<button class="' + (c.joined || c.requested ? 'btn-ghost' : 'btn-pri') + '" onclick="A.joinCommunity(\'' + c.id + '\')">' + joinLabel + '</button>' +
+          '</div>';
+        }).join('') +
+      '</div>' +
+    '</div>' +
+    '<div class="rail" style="display:flex;flex-direction:column;gap:14px">' +
+      '<div class="card" style="padding:16px 18px">' +
+        '<div class="seclabel">Trending desis · this week</div>' +
+        TRENDING.map((t, i) =>
+          '<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--wash)">' +
+            '<span style="font-size:12px;font-weight:700;color:var(--faint);width:14px">' + (i + 1) + '</span>' +
+            avatar(t.av, t.initials, 30) +
+            '<div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:650">' + esc(t.name) + '</div><div style="font-size:11.5px;color:var(--dim)">' + esc(t.note) + '</div></div>' +
+            '<span style="font-size:12px;font-weight:700;color:var(--good)">' + t.delta + '</span>' +
+          '</div>').join('') +
+      '</div>' +
+      '<div class="card" style="padding:16px 18px">' +
+        '<div class="seclabel">Why trust DesiSquare</div>' +
+        '<div style="font-size:12.5px;color:var(--body);line-height:1.65;margin-top:8px">Pseudonymous by default — phone numbers never shown. Mavens are credential-verified, and every model call is tracked on the record. Karma is earned, not bought.</div>' +
+      '</div>' +
+    '</div>' +
+  '</div>';
+}
+
+function postView() {
+  const p = state.posts.find(x => x.id === state.activePost);
+  if (!p) return feedView();
+  return '<div style="max-width:760px">' +
+    '<div onclick="A.go(\'feed\')" style="font-size:12.5px;color:var(--teal);font-weight:600;cursor:pointer;padding:0 0 12px">← Back to feed</div>' +
+    '<div class="card" style="padding:20px 22px">' +
+      authorRow(p) +
+      '<h1 style="font-size:20px;font-weight:700;line-height:1.3;margin:14px 0 8px;letter-spacing:-0.01em">' + esc(p.title) + '</h1>' +
+      '<div style="font-size:14px;color:var(--body);line-height:1.65;white-space:pre-line">' + esc(p.bodyFull) + '</div>' +
+      '<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;border-top:1px solid var(--wash);margin-top:14px;padding-top:12px">' + pillsHTML(p) + '</div>' +
+    '</div>' +
+    '<div style="font-size:13px;font-weight:700;padding:16px 4px 8px">' + p.comments.length + (p.comments.length === 1 ? ' comment' : ' comments') + '</div>' +
+    '<div style="display:flex;flex-direction:column;gap:10px">' +
+      p.comments.map(c => {
+        const answer = !!c.answer;
+        const border = answer ? 'border:1.5px solid var(--teal)' : 'border:1px solid var(--hairline)';
+        return '<div style="background:var(--surface);' + border + ';border-radius:12px;padding:14px 16px">' +
+          '<div style="display:flex;align-items:center;gap:8px">' +
+            avatar(c.av, c.initials, 28, c.maven ? 'A.openMaven(\'' + c.maven + '\')' : null) +
+            '<span style="font-size:12.5px;font-weight:700">' + esc(c.author) + '</span>' +
+            (c.maven ? '<span class="maven-badge" style="font-size:10px;padding:1px 6px">MAVEN ✓</span>' : '') +
+            '<span style="font-size:11px;color:var(--faint)">' + esc(c.time) + '</span>' +
+            '<span style="flex:1"></span>' +
+            (answer ? '<span style="background:var(--good-tint);color:var(--good);font-size:10.5px;font-weight:700;border-radius:5px;padding:2px 8px">✓ MARKED ANSWER</span>' : '') +
+          '</div>' +
+          '<div style="font-size:13.5px;color:var(--body);line-height:1.6;margin-top:7px">' + esc(c.text) + '</div>' +
+          (answer ?
+            '<div style="display:flex;align-items:center;gap:8px;margin-top:10px;border-top:1px dashed var(--hairline);padding-top:9px">' +
+              (state.p2InKb
+                ? '<span style="font-size:12px;color:var(--teal-hover);font-weight:600">In knowledge base ✓ — future askers land here first.</span>'
+                : '<button onclick="A.convertToKb()" style="background:var(--surface);border:1px solid var(--teal);color:var(--teal);border-radius:8px;padding:5px 12px;font-size:12px;font-weight:600;cursor:pointer">Convert to KB article</button><span style="font-size:11.5px;color:var(--dim)">moderator action</span>') +
+            '</div>' : '') +
+        '</div>';
+      }).join('') +
+    '</div>' +
+    '<div class="card" style="padding:12px 14px;margin-top:12px;display:flex;gap:10px;align-items:center">' +
+      avatar(AV.plum, 'QL', 30) +
+      '<input value="' + esc(state.replyText) + '" oninput="A.setReply(this.value)" placeholder="Reply publicly — the next person with this question will thank you" style="flex:1;border:none;outline:none;font-size:13.5px;font-family:inherit;background:transparent;color:var(--ink)">' +
+      '<button class="hovbg-teal" onclick="A.sendReply()" style="background:var(--teal);border:none;color:#fff;border-radius:8px;padding:7px 14px;font-size:12.5px;font-weight:600;cursor:pointer">Reply</button>' +
+    '</div>' +
+  '</div>';
+}
+
+function modelCardHTML(m) {
+  const on = !!state.followingModels[m.id];
+  const live = LIVE.metrics[m.id];
+  let cagr = m.cagr, since = m.since, vsSpy = m.vsSpy, vsGood = m.vsGood, dd = m.dd, pts = m.pts;
+  if (live) {
+    cagr = fmtPct(live.cagr);
+    vsSpy = fmtPct(live.vsBenchmark);
+    vsGood = String(vsSpy).indexOf(MINUS) !== 0 && String(vsSpy).indexOf('-') !== 0;
+    dd = fmtDD(live.maxDrawdown) || m.dd;
+    if (live.since) since = 'since ' + fmtDate(live.since) + (isNaN(new Date(live.since)) ? '' : ' ' + new Date(live.since).getFullYear());
+    if (Array.isArray(live.series) && live.series.length >= 2) {
+      const nums = live.series.map(x => typeof x === 'number' ? x : (x && (x.value != null ? x.value : (x.equity != null ? x.equity : x.close)))).filter(x => typeof x === 'number');
+      if (nums.length >= 2) {
+        const step = Math.max(1, Math.floor(nums.length / 15));
+        pts = nums.filter((_, i) => i % step === 0 || i === nums.length - 1);
+      }
+    }
+  }
+  return '<div style="border:1px solid var(--hairline);border-radius:10px;padding:13px 15px;margin-top:10px">' +
+    '<div style="display:flex;align-items:center;gap:10px">' +
+      '<div style="flex:1;min-width:0">' +
+        '<div style="font-size:14px;font-weight:700">' + esc(m.name) + (live ? ' <span class="livebadge">LIVE</span>' : '') + '</div>' +
+        '<div style="font-size:12px;color:var(--dim);margin-top:1px">' + esc(m.strategy) + '</div>' +
+      '</div>' +
+      spark(pts) +
+    '</div>' +
+    '<div style="display:flex;gap:18px;margin-top:10px;flex-wrap:wrap">' +
+      '<div><div style="font-size:15px;font-weight:700;color:var(--good)">' + esc(cagr) + '</div><div style="font-size:10.5px;color:var(--dim)">CAGR ' + esc(since) + '</div></div>' +
+      '<div><div style="font-size:15px;font-weight:700;color:' + (vsGood ? 'var(--good)' : 'var(--bad)') + '">' + esc(vsSpy) + '</div><div style="font-size:10.5px;color:var(--dim)">vs S&amp;P 500</div></div>' +
+      '<div><div style="font-size:15px;font-weight:700">' + esc(m.risk) + '</div><div style="font-size:10.5px;color:var(--dim)">risk · ' + esc(dd) + '</div></div>' +
+      '<span style="flex:1"></span>' +
+      followBtn('followModel', m.id, on, 'Following ✓', 'Follow model') +
+    '</div>' +
+    '<div style="font-size:11.5px;color:var(--dim);border-top:1px dashed var(--hairline);margin-top:10px;padding-top:8px">' + esc(m.note) + ' · <b style="color:var(--ink)">' + m.followers.toLocaleString('en-US') + '</b> following</div>' +
+  '</div>';
+}
+
+function signalRowsHTML(m) {
+  const live = LIVE.signals[m.id];
+  let rows = m.signals, isLive = false;
+  if (live && live.length) {
+    isLive = true;
+    rows = live.map(r => {
+      const since = fmtSincePct(r.sincePct);
+      return {
+        date: r.stampedAt ? fmtDate(r.stampedAt) : (r.date || ''),
+        kind: r.kind || 'UPDATE',
+        note: r.note || (r.instrument ? String(r.instrument) : ''),
+        since, good: typeof r.sincePct === 'number' ? r.sincePct >= 0 : true
+      };
+    });
+  }
+  return { isLive, html: rows.map(sg =>
+    '<div style="display:grid;grid-template-columns:52px 68px minmax(0,1fr) 56px;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid var(--wash);font-size:12.5px">' +
+      '<span style="color:var(--dim)">' + esc(sg.date) + '</span>' +
+      '<span><span class="' + sigClass(sg.kind) + '">' + esc(sg.kind) + '</span></span>' +
+      '<span style="color:var(--body)">' + esc(sg.note) + '</span>' +
+      '<span style="text-align:right;font-weight:700;color:' + (sg.since === '—' ? 'var(--dim)' : (sg.good ? 'var(--good)' : 'var(--bad)')) + '">' + esc(sg.since) + '</span>' +
+    '</div>').join('') };
+}
+
+function mavenView() {
+  const m = MAVENS.find(x => x.id === state.activeMaven);
+  if (!m) return directoryView();
+  const on = !!state.following[m.id];
+  const initials = m.name.split(' ').map(x => x[0]).join('');
+  const models = MODELS.filter(x => x.owner === m.id);
+  const sig = signalRowsHTML(m);
+  return '<div style="max-width:880px">' +
+    '<div onclick="A.go(\'directory\')" style="font-size:12.5px;color:var(--teal);font-weight:600;cursor:pointer;padding:0 0 12px">← Expert directory</div>' +
+    '<div class="card" style="padding:22px 24px">' +
+      '<div style="display:flex;gap:16px;align-items:flex-start">' +
+        avatar(m.av, initials, 56) +
+        '<div style="flex:1;min-width:0">' +
+          '<div style="display:flex;align-items:center;gap:9px;flex-wrap:wrap">' +
+            '<span style="font-size:20px;font-weight:700;letter-spacing:-0.01em">' + esc(m.name) + '</span>' +
+            '<span class="maven-badge" style="font-size:11px;padding:2px 8px">MAVEN ✓ verified</span>' +
+          '</div>' +
+          '<div style="font-size:13px;color:var(--dim);margin-top:2px">' + esc(m.handle) + ' · responds ' + esc(m.responseTime) + '</div>' +
+          '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:9px">' +
+            m.creds.map(cr => '<span style="border:1px solid var(--hairline);background:#FAFAF8;border-radius:7px;padding:3px 10px;font-size:12px;font-weight:600;color:var(--body)">' + esc(cr) + '</span>').join('') +
+          '</div>' +
+          '<div style="font-size:13.5px;color:var(--body);line-height:1.6;margin-top:10px;max-width:560px">' + esc(m.about) + '</div>' +
+        '</div>' +
+        '<div style="display:flex;flex-direction:column;gap:8px;align-items:stretch;flex:none">' +
+          '<button class="' + (on ? 'btn-ghost' : 'btn-pri') + '" onclick="A.followMaven(\'' + m.id + '\')">' + (on ? 'Following ✓' : 'Follow') + '</button>' +
+          '<div style="text-align:center;font-size:12px;color:var(--dim)"><b style="color:var(--ink)">' + m.followers.toLocaleString('en-US') + '</b> followers · <b style="color:var(--ink)">' + m.karma.toLocaleString('en-US') + '</b> karma</div>' +
+        '</div>' +
+      '</div>' +
+    '</div>' +
+    '<div class="twocol" style="display:grid;grid-template-columns:minmax(230px,280px) minmax(0,1fr);gap:14px;margin-top:14px;align-items:start">' +
+      '<div style="display:flex;flex-direction:column;gap:14px">' +
+        '<div class="card" style="padding:16px 18px">' +
+          '<div class="seclabel">Reputation · ' + m.karma.toLocaleString('en-US') + '</div>' +
+          m.dims.map(([name, val]) =>
+            '<div style="padding:8px 0 0">' +
+              '<div style="display:flex;justify-content:space-between;font-size:12px"><span style="color:var(--body);font-weight:600">' + name + '</span><span style="color:var(--dim)">' + val + '</span></div>' +
+              '<div style="height:6px;background:var(--wash);border-radius:99px;margin-top:4px"><div style="height:6px;border-radius:99px;background:var(--teal);width:' + val + '%"></div></div>' +
+            '</div>').join('') +
+          '<div style="font-size:11px;color:var(--faint);margin-top:10px;line-height:1.5">Weighted from community karma, tracked model performance, member reviews and responsiveness. Votes are reputation-weighted; gaming is detected.</div>' +
+        '</div>' +
+        '<div class="card" style="padding:16px 18px">' +
+          '<div class="seclabel">Documents</div>' +
+          m.docs.map(doc =>
+            '<div style="display:flex;align-items:center;gap:9px;padding:8px 0;border-bottom:1px solid var(--wash)">' +
+              '<span style="flex:none;width:28px;height:34px;border:1px solid var(--hairline);border-radius:5px;background:repeating-linear-gradient(0deg,#FAFAF8,#FAFAF8 4px,#F1EFE9 4px,#F1EFE9 6px);display:block"></span>' +
+              '<div style="flex:1;min-width:0"><div style="font-size:12.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + esc(doc.name) + '</div><div style="font-size:11px;color:var(--faint)">' + esc(doc.meta) + '</div></div>' +
+            '</div>').join('') +
+        '</div>' +
+        '<div class="card" style="padding:16px 18px">' +
+          '<div class="seclabel">Reviews</div>' +
+          m.reviews.map(rv =>
+            '<div style="padding:9px 0;border-bottom:1px solid var(--wash)">' +
+              '<div style="display:flex;align-items:center;gap:7px"><span style="color:var(--saffron);font-size:12px;letter-spacing:1px">' + rv.stars + '</span><span style="font-size:11.5px;color:var(--dim)">' + esc(rv.by) + '</span></div>' +
+              '<div style="font-size:12.5px;color:var(--body);line-height:1.55;margin-top:4px">“' + esc(rv.text) + '”</div>' +
+            '</div>').join('') +
+        '</div>' +
+      '</div>' +
+      '<div style="display:flex;flex-direction:column;gap:14px;min-width:0">' +
+        '<div class="card" style="padding:16px 18px">' +
+          '<div style="display:flex;align-items:baseline;gap:8px"><div class="seclabel" style="flex:1">Investment models</div><span style="font-size:11px;color:var(--faint)">tracked by DesiSquare since entry</span></div>' +
+          (models.length ? models.map(modelCardHTML).join('') : '<div style="font-size:12.5px;color:var(--dim);padding:12px 0 4px">No tracked models yet.</div>') +
+        '</div>' +
+        '<div class="card" style="padding:16px 18px">' +
+          '<div class="seclabel">Signal record' + (sig.isLive ? ' <span class="livebadge">LIVE</span>' : '') + '</div>' +
+          '<div style="display:grid;grid-template-columns:52px 68px minmax(0,1fr) 56px;gap:8px;font-size:10.5px;font-weight:700;color:var(--faint);text-transform:uppercase;letter-spacing:0.05em;padding:10px 0 6px;border-bottom:1px solid var(--hairline)">' +
+            '<span>Date</span><span>Signal</span><span>Note</span><span style="text-align:right">Since</span>' +
+          '</div>' +
+          sig.html +
+          '<div style="font-size:11px;color:var(--faint);margin-top:9px">Every tagged BUY/SELL is stamped and tracked — trust is earned on the record, not claimed.</div>' +
+        '</div>' +
+      '</div>' +
+    '</div>' +
+  '</div>';
+}
+
+function directoryView() {
+  const filters = ['All','Tax','Equities','Retirement'];
+  const list = MAVENS.filter(m => state.dirFilter === 'All' || m.special.includes(state.dirFilter));
+  return '<div style="max-width:880px">' +
+    '<div style="padding:2px 4px 6px">' +
+      '<div style="font-size:19px;font-weight:700;letter-spacing:-0.01em">Expert directory</div>' +
+      '<div style="font-size:13px;color:var(--dim);margin-top:3px">Credential-verified mavens, ranked by earned reputation. Follow for their posts and model updates.</div>' +
+    '</div>' +
+    '<div style="display:flex;gap:6px;flex-wrap:wrap;padding:8px 4px 14px">' +
+      filters.map(f => '<button class="chip' + (state.dirFilter === f ? ' on' : '') + '" onclick="A.pickDirFilter(\'' + f + '\')">' + f + '</button>').join('') +
+    '</div>' +
+    '<div class="twocol" style="display:grid;grid-template-columns:1fr 1fr;gap:12px">' +
+      list.map(m => {
+        const on = !!state.following[m.id];
+        const initials = m.name.split(' ').map(x => x[0]).join('');
+        return '<div class="card" style="padding:16px 18px">' +
+          '<div style="display:flex;gap:12px;align-items:center">' +
+            avatar(m.av, initials, 44, 'A.openMaven(\'' + m.id + '\')') +
+            '<div style="flex:1;min-width:0">' +
+              '<div style="font-size:15px;font-weight:700;cursor:pointer" onclick="A.openMaven(\'' + m.id + '\')">' + esc(m.name) + '</div>' +
+              '<div style="font-size:12px;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + esc(m.cred) + '</div>' +
+            '</div>' +
+            '<span class="maven-badge" style="padding:2px 7px;flex:none">✓</span>' +
+          '</div>' +
+          '<div style="font-size:12.5px;color:var(--body);line-height:1.55;margin-top:9px;min-height:38px">' + esc(m.blurb) + '</div>' +
+          '<div style="display:flex;align-items:center;gap:12px;border-top:1px solid var(--wash);margin-top:10px;padding-top:10px;font-size:12px;color:var(--dim)">' +
+            '<span><b style="color:var(--ink)">' + m.karma.toLocaleString('en-US') + '</b> karma</span>' +
+            '<span><b style="color:var(--ink)">' + m.followers.toLocaleString('en-US') + '</b> followers</span>' +
+            '<span style="flex:1"></span>' +
+            '<button class="btn-ghost btn-profile" style="padding:5px 12px;font-size:12px" onclick="A.openMaven(\'' + m.id + '\')">Profile</button>' +
+            followBtn('followMaven', m.id, on, 'Following ✓', 'Follow') +
+          '</div>' +
+        '</div>';
+      }).join('') +
+    '</div>' +
+  '</div>';
+}
+
+function kbListHTML() {
+  const kbq = state.kbQ.trim().toLowerCase();
+  const list = KB.filter(k => !kbq || k.title.toLowerCase().includes(kbq) || k.keys.some(x => kbq.includes(x) || x.includes(kbq)));
+  if (!list.length) {
+    return '<div style="border:1px dashed var(--hairline);border-radius:12px;padding:22px;text-align:center;color:var(--dim);font-size:13px">Nothing yet for “' + esc(state.kbQ) + '” — ask it in the feed and the answer will live here for the next person.</div>';
+  }
+  return list.map(k =>
+    '<div class="card" style="padding:15px 18px;cursor:pointer" onmouseover="this.style.borderColor=\'#0F766E\'" onmouseout="this.style.borderColor=\'#E4E2DB\'">' +
+      '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">' +
+        '<span style="font-size:15px;font-weight:650;flex:1;min-width:200px">' + esc(k.title) + '</span>' +
+        '<span style="border:1px solid var(--hairline);background:#FAFAF8;color:var(--dim);font-size:11px;font-weight:600;border-radius:6px;padding:2px 8px;flex:none">' + esc(k.space) + '</span>' +
+      '</div>' +
+      '<div style="display:flex;gap:14px;font-size:11.5px;color:var(--dim);margin-top:7px;flex-wrap:wrap">' +
+        '<span>' + esc(k.from) + '</span><span>·</span><span>' + k.helpful + ' found this helpful</span><span>·</span><span>updated ' + k.updated + '</span>' +
+      '</div>' +
+    '</div>').join('');
+}
+function kbView() {
+  return '<div style="max-width:760px">' +
+    '<div style="padding:2px 4px 12px">' +
+      '<div style="font-size:19px;font-weight:700;letter-spacing:-0.01em">Knowledge base</div>' +
+      '<div style="font-size:13px;color:var(--dim);margin-top:3px">The community’s best answers, promoted from threads and kept current. Ask once — benefit many.</div>' +
+    '</div>' +
+    '<input class="kbsearch" value="' + esc(state.kbQ) + '" oninput="A.setKbQ(this.value)" placeholder="Search: FCNR, DTAA, 401(k) rollover, remittance…">' +
+    '<div id="kblist" style="display:flex;flex-direction:column;gap:10px;margin-top:14px">' + kbListHTML() + '</div>' +
+  '</div>';
+}
+
+function meView() {
+  const tagS = 'border:1px solid var(--hairline);background:#FAFAF8;color:var(--dim);font-size:10.5px;font-weight:700;border-radius:5px;padding:2px 7px;flex:none';
+  const penaltyTag = 'border:1px solid #F0D5CC;background:var(--bad-tint);color:var(--bad);font-size:10.5px;font-weight:700;border-radius:5px;padding:2px 7px;flex:none';
+  const rowsAll = {
+    posts: [
+      { tag:'POST', tagStyle:tagS, time:'Jun 30 · Ask the community', text:'Backdoor Roth while on H-1B — worth the recharacterization risk?', sub:'14 comments · 31 reactions', delta:'+38', deltaColor:'var(--good)' },
+      { tag:'POST', tagStyle:tagS, time:'Jun 12 · Watercooler', text:'My toddler’s first words: “expense ratio.” Proud and concerned.', sub:'22 comments · 64 reactions', delta:'+51', deltaColor:'var(--good)' }
+    ],
+    comments: [
+      { tag:'COMMENT', tagStyle:tagS, time:'6h · on “Mid-year tax moves…”', text:'“Done in 18 minutes. The FBAR reminder was the one I’d have missed.”', sub:null, delta:'+4', deltaColor:'var(--good)' },
+      { tag:'COMMENT', tagStyle:tagS, time:'22h · on “Portfolio down 2%…”', text:'“Filter chai, no sugar — like my expense ratio.”', sub:null, delta:'+9', deltaColor:'var(--good)' }
+    ],
+    karma: [
+      { tag:'EARNED', tagStyle:tagS, time:'This week', text:'Insightful ×4 · Helpful ×7 · Like ×12 across 3 posts', sub:'Reputation-weighted: 2 votes came from mavens', delta:'+61', deltaColor:'var(--good)' },
+      { tag:'EARNED', tagStyle:tagS, time:'Jun 28', text:'Your answer on visitor insurance was marked ✓ by the asker', sub:null, delta:'+25', deltaColor:'var(--good)' },
+      { tag:'PENALTY', tagStyle:penaltyTag, time:'Apr 14', text:'Low effort flag upheld on a one-word reply', sub:'Penalties decay after 90 days of good standing', delta:'−2', deltaColor:'var(--bad)' }
+    ]
+  };
+  const tabs = [['posts','My posts'],['comments','My comments'],['karma','Karma ledger']];
+  const followedNames = MAVENS.filter(m => state.following[m.id]).map(m => m.name);
+  const followedModels = MODELS.filter(m => state.followingModels[m.id]).map(m => m.name);
+  const holdings = [{t:'VTI',w:42},{t:'AAPL',w:14},{t:'MSFT',w:12},{t:'INFY',w:8},{t:'Cash',w:24}];
+  return '<div class="twocol" style="display:grid;grid-template-columns:1fr 300px;gap:24px;align-items:start;max-width:1100px">' +
+    '<div style="min-width:0">' +
+      '<div class="card" style="padding:20px 22px;display:flex;gap:14px;align-items:center">' +
+        avatar(AV.plum, 'QL', 52) +
+        '<div style="flex:1">' +
+          '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">' +
+            '<span style="font-size:17px;font-weight:700">quiet_lotus</span>' +
+            '<span style="border:1px solid var(--hairline);background:#FAFAF8;color:var(--dim);font-size:11px;font-weight:600;border-radius:5px;padding:1.5px 7px">PEER</span>' +
+            '<span style="background:var(--good-tint);color:var(--good);font-size:11px;font-weight:700;border-radius:5px;padding:1.5px 7px">DESI-VERIFIED ✓</span>' +
+          '</div>' +
+          '<div style="font-size:12.5px;color:var(--dim);margin-top:3px">Pseudonymous · phone hidden · US Investment member since Mar 2026</div>' +
+        '</div>' +
+        '<div style="text-align:right"><div style="font-size:20px;font-weight:700;color:var(--teal-hover)">1,284</div><div style="font-size:11px;color:var(--dim)">karma</div></div>' +
+      '</div>' +
+      '<div style="display:flex;gap:6px;padding:14px 4px 10px">' +
+        tabs.map(([id, name]) => '<button class="chip' + (state.meTab === id ? ' on' : '') + '" onclick="A.pickMeTab(\'' + id + '\')">' + name + '</button>').join('') +
+      '</div>' +
+      '<div style="display:flex;flex-direction:column;gap:10px">' +
+        rowsAll[state.meTab].map(row =>
+          '<div class="card" style="padding:13px 16px">' +
+            '<div style="display:flex;align-items:center;gap:8px"><span style="' + row.tagStyle + '">' + row.tag + '</span><span style="font-size:11.5px;color:var(--faint)">' + esc(row.time) + '</span><span style="flex:1"></span><span style="font-size:12.5px;font-weight:700;color:' + row.deltaColor + '">' + row.delta + '</span></div>' +
+            '<div style="font-size:13.5px;color:var(--ink);line-height:1.5;margin-top:6px;font-weight:550">' + esc(row.text) + '</div>' +
+            (row.sub ? '<div style="font-size:12px;color:var(--dim);margin-top:3px">' + esc(row.sub) + '</div>' : '') +
+          '</div>').join('') +
+      '</div>' +
+    '</div>' +
+    '<div class="rail" style="display:flex;flex-direction:column;gap:14px">' +
+      '<div class="card" style="padding:16px 18px">' +
+        '<div style="display:flex;align-items:center;gap:8px">' +
+          '<div class="seclabel" style="flex:1">My portfolio</div>' +
+          '<button class="toggle' + (state.pfPublic ? ' on' : '') + '" onclick="A.togglePortfolio()">' + (state.pfPublic ? 'Public' : 'Private') + '</button>' +
+        '</div>' +
+        '<div style="font-size:24px;font-weight:700;letter-spacing:-0.01em;margin-top:10px">$182,400</div>' +
+        '<div style="font-size:12.5px;color:var(--good);font-weight:700">+6.8% YTD <span style="color:var(--dim);font-weight:400">· manual entries</span></div>' +
+        '<div style="margin-top:12px;border-top:1px solid var(--wash)">' +
+          holdings.map(h =>
+            '<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--wash);font-size:12.5px">' +
+              '<span style="font-weight:700;width:52px">' + h.t + '</span>' +
+              '<div style="flex:1;height:5px;background:var(--wash);border-radius:99px"><div style="height:5px;border-radius:99px;background:var(--teal);width:' + h.w + '%"></div></div>' +
+              '<span style="color:var(--dim);width:34px;text-align:right">' + h.w + '%</span>' +
+            '</div>').join('') +
+        '</div>' +
+        '<div style="font-size:11px;color:var(--faint);margin-top:9px">' + (state.pfPublic ? 'Visible on your profile — allocation % only, dollar values stay private.' : 'Only you can see this. Make it public to build trust.') + '</div>' +
+      '</div>' +
+      '<div class="card" style="padding:16px 18px">' +
+        '<div class="seclabel">Following</div>' +
+        '<div style="font-size:12.5px;color:var(--body);line-height:1.7;margin-top:7px">Mavens: ' + (followedNames.length ? esc(followedNames.join(', ')) : 'none yet') + ' · Models: ' + (followedModels.length ? esc(followedModels.join(', ')) : 'none yet') + '.</div>' +
+      '</div>' +
+    '</div>' +
+  '</div>';
+}
+
+function settingsView() {
+  const waLive = !!LIVE.wa;
+  return '<div style="max-width:680px">' +
+    '<div style="padding:2px 4px 12px">' +
+      '<div style="font-size:19px;font-weight:700;letter-spacing:-0.01em">Settings</div>' +
+      '<div style="font-size:13px;color:var(--dim);margin-top:3px">Channels, privacy and verification. Your phone number is never shown to members.</div>' +
+    '</div>' +
+    '<div class="card" style="padding:18px 20px">' +
+      '<div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:var(--good);display:block"></span><span style="font-size:14px;font-weight:700">WhatsApp</span><span style="font-size:12px;color:var(--good);font-weight:600">connected</span>' + (waLive ? ' <span class="livebadge">LIVE</span><span style="font-size:11px;color:var(--faint)">bridge up · ' + esc(LIVE.wa.mode || 'mock') + ' mode</span>' : '') + '</div>' +
+      '<div style="font-size:12.5px;color:var(--dim);margin-top:4px">Linked group: <b style="color:var(--ink)">US Investment · Community Chat</b> · number verified &amp; hidden</div>' +
+      '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;border-top:1px solid var(--wash);margin-top:13px;padding-top:12px">' +
+        '<div><div style="font-size:13px;font-weight:650">Mirror my group messages to the feed</div><div style="font-size:12px;color:var(--dim);margin-top:1px">Posted under your pseudonym, phone hidden. Consent required.</div></div>' +
+        '<button class="toggle' + (state.mirror ? ' on' : '') + '" onclick="A.toggleMirror()">' + (state.mirror ? 'On' : 'Off') + '</button>' +
+      '</div>' +
+      '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;border-top:1px solid var(--wash);margin-top:11px;padding-top:12px">' +
+        '<div><div style="font-size:13px;font-weight:650">WhatsApp notifications</div><div style="font-size:12px;color:var(--dim);margin-top:1px">Replies, mentions and live-session links, straight to your chat.</div></div>' +
+        '<button class="toggle' + (state.notifs ? ' on' : '') + '" onclick="A.toggleNotifs()">' + (state.notifs ? 'On' : 'Off') + '</button>' +
+      '</div>' +
+    '</div>' +
+    '<div class="card" style="padding:18px 20px;margin-top:12px">' +
+      '<div style="font-size:14px;font-weight:700">Privacy</div>' +
+      '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;border-top:1px solid var(--wash);margin-top:12px;padding-top:12px">' +
+        '<div><div style="font-size:13px;font-weight:650">Display name</div><div style="font-size:12px;color:var(--dim);margin-top:1px">Pseudonymous by default — change anytime.</div></div>' +
+        '<span style="border:1px solid var(--hairline);border-radius:8px;padding:6px 12px;font-size:13px;font-weight:600;background:#FAFAF8">quiet_lotus</span>' +
+      '</div>' +
+      '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;border-top:1px solid var(--wash);margin-top:11px;padding-top:12px">' +
+        '<div><div style="font-size:13px;font-weight:650">Portfolio visibility</div><div style="font-size:12px;color:var(--dim);margin-top:1px">Public portfolios build trust; private is the default. Public shows allocation % only.</div></div>' +
+        '<button class="toggle' + (state.pfPublic ? ' on' : '') + '" onclick="A.togglePortfolio()">' + (state.pfPublic ? 'Public' : 'Private') + '</button>' +
+      '</div>' +
+    '</div>' +
+    '<div class="card" style="padding:18px 20px;margin-top:12px">' +
+      '<div style="font-size:14px;font-weight:700">Verification</div>' +
+      '<div style="display:flex;flex-direction:column;gap:9px;margin-top:11px;font-size:13px">' +
+        '<div style="display:flex;gap:9px;align-items:center"><span style="color:var(--good);font-weight:700">✓</span><span>Phone verified — used internally only, never displayed</span></div>' +
+        '<div style="display:flex;gap:9px;align-items:center"><span style="color:var(--good);font-weight:700">✓</span><span>Desi check passed — referred by 2 existing members</span></div>' +
+        '<div style="display:flex;gap:9px;align-items:center"><span style="color:var(--faint);font-weight:700">○</span><span style="color:var(--dim)">Maven credentials — apply if you’re a licensed professional</span></div>' +
+      '</div>' +
+    '</div>' +
+  '</div>';
+}
+
+function modView() {
+  return '<div style="max-width:760px">' +
+    '<div style="padding:2px 4px 12px">' +
+      '<div style="font-size:19px;font-weight:700;letter-spacing:-0.01em">Moderation</div>' +
+      '<div style="font-size:13px;color:var(--dim);margin-top:3px">Structured flags from members. Solicitation and marketing earn posting penalties, like Reddit.</div>' +
+    '</div>' +
+    '<div style="display:flex;flex-direction:column;gap:10px">' +
+      state.modQueue.map(q => {
+        const pending = q.status === 'pending';
+        const resolution = q.status === 'banned' ? 'Removed · author blocked from posting for 3 days · karma −50' : 'Flags dismissed · flaggers notified';
+        const resColor = q.status === 'banned' ? 'var(--bad)' : 'var(--dim)';
+        return '<div class="card" style="padding:16px 18px">' +
+          '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">' +
+            '<span style="background:var(--bad-tint);color:var(--bad);font-size:11px;font-weight:700;border-radius:5px;padding:2px 8px">' + esc(q.reason) + '</span>' +
+            '<span style="font-size:12px;color:var(--dim)">' + esc(q.meta) + '</span>' +
+            '<span style="flex:1"></span>' +
+            '<span style="font-size:12px;font-weight:700;color:var(--bad)">' + q.flags + ' flags</span>' +
+          '</div>' +
+          '<div style="font-size:13.5px;color:var(--body);line-height:1.55;margin-top:9px;border-left:3px solid var(--wash);padding-left:12px;font-style:italic">“' + esc(q.quote) + '”</div>' +
+          (pending
+            ? '<div style="display:flex;gap:8px;margin-top:12px">' +
+                '<button onclick="A.modBan(\'' + q.id + '\')" style="background:var(--bad);border:none;color:#fff;border-radius:8px;padding:7px 14px;font-size:12.5px;font-weight:600;cursor:pointer">Remove + ban posting 3 days</button>' +
+                '<button onclick="A.modDismiss(\'' + q.id + '\')" style="background:var(--surface);border:1px solid var(--hairline);color:var(--dim);border-radius:8px;padding:7px 14px;font-size:12.5px;font-weight:600;cursor:pointer">Dismiss flags</button>' +
+              '</div>'
+            : '<div style="font-size:12.5px;font-weight:600;color:' + resColor + ';margin-top:11px">' + resolution + '</div>') +
+        '</div>';
+      }).join('') +
+    '</div>' +
+    '<div class="card" style="padding:16px 18px;margin-top:14px">' +
+      '<div style="display:flex;align-items:baseline;gap:8px"><div class="seclabel" style="flex:1">Community calendar · managed here</div><span style="font-size:11px;color:var(--faint)">moderators ≠ mavens</span></div>' +
+      EVENTS.map(e =>
+        '<div style="display:flex;gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid var(--wash);font-size:13px">' +
+          '<span style="font-weight:700;width:52px;color:var(--dim);font-size:12px">' + e.mo + ' ' + e.day + '</span>' +
+          '<span style="flex:1">' + esc(e.title) + '</span>' +
+          '<span style="font-size:11.5px;color:var(--dim)">' + esc(e.sub) + '</span>' +
+        '</div>').join('') +
+      '<div style="font-size:12px;color:var(--teal);font-weight:600;margin-top:10px;cursor:pointer">+ Add event</div>' +
+    '</div>' +
+  '</div>';
+}
+
+/* ---------- chrome renderers ---------- */
+function renderCountry() {
+  const country = COUNTRIES.find(c => c.code === state.country) || COUNTRIES[0];
+  const wrap = document.getElementById('countrywrap');
+  wrap.innerHTML =
+    '<button class="countrybtn" onclick="A.toggleCountry()"><span>' + country.code + '</span><span style="color:var(--dim);font-size:10px">▾</span></button>' +
+    (state.countryOpen
+      ? '<div class="menu">' +
+          '<div class="menulabel">Your NRI home base</div>' +
+          COUNTRIES.map(c => {
+            const n = (state.communities[c.code] || []).length;
+            return '<div class="crow' + (c.code === state.country ? ' on' : '') + '" onclick="A.pickCountry(\'' + c.code + '\')">' +
+              '<span style="font-size:16px">' + c.flag + '</span><span style="flex:1">' + c.name + '</span>' +
+              '<span style="font-size:11.5px;color:var(--dim)">' + n + (n === 1 ? ' community' : ' communities') + '</span></div>';
+          }).join('') +
+          '<div style="font-size:11px;color:var(--dim);padding:8px 10px;border-top:1px solid var(--wash);margin-top:4px">Each country has its own communities.</div>' +
+        '</div>'
+      : '');
+}
+
+function renderSidebar() {
+  const v = state.view;
+  const navOn = { feed: v === 'feed' || v === 'post', home: v === 'home', dir: v === 'directory' || v === 'maven', kb: v === 'kb', me: v === 'me', set: v === 'settings', mod: v === 'mod' };
+  const modCount = state.modQueue.filter(x => x.status === 'pending').length;
+  const waLive = !!LIVE.wa;
+  document.getElementById('sidebar').innerHTML =
+    '<div style="display:flex;flex-direction:column;gap:2px">' +
+      '<div class="navitem' + (navOn.feed ? ' on' : '') + '" onclick="A.go(\'feed\')">Feed</div>' +
+      '<div class="navitem' + (navOn.home ? ' on' : '') + '" onclick="A.go(\'home\')">Communities</div>' +
+      '<div class="navitem' + (navOn.dir ? ' on' : '') + '" onclick="A.go(\'directory\')">Expert directory</div>' +
+      '<div class="navitem' + (navOn.kb ? ' on' : '') + '" onclick="A.go(\'kb\')">Knowledge base</div>' +
+      '<div class="navitem' + (navOn.me ? ' on' : '') + '" onclick="A.go(\'me\')">My activity</div>' +
+      '<div class="navitem' + (navOn.set ? ' on' : '') + '" onclick="A.go(\'settings\')">Settings</div>' +
+      '<div class="navitem' + (navOn.mod ? ' on' : '') + '" onclick="A.go(\'mod\')"><span style="flex:1">Moderation</span><span style="background:var(--saffron-tint);color:var(--saffron);font-size:11px;font-weight:700;border-radius:999px;padding:1px 8px">' + modCount + '</span></div>' +
+    '</div>' +
+    '<div>' +
+      '<div class="seclabel" style="padding:0 12px 6px">Spaces · US Investment</div>' +
+      '<div style="display:flex;flex-direction:column;gap:1px">' +
+        SPACES.map(sp =>
+          '<div class="sp-row' + (state.space === sp.id && (v === 'feed') ? ' on' : '') + '" onclick="A.pickSpace(\'' + sp.id + '\')"><span style="flex:1">' + esc(sp.name) + '</span><span style="font-size:11px;color:var(--faint)">' + sp.count + '</span></div>').join('') +
+      '</div>' +
+    '</div>' +
+    '<div class="card" style="margin:0 4px;border-radius:10px;padding:10px 12px;cursor:pointer" onclick="A.go(\'settings\')" onmouseover="this.style.borderColor=\'#0F766E\'" onmouseout="this.style.borderColor=\'#E4E2DB\'">' +
+      '<div style="display:flex;align-items:center;gap:7px;font-size:12px;font-weight:600"><span style="width:7px;height:7px;border-radius:50%;background:var(--good);display:block"></span>WhatsApp connected' + (waLive ? ' <span class="livebadge">LIVE</span>' : '') + '</div>' +
+      '<div style="font-size:11px;color:var(--dim);margin-top:3px;line-height:1.4">Chat from WhatsApp, it lands here. Manage in Settings.</div>' +
+    '</div>';
+}
+
+const VIEWS = { feed: feedView, home: homeView, post: postView, maven: mavenView, directory: directoryView, kb: kbView, me: meView, settings: settingsView, mod: modView };
+
+function render() {
+  renderCountry();
+  renderSidebar();
+  document.getElementById('main').innerHTML = (VIEWS[state.view] || feedView)();
+  // persistent "not investment advice" disclaimer on feed + maven surfaces
+  const showDisc = ['feed','post','maven','directory'].includes(state.view);
+  document.getElementById('disclaimer').style.display = showDisc ? 'block' : 'none';
+}
+
+/* ---------- boot ---------- */
+applyHash();
+render();
+loadLive();
+</script>
+</body>
+</html>

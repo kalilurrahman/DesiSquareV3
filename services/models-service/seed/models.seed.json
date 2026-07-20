@@ -1,0 +1,61 @@
+{
+  "note": "Demo seeds mirroring design-refs/DesiSquare Prototype.dc.html — 3 maven pseudonyms (nikhil_cfa, priya_taxes, arjun_quant) with the prototype's 3 models and signal history. Dates keep the prototype's months but sit inside the committed 18-month price fixture (2025-01 → 2026-07). Pseudonyms only — never phone numbers or emails.",
+  "models": [
+    {
+      "id": "model-steady-compounder",
+      "ownerUserId": "nikhil_cfa",
+      "name": "Steady Compounder",
+      "strategy": "Large-cap quality over an index core · monthly rebalance",
+      "risk": "Moderate",
+      "createdAt": "2025-01-06T14:30:00Z",
+      "followers": 412,
+      "entries": [
+        { "instrument": "VTI", "side": "BUY", "weightPct": 40, "declaredAt": "2025-01-06T14:30:00Z" },
+        { "instrument": "MSFT", "side": "BUY", "weightPct": 20, "declaredAt": "2025-01-06T14:30:00Z" },
+        { "instrument": "BRK.B", "side": "BUY", "weightPct": 15, "declaredAt": "2025-01-06T14:30:00Z" },
+        { "instrument": "NVDA", "side": "BUY", "weightPct": 11, "declaredAt": "2025-02-03T15:00:00Z" },
+        { "instrument": "NVDA", "side": "SELL", "weightPct": 3, "declaredAt": "2026-07-08T15:10:00Z" },
+        { "instrument": "VTI", "side": "BUY", "weightPct": 3, "declaredAt": "2026-07-08T15:12:00Z" }
+      ]
+    },
+    {
+      "id": "model-dividend-ladder",
+      "ownerUserId": "nikhil_cfa",
+      "name": "Dividend Ladder",
+      "strategy": "Income-first · qualified dividends · low turnover",
+      "risk": "Low",
+      "createdAt": "2025-06-02T14:30:00Z",
+      "followers": 238,
+      "entries": [
+        { "instrument": "JNJ", "side": "BUY", "weightPct": 25, "declaredAt": "2025-06-02T14:30:00Z" },
+        { "instrument": "KO", "side": "BUY", "weightPct": 25, "declaredAt": "2025-06-02T14:30:00Z" },
+        { "instrument": "PG", "side": "BUY", "weightPct": 25, "declaredAt": "2025-06-02T14:30:00Z" }
+      ]
+    },
+    {
+      "id": "model-momentum-sleeve",
+      "ownerUserId": "arjun_quant",
+      "name": "Momentum Sleeve",
+      "strategy": "Rules-based momentum · 10-name sleeve · hard stops",
+      "risk": "High",
+      "createdAt": "2025-03-03T14:30:00Z",
+      "followers": 186,
+      "entries": [
+        { "instrument": "NVDA", "side": "BUY", "weightPct": 15, "declaredAt": "2025-03-03T14:30:00Z" },
+        { "instrument": "AVGO", "side": "BUY", "weightPct": 15, "declaredAt": "2025-03-03T14:30:00Z" },
+        { "instrument": "SMCI", "side": "BUY", "weightPct": 15, "declaredAt": "2025-04-01T14:30:00Z" },
+        { "instrument": "AAPL", "side": "BUY", "weightPct": 15, "declaredAt": "2025-09-01T14:30:00Z" },
+        { "instrument": "SMCI", "side": "SELL", "weightPct": 15, "declaredAt": "2026-06-12T14:45:00Z" }
+      ]
+    }
+  ],
+  "signals": [
+    { "userId": "nikhil_cfa", "postId": 9001, "kind": "SELL", "instrument": "NVDA", "stampedAt": "2026-07-08T15:10:00Z", "note": "NVDA trim 3% into strength, back to target" },
+    { "userId": "nikhil_cfa", "postId": 9002, "kind": "BUY", "instrument": "VTI", "stampedAt": "2026-06-24T14:40:00Z", "note": "VTI — redeploy trim proceeds" },
+    { "userId": "nikhil_cfa", "postId": 9003, "kind": "HOLD", "instrument": "MSFT", "stampedAt": "2026-05-12T16:00:00Z", "note": "MSFT through earnings volatility" },
+    { "userId": "nikhil_cfa", "postId": 9004, "kind": "BUY", "instrument": "BRK.B", "stampedAt": "2026-04-03T14:35:00Z", "note": "BRK.B on cash-pile discount" },
+    { "userId": "priya_taxes", "postId": 9005, "kind": "UPDATE", "instrument": null, "stampedAt": "2026-07-02T13:00:00Z", "note": "Mid-year estimated-tax reminder thread" },
+    { "userId": "arjun_quant", "postId": 9006, "kind": "BUY", "instrument": "AVGO", "stampedAt": "2026-07-09T14:50:00Z", "note": "AVGO at 4% — momentum entry per rulebook" },
+    { "userId": "arjun_quant", "postId": 9007, "kind": "SELL", "instrument": "SMCI", "stampedAt": "2026-06-12T14:45:00Z", "note": "SMCI exit on trend break" }
+  ]
+}
