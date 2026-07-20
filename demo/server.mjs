@@ -26,8 +26,13 @@ pre{white-space:pre-wrap;word-break:break-word}a{color:#3b5b92}header a{margin-r
 };
 
 const ROUTES = {
-  '/': { file: 'docs/desisquare-wireframes-v4-prototype.html', type: 'text/html; charset=utf-8' },
-  '/health': { json: () => ({ ok: true, service: 'desisquare-demo', prototype: 'v4', uptime: process.uptime() }) },
+  // The real product app (from app/index.html) — served with its seeded fallback,
+  // since the cutdown has no backing services. Maven Monthly/Yearly/Overall %,
+  // member gains toggle, and tabbed search all work from seed data.
+  '/': { file: 'app/index.html', type: 'text/html; charset=utf-8' },
+  // The design walkthrough prototype stays one click away.
+  '/prototype': { file: 'docs/desisquare-wireframes-v4-prototype.html', type: 'text/html; charset=utf-8' },
+  '/health': { json: () => ({ ok: true, service: 'desisquare-demo', tier: 'cutdown', app: 'product+prototype', uptime: process.uptime() }) },
   '/report': { md: ['50-user simulation self-test', 'test/community-sim/report-selftest/DesiSquare-50-user-selftest-report.md'] },
   '/stories': { md: ['User stories v3', 'docs/desisquare-user-stories.md'] },
   '/checklist': { md: ['Client infra checklist', 'deploy/CLIENT-INFRA-CHECKLIST.md'] },
@@ -37,6 +42,13 @@ createServer((req, res) => {
   const path = new URL(req.url, 'http://x').pathname.replace(/\/+$/, '') || '/';
   const route = ROUTES[path];
   try {
+    // The product app fetches /api/* same-origin; the cutdown has no services,
+    // so answer with a clean 503 JSON — the app catches it and degrades to seed
+    // (never a redirect-to-HTML, which the app's fetch layer can't parse).
+    if (path.startsWith('/api/')) {
+      res.writeHead(503, { 'Content-Type': 'application/json', 'X-Robots-Tag': 'noindex' });
+      return res.end(JSON.stringify({ error: 'demo-cutdown: no backing services (seeded fallback in use)' }));
+    }
     if (!route) {
       res.writeHead(302, { Location: '/' });
       return res.end();
@@ -57,6 +69,6 @@ createServer((req, res) => {
   }
 }).listen(PORT, () => {
   const missing = Object.values(ROUTES).filter(r => r.file && !existsSync(join(ROOT, r.file)));
-  console.log(`DesiSquare demo on http://localhost:${PORT}  (prototype v4 at /, report at /report)`);
+  console.log(`DesiSquare demo on http://localhost:${PORT}  (product app at /, prototype at /prototype, report at /report)`);
   if (missing.length) console.warn('missing files:', missing.map(m => m.file).join(', '));
 });

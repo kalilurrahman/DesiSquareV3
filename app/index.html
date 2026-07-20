@@ -133,8 +133,11 @@ const MAVENS = [
     about:'Long-horizon index-plus investing for immigrant households. I publish every call I make — judge me on the record, not the resume.',
     blurb:'Index-plus portfolios, position sizing, and the discipline to do less.', special:['Equities','Retirement'],
     dims:[['Community',92],['Performance',88],['Reviews',96],['Responsiveness',81]],
+    perf:{ overall:{pct:34.6, annualizedPct:14.2, sinceLabel:'since Jan 2024'},
+      yearly:[{year:2024,pct:16.8},{year:2025,pct:12.1},{year:2026,pct:6.9}],
+      monthly:[{ym:'2025-08',pct:1.2},{ym:'2025-09',pct:-0.8},{ym:'2025-10',pct:2.1},{ym:'2025-11',pct:1.6},{ym:'2025-12',pct:-1.1},{ym:'2026-01',pct:2.4},{ym:'2026-02',pct:1.8},{ym:'2026-03',pct:-0.6},{ym:'2026-04',pct:1.3},{ym:'2026-05',pct:2.0},{ym:'2026-06',pct:0.7},{ym:'2026-07',pct:1.5}] },
     docs:[{name:'2026 NRI Tax Checklist.pdf',meta:'PDF · 312 downloads'},{name:'Rebalancing policy (public).pdf',meta:'PDF · 178 downloads'}],
-    reviews:[{stars:'★★★★★',by:'@first_gen_saver',text:'Explained my 401(k) rollover in one thread. Saved me a $400 consult.'},
+    reviews:[{stars:'★★★★★',by:'@first_gen_saver',text:'Explained my 401(k) rollover in one thread. Saved me a costly advisor consult.'},
              {stars:'★★★★★',by:'@dallas_desi',text:'His SELL tags saved me from my own FOMO twice this year.'}],
     signals:[
       {date:'Jul 8', kind:'SELL', note:'NVDA trim 3% into strength, back to target', since:'−1.2%', good:true},
@@ -147,6 +150,9 @@ const MAVENS = [
     about:'US–India tax without the fear-mongering. FEMA, DTAA, FBAR — ask in public so the answer helps the next thousand families.',
     blurb:'Cross-border tax: DTAA, FEMA, FBAR, and what actually gets audited.', special:['Tax'],
     dims:[['Community',95],['Performance',74],['Reviews',97],['Responsiveness',88]],
+    perf:{ overall:{pct:18.2, annualizedPct:8.9, sinceLabel:'since Feb 2024'},
+      yearly:[{year:2024,pct:9.6},{year:2025,pct:7.4},{year:2026,pct:3.8}],
+      monthly:[{ym:'2025-08',pct:0.6},{ym:'2025-09',pct:0.9},{ym:'2025-10',pct:-0.3},{ym:'2025-11',pct:1.1},{ym:'2025-12',pct:0.8},{ym:'2026-01',pct:-0.4},{ym:'2026-02',pct:1.2},{ym:'2026-03',pct:0.7},{ym:'2026-04',pct:0.5},{ym:'2026-05',pct:-0.2},{ym:'2026-06',pct:0.9},{ym:'2026-07',pct:0.6}] },
     docs:[{name:'H-1B mid-year tax moves.pdf',meta:'PDF · 421 downloads'},{name:'FBAR filing walkthrough.pdf',meta:'PDF · 356 downloads'}],
     reviews:[{stars:'★★★★★',by:'@quiet_lotus',text:'The only person who made DTAA make sense. Public answers, no upsell.'},
              {stars:'★★★★☆',by:'@maple_nri',text:'Thorough. Wish she covered Canada too.'}],
@@ -156,6 +162,9 @@ const MAVENS = [
     about:'Rules-based momentum with strict drawdown control. Higher risk, fully disclosed — never more than a sleeve of your portfolio.',
     blurb:'Systematic momentum sleeves with published rules and drawdown limits.', special:['Equities'],
     dims:[['Community',78],['Performance',93],['Reviews',84],['Responsiveness',62]],
+    perf:{ overall:{pct:49.8, annualizedPct:21.4, sinceLabel:'since Mar 2024'},
+      yearly:[{year:2024,pct:22.7},{year:2025,pct:18.9},{year:2026,pct:9.6}],
+      monthly:[{ym:'2025-08',pct:3.1},{ym:'2025-09',pct:-2.4},{ym:'2025-10',pct:4.2},{ym:'2025-11',pct:-1.8},{ym:'2025-12',pct:2.9},{ym:'2026-01',pct:3.6},{ym:'2026-02',pct:-2.1},{ym:'2026-03',pct:1.7},{ym:'2026-04',pct:4.0},{ym:'2026-05',pct:-1.2},{ym:'2026-06',pct:2.8},{ym:'2026-07',pct:1.9}] },
     docs:[{name:'Momentum Sleeve rulebook v3.pdf',meta:'PDF · 203 downloads'}],
     reviews:[{stars:'★★★★☆',by:'@chai_and_charts',text:'Slow to reply but the model docs are gold-standard transparent.'}],
     signals:[
@@ -167,13 +176,22 @@ const MAVENS = [
 const MODELS = [
   { id:'m1', owner:'ns', name:'Steady Compounder', strategy:'Large-cap quality over an index core · monthly rebalance',
     cagr:'+14.2%', since:'since Jan 2024', vsSpy:'+2.1%', vsGood:true, risk:'Moderate', dd:'−9% max DD', followers:412,
-    pts:[4,4,4,3,4,3,4,5,5,4,6,4,5,6,7], note:'Tracked by DesiSquare from declared entries/exits, net of costs' },
+    pts:[4,4,4,3,4,3,4,5,5,4,6,4,5,6,7], note:'Tracked by DesiSquare from declared entries/exits, net of costs',
+    periods:{ overall:{pct:38.4, annualizedPct:14.2, sinceLabel:'since Jan 2024'},
+      yearly:[{year:2024,pct:16.8},{year:2025,pct:12.4},{year:2026,pct:6.9}],
+      monthly:[{ym:'2025-08',pct:1.1},{ym:'2025-09',pct:-0.7},{ym:'2025-10',pct:2.0},{ym:'2025-11',pct:1.5},{ym:'2025-12',pct:-0.9},{ym:'2026-01',pct:2.2},{ym:'2026-02',pct:1.7},{ym:'2026-03',pct:-0.5},{ym:'2026-04',pct:1.2},{ym:'2026-05',pct:1.9},{ym:'2026-06',pct:0.8},{ym:'2026-07',pct:1.4}] } },
   { id:'m2', owner:'ns', name:'Dividend Ladder', strategy:'Income-first · qualified dividends · low turnover',
     cagr:'+9.8%', since:'since Jun 2024', vsSpy:'−1.3%', vsGood:false, risk:'Low', dd:'−5% max DD', followers:238,
-    pts:[3,3,4,4,4,5,4,5,5,5,6,5,6,6,6], note:'Underperforms bull markets by design — steadier income' },
+    pts:[3,3,4,4,4,5,4,5,5,5,6,5,6,6,6], note:'Underperforms bull markets by design — steadier income',
+    periods:{ overall:{pct:20.6, annualizedPct:9.8, sinceLabel:'since Jun 2024'},
+      yearly:[{year:2024,pct:5.4},{year:2025,pct:9.1},{year:2026,pct:4.3}],
+      monthly:[{ym:'2025-08',pct:0.7},{ym:'2025-09',pct:0.8},{ym:'2025-10',pct:-0.2},{ym:'2025-11',pct:1.0},{ym:'2025-12',pct:0.6},{ym:'2026-01',pct:-0.3},{ym:'2026-02',pct:1.1},{ym:'2026-03',pct:0.6},{ym:'2026-04',pct:0.5},{ym:'2026-05',pct:-0.1},{ym:'2026-06',pct:0.8},{ym:'2026-07',pct:0.5}] } },
   { id:'m3', owner:'ar', name:'Momentum Sleeve', strategy:'Rules-based momentum · 10-name sleeve · hard stops',
     cagr:'+21.4%', since:'since Mar 2024', vsSpy:'+9.3%', vsGood:true, risk:'High', dd:'−18% max DD', followers:186,
-    pts:[3,4,5,3,2,4,6,5,7,5,8,6,9,8,10], note:'Sleeve sizing capped at 15% by the published rulebook' }
+    pts:[3,4,5,3,2,4,6,5,7,5,8,6,9,8,10], note:'Sleeve sizing capped at 15% by the published rulebook',
+    periods:{ overall:{pct:54.2, annualizedPct:21.4, sinceLabel:'since Mar 2024'},
+      yearly:[{year:2024,pct:22.7},{year:2025,pct:18.9},{year:2026,pct:9.6}],
+      monthly:[{ym:'2025-08',pct:3.0},{ym:'2025-09',pct:-2.6},{ym:'2025-10',pct:4.1},{ym:'2025-11',pct:-1.9},{ym:'2025-12',pct:2.7},{ym:'2026-01',pct:3.8},{ym:'2026-02',pct:-2.0},{ym:'2026-03',pct:1.6},{ym:'2026-04',pct:3.9},{ym:'2026-05',pct:-1.3},{ym:'2026-06',pct:2.6},{ym:'2026-07',pct:1.8}] } }
 ];
 
 const KB = [
@@ -215,12 +233,16 @@ const rx = (h,i,a,l) => ({ helpful:{n:h,on:false}, insightful:{n:i,on:false}, ac
 
 /* ---------- state ---------- */
 const state = {
-  view:'feed', space:'all', activePost:null, activeMaven:null, dirFilter:'All', meTab:'posts',
+  view:'feed', space:'all', activePost:null, activeMaven:null, dirFilter:'All', meTab:'posts', searchTab:'all',
   q:'', kbQ:'', replyText:'', countryOpen:false,
   country: localStorage.getItem('ds.country') || 'US',
   composer:false, cTitle:'', cBody:'', cSpace:'help', cSignal:'None', fbFor:null,
   dupes:[], dupesLive:false,
-  following:{ pd:true }, followingModels:{ m1:true }, pfPublic:false, mirror:true, notifs:true, p2InKb:false,
+  following:{ pd:true }, followingModels:{ m1:true }, pfPublic:false, gainsPublic:false, mirror:true, notifs:true, p2InKb:false,
+  // member's own tracked gains — percent only, seeded (owner joined Mar 2026, so ~5 months of data)
+  myPerf:{ overall:{pct:6.8, annualizedPct:16.9, sinceLabel:'since Mar 2026'},
+    yearly:[{year:2026,pct:6.8}],
+    monthly:[{ym:'2026-03',pct:2.1},{ym:'2026-04',pct:-1.3},{ym:'2026-05',pct:2.8},{ym:'2026-06',pct:1.4},{ym:'2026-07',pct:1.7}] },
   communities: {
     US: [
       { id:'usinv',    name:'US Investment',    type:'common',  members:'4,823', online:142, joined:true,  desc:'The common free community for desi investors in the US — moderated by DesiSquare, public-first, zero cost.' },
@@ -381,6 +403,86 @@ function spark(pts, color) {
     '" style="fill:none;stroke:' + (color || '#0F766E') + ';stroke-width:2;stroke-linejoin:round;stroke-linecap:round"></polyline></svg>';
 }
 
+/* ---------- performance / gains (percent-only, eToro "Return %" style) ----------
+   Values are percent units (e.g. 14.2 → +14.2%). We format with fmtSincePct — NOT
+   fmtPct — because fmtPct's fraction heuristic (|v|<=1.5 → v*100) would corrupt small
+   monthly returns like +0.8%. Absolutely no $/₹/£ or absolute amounts here, ever. */
+const MONTH_ABBR = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function monthLabel(ym) {
+  const parts = String(ym == null ? '' : ym).split('-');
+  const mo = parseInt(parts[1], 10);
+  if (!MONTH_ABBR[mo - 1]) return String(ym == null ? '' : ym);
+  return MONTH_ABBR[mo - 1] + (parts[0] ? " '" + String(parts[0]).slice(2) : '');
+}
+function periodsFrom(seed, live) { // normalize seed/live into one shape; live wins when it carries periods
+  const src = (live && live.periods) ? live.periods : (seed || {});
+  return {
+    isLive: !!(live && live.periods),
+    overall: src.overall || null,
+    yearly: Array.isArray(src.yearly) ? src.yearly : [],
+    monthly: Array.isArray(src.monthly) ? src.monthly : []
+  };
+}
+function perfStat(label, pct, sub) {
+  const col = (pct == null) ? 'var(--dim)' : (pct >= 0 ? 'var(--good)' : 'var(--bad)');
+  return '<div style="min-width:66px">' +
+    '<div style="font-size:16px;font-weight:700;color:' + col + '">' + (pct == null ? '—' : fmtSincePct(pct)) + '</div>' +
+    '<div style="font-size:10.5px;color:var(--dim);font-weight:600">' + esc(label) + '</div>' +
+    (sub ? '<div style="font-size:9.5px;color:var(--faint)">' + esc(sub) + '</div>' : '') +
+  '</div>';
+}
+function perfHeadlinesHTML(pr) {
+  const overall = pr.overall || {};
+  const thisYear = pr.yearly.length ? pr.yearly.reduce((a, b) => (b.year >= a.year ? b : a)) : null;
+  const thisMonth = pr.monthly.length ? pr.monthly.reduce((a, b) => (String(b.ym) >= String(a.ym) ? b : a)) : null;
+  return '<div style="display:flex;gap:20px;flex-wrap:wrap">' +
+    perfStat('Overall', overall.pct == null ? null : overall.pct, overall.sinceLabel || (overall.annualizedPct != null ? fmtSincePct(overall.annualizedPct) + ' annualized' : '')) +
+    perfStat('This Year', thisYear ? thisYear.pct : null, thisYear ? String(thisYear.year) : '') +
+    perfStat('This Month', thisMonth ? thisMonth.pct : null, thisMonth ? monthLabel(thisMonth.ym) : '') +
+  '</div>';
+}
+function monthlyStripHTML(monthly) { // last ~12 months as tiny +/- % chips (mini heat row)
+  const m = (monthly || []).slice(-12);
+  if (!m.length) return '';
+  return '<div style="display:flex;gap:3px;flex-wrap:wrap">' +
+    m.map(x => {
+      const good = (x.pct || 0) >= 0;
+      return '<span title="' + esc(monthLabel(x.ym)) + '" style="font-size:9.5px;font-weight:700;white-space:nowrap;border-radius:4px;padding:2px 5px;color:' +
+        (good ? 'var(--good)' : 'var(--bad)') + ';background:' + (good ? 'var(--good-tint)' : 'var(--bad-tint)') + '">' + fmtSincePct(x.pct) + '</span>';
+    }).join('') +
+  '</div>';
+}
+function yearlyBarsHTML(yearly) { // calendar-year % returns as simple bars
+  const ys = (yearly || []).slice().sort((a, b) => a.year - b.year);
+  if (!ys.length) return '';
+  const maxAbs = Math.max.apply(null, ys.map(y => Math.abs(y.pct || 0))) || 1;
+  return '<div style="display:flex;gap:16px;align-items:flex-end;padding-top:2px">' +
+    ys.map(y => {
+      const good = (y.pct || 0) >= 0;
+      const h = Math.max(6, Math.round(Math.abs(y.pct || 0) / maxAbs * 44));
+      return '<div style="display:flex;flex-direction:column;align-items:center;gap:3px">' +
+        '<div style="font-size:10.5px;font-weight:700;color:' + (good ? 'var(--good)' : 'var(--bad)') + '">' + fmtSincePct(y.pct) + '</div>' +
+        '<div style="width:28px;height:' + h + 'px;border-radius:4px 4px 0 0;background:' + (good ? 'var(--teal)' : 'var(--bad)') + '"></div>' +
+        '<div style="font-size:10px;color:var(--dim);font-weight:600">' + esc(String(y.year)) + '</div>' +
+      '</div>';
+    }).join('') +
+  '</div>';
+}
+function perfSubLabel(t) {
+  return '<div style="font-size:10.5px;font-weight:700;color:var(--faint);text-transform:uppercase;letter-spacing:0.05em;margin-top:12px;margin-bottom:5px">' + esc(t) + '</div>';
+}
+function perfBlockHTML(pr, opts) {
+  opts = opts || {};
+  if (!pr || (!pr.overall && !pr.yearly.length && !pr.monthly.length)) {
+    return '<div style="font-size:12.5px;color:var(--dim)">No tracked performance yet.</div>';
+  }
+  return (opts.title ? '<div class="seclabel">' + esc(opts.title) + (pr.isLive ? ' <span class="livebadge">LIVE</span>' : '') + '</div><div style="height:10px"></div>' : '') +
+    perfHeadlinesHTML(pr) +
+    (pr.monthly.length ? perfSubLabel('Monthly returns · last 12') + monthlyStripHTML(pr.monthly) : '') +
+    (pr.yearly.length ? perfSubLabel('By calendar year') + yearlyBarsHTML(pr.yearly) : '') +
+    (opts.note === false ? '' : '<div style="font-size:11px;color:var(--faint);margin-top:11px;line-height:1.5">Return&nbsp;% only — dollar values are never shown. Educational, not investment advice.</div>');
+}
+
 let toastTimer = null;
 function toast(t) {
   const host = document.getElementById('toasthost');
@@ -399,6 +501,7 @@ function hashFor() {
     case 'feed': return state.space && state.space !== 'all' ? '#/feed/' + state.space : '#/';
     case 'post': return '#/post/' + state.activePost;
     case 'maven': return '#/maven/' + state.activeMaven;
+    case 'search': return '#/search/' + encodeURIComponent(state.q || '');
     default: return '#/' + state.view;
   }
 }
@@ -408,6 +511,7 @@ function applyHash() {
   if (!seg || seg === 'feed') { state.view = 'feed'; state.space = (seg === 'feed' && arg && SPACES.some(s => s.id === arg)) ? arg : 'all'; }
   else if (seg === 'post' && state.posts.some(p => p.id === arg)) { state.view = 'post'; state.activePost = arg; }
   else if (seg === 'maven' && MAVENS.some(m => m.id === arg)) { state.view = 'maven'; state.activeMaven = arg; }
+  else if (seg === 'search') { state.view = 'search'; try { state.q = arg ? decodeURIComponent(arg) : ''; } catch (e) { state.q = arg || ''; } }
   else if (['home','directory','kb','me','settings','mod'].includes(seg)) state.view = seg;
   else state.view = 'feed';
 }
@@ -431,8 +535,23 @@ const A = {
   pickSpace(id)  { A.go('feed',  { space: id }); },
 
   /* top bar */
-  setQ(v) { state.q = v; },
-  searchEnter() { A.go('kb', { kbQ: state.q }); },
+  setQ(v) {
+    state.q = v;
+    if (state.view === 'search') { // live-filter in place; keep URL in sync without spamming history
+      try { history.replaceState(null, '', hashFor()); } catch (e) {}
+      render();
+    } else if (v.trim().length >= 2) { // typing routes into search results
+      state.searchTab = 'all'; A.go('search');
+    }
+  },
+  searchEnter() { state.searchTab = 'all'; A.go('search', { q: state.q }); },
+  pickSearchTab(t) { state.searchTab = t; render(); },
+  openCommunityResult(country, id) {
+    if (country && country !== state.country) { state.country = country; localStorage.setItem('ds.country', country); }
+    A.go('home');
+  },
+  openSpaceResult(id) { A.go('feed', { space: id }); },
+  openKb() { A.go('kb', { kbQ: state.q }); },
   toggleCountry() { state.countryOpen = !state.countryOpen; renderCountry(); },
   pickCountry(code) {
     state.country = code; localStorage.setItem('ds.country', code);
@@ -520,6 +639,10 @@ const A = {
   togglePortfolio() {
     state.pfPublic = !state.pfPublic;
     render(); toast(state.pfPublic ? 'Portfolio is now public on your profile' : 'Portfolio is now private');
+  },
+  toggleGains() {
+    state.gainsPublic = !state.gainsPublic;
+    render(); toast(state.gainsPublic ? 'Gains now shared on your profile — % only' : 'Gains are now private');
   },
   toggleMirror() {
     state.mirror = !state.mirror;
@@ -840,6 +963,7 @@ function modelCardHTML(m) {
   const on = !!state.followingModels[m.id];
   const live = LIVE.metrics[m.id];
   let cagr = m.cagr, since = m.since, vsSpy = m.vsSpy, vsGood = m.vsGood, dd = m.dd, pts = m.pts;
+  const pr = periodsFrom(m.periods, live); // percent-only Monthly / Yearly / Overall — live wins, else seeded
   if (live) {
     cagr = fmtPct(live.cagr);
     vsSpy = fmtPct(live.vsBenchmark);
@@ -869,6 +993,11 @@ function modelCardHTML(m) {
       '<span style="flex:1"></span>' +
       followBtn('followModel', m.id, on, 'Following ✓', 'Follow model') +
     '</div>' +
+    ((pr.overall || pr.yearly.length || pr.monthly.length) ?
+      '<div style="border-top:1px dashed var(--hairline);margin-top:10px;padding-top:10px">' +
+        '<div style="font-size:10.5px;font-weight:700;color:var(--faint);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px">Return % · monthly / yearly / overall' + (pr.isLive ? ' <span class="livebadge">LIVE</span>' : '') + '</div>' +
+        perfBlockHTML(pr, { note:false }) +
+      '</div>' : '') +
     '<div style="font-size:11.5px;color:var(--dim);border-top:1px dashed var(--hairline);margin-top:10px;padding-top:8px">' + esc(m.note) + ' · <b style="color:var(--ink)">' + m.followers.toLocaleString('en-US') + '</b> following</div>' +
   '</div>';
 }
@@ -955,6 +1084,9 @@ function mavenView() {
         '</div>' +
       '</div>' +
       '<div style="display:flex;flex-direction:column;gap:14px;min-width:0">' +
+        '<div class="card" style="padding:16px 18px">' +
+          perfBlockHTML(periodsFrom(m.perf, null), { title:'Performance · % only' }) +
+        '</div>' +
         '<div class="card" style="padding:16px 18px">' +
           '<div style="display:flex;align-items:baseline;gap:8px"><div class="seclabel" style="flex:1">Investment models</div><span style="font-size:11px;color:var(--faint)">tracked by DesiSquare since entry</span></div>' +
           (models.length ? models.map(modelCardHTML).join('') : '<div style="font-size:12.5px;color:var(--dim);padding:12px 0 4px">No tracked models yet.</div>') +
@@ -1103,6 +1235,31 @@ function meView() {
             '</div>').join('') +
         '</div>' +
         '<div style="font-size:11px;color:var(--faint);margin-top:9px">' + (state.pfPublic ? 'Visible on your profile — allocation % only, dollar values stay private.' : 'Only you can see this. Make it public to build trust.') + '</div>' +
+        '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;border-top:1px solid var(--wash);margin-top:11px;padding-top:11px">' +
+          '<div><div style="font-size:12.5px;font-weight:650">Share my gains — % only</div><div style="font-size:11px;color:var(--dim);margin-top:1px">Monthly / yearly / overall as percentages. Dollar values never shown.</div></div>' +
+          '<button class="toggle' + (state.gainsPublic ? ' on' : '') + '" onclick="A.toggleGains()">' + (state.gainsPublic ? 'On' : 'Off') + '</button>' +
+        '</div>' +
+      '</div>' +
+      '<div class="card" style="padding:16px 18px">' +
+        '<div class="seclabel">Public profile preview</div>' +
+        '<div style="font-size:11.5px;color:var(--dim);margin-top:4px;line-height:1.5">What other members see on your profile — percent only, never dollars.</div>' +
+        ((state.pfPublic || state.gainsPublic)
+          ? (state.pfPublic
+              ? '<div style="margin-top:12px"><div style="font-size:10.5px;font-weight:700;color:var(--faint);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px">Allocation · % only</div>' +
+                  holdings.map(h =>
+                    '<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--wash);font-size:12.5px">' +
+                      '<span style="font-weight:700;width:52px">' + h.t + '</span>' +
+                      '<div style="flex:1;height:5px;background:var(--wash);border-radius:99px"><div style="height:5px;border-radius:99px;background:var(--teal);width:' + h.w + '%"></div></div>' +
+                      '<span style="color:var(--dim);width:34px;text-align:right">' + h.w + '%</span>' +
+                    '</div>').join('') + '</div>'
+              : '') +
+            (state.gainsPublic
+              ? '<div style="margin-top:14px;border-top:1px solid var(--wash);padding-top:12px">' +
+                  perfBlockHTML(periodsFrom(state.myPerf, null), { title:'Your gains · % only', note:false }) +
+                  '<div style="font-size:11px;color:var(--teal-hover);font-weight:600;margin-top:10px">Percentages only — dollar values never shown.</div>' +
+                '</div>'
+              : '')
+          : '<div style="font-size:12.5px;color:var(--dim);margin-top:12px;line-height:1.55">Nothing from your portfolio is public yet. Flip <b>Public</b> to share allocation %, or turn on <b>Share my gains</b> to show your monthly / yearly / overall returns — always percent-only.</div>') +
       '</div>' +
       '<div class="card" style="padding:16px 18px">' +
         '<div class="seclabel">Following</div>' +
@@ -1140,6 +1297,10 @@ function settingsView() {
       '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;border-top:1px solid var(--wash);margin-top:11px;padding-top:12px">' +
         '<div><div style="font-size:13px;font-weight:650">Portfolio visibility</div><div style="font-size:12px;color:var(--dim);margin-top:1px">Public portfolios build trust; private is the default. Public shows allocation % only.</div></div>' +
         '<button class="toggle' + (state.pfPublic ? ' on' : '') + '" onclick="A.togglePortfolio()">' + (state.pfPublic ? 'Public' : 'Private') + '</button>' +
+      '</div>' +
+      '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;border-top:1px solid var(--wash);margin-top:11px;padding-top:12px">' +
+        '<div><div style="font-size:13px;font-weight:650">Share my gains — % only</div><div style="font-size:12px;color:var(--dim);margin-top:1px">Show your monthly / yearly / overall returns on your profile. Percentages only — dollar values never shown.</div></div>' +
+        '<button class="toggle' + (state.gainsPublic ? ' on' : '') + '" onclick="A.toggleGains()">' + (state.gainsPublic ? 'On' : 'Off') + '</button>' +
       '</div>' +
     '</div>' +
     '<div class="card" style="padding:18px 20px;margin-top:12px">' +
@@ -1194,6 +1355,196 @@ function modView() {
   '</div>';
 }
 
+/* ---------- search ---------- */
+function scoreMatch(text, q) { // returns -1 for no match; higher = better (earlier / prefix / word-boundary)
+  const t = String(text == null ? '' : text).toLowerCase();
+  const i = t.indexOf(q);
+  if (i < 0) return -1;
+  let s = 100 - Math.min(i, 90);
+  if (i === 0) s += 50;
+  const re = new RegExp('\\b' + q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+  if (re.test(t)) s += 20;
+  return s;
+}
+function searchResults(q) {
+  const query = String(q || '').trim().toLowerCase();
+  const best = function () { let m = -1; for (let i = 0; i < arguments.length; i++) m = Math.max(m, scoreMatch(arguments[i], query)); return m; };
+
+  const comms = [];
+  Object.keys(state.communities).forEach(cc => {
+    (state.communities[cc] || []).forEach(c => {
+      const sc = best(c.name, c.desc);
+      if (sc >= 0) comms.push({ sc, kind:'community', country:cc, id:c.id, name:c.name, desc:c.desc, type:c.type });
+    });
+  });
+  SPACES.filter(s => s.id !== 'all').forEach(sp => {
+    const sc = scoreMatch(sp.name, query);
+    if (sc >= 0) comms.push({ sc, kind:'space', id:sp.id, name:sp.name, desc:'Space in US Investment · ' + (sp.count || 0) + ' posts', type:'space' });
+  });
+  comms.sort((a, b) => b.sc - a.sc);
+
+  const posts = [];
+  state.posts.forEach(p => {
+    const sc = best(p.title, p.body, p.bodyFull);
+    if (sc >= 0) posts.push({ sc, p });
+  });
+  posts.sort((a, b) => b.sc - a.sc);
+
+  const comments = [];
+  state.posts.forEach(p => {
+    (p.comments || []).forEach(c => {
+      const sc = best(c.text, c.author);
+      if (sc >= 0) comments.push({ sc, c, p });
+    });
+  });
+  comments.sort((a, b) => b.sc - a.sc);
+
+  const profiles = [];
+  MAVENS.forEach(m => {
+    const sc = best(m.name, m.handle, m.blurb, m.cred, (m.special || []).join(' '));
+    if (sc >= 0) profiles.push({ sc, kind:'maven', id:m.id, name:m.name, handle:m.handle, sub:m.cred, av:m.av });
+  });
+  (function () {
+    const sc = best('quiet_lotus', 'peer', 'member');
+    if (sc >= 0) profiles.push({ sc, kind:'self', name:'quiet_lotus', handle:'@quiet_lotus', sub:'You · US Investment member', av:AV.plum });
+  })();
+  profiles.sort((a, b) => b.sc - a.sc);
+
+  const kb = [];
+  KB.forEach(k => {
+    const sc = best(k.title, k.space, (k.keys || []).join(' '));
+    if (sc >= 0) kb.push({ sc, k });
+  });
+  kb.sort((a, b) => b.sc - a.sc);
+
+  return { comms, posts, comments, profiles, kb };
+}
+function communityResultHTML(c) {
+  const onclick = c.kind === 'space' ? 'A.openSpaceResult(\'' + c.id + '\')' : 'A.openCommunityResult(\'' + c.country + '\',\'' + c.id + '\')';
+  const badge = c.kind === 'space' ? 'SPACE' : String(c.type || 'community').toUpperCase();
+  const initials = c.name.split(' ').map(x => x[0]).join('').slice(0, 2).toUpperCase();
+  const tile = c.kind === 'space' ? AV.slate : (c.type === 'private' ? AV.saffron : AV.teal);
+  return '<div class="card" style="padding:14px 16px;display:flex;gap:12px;align-items:center;cursor:pointer" onclick="' + onclick + '">' +
+    '<div style="width:40px;height:40px;border-radius:10px;background:' + tile + ';color:#fff;display:grid;place-items:center;font-size:13px;font-weight:700;flex:none">' + esc(initials) + '</div>' +
+    '<div style="flex:1;min-width:0">' +
+      '<div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap"><span style="font-size:14px;font-weight:700">' + esc(c.name) + '</span>' +
+        '<span style="border:1px solid var(--hairline);background:#FAFAF8;color:var(--dim);font-size:10px;font-weight:700;border-radius:5px;padding:1.5px 7px">' + esc(badge) + '</span></div>' +
+      '<div style="font-size:12px;color:var(--dim);line-height:1.45;margin-top:2px;overflow:hidden">' + esc(c.desc || '') + '</div>' +
+    '</div>' +
+    '<span style="font-size:12px;color:var(--teal);font-weight:600;flex:none">Open →</span>' +
+  '</div>';
+}
+function postResultHTML(p) {
+  const spaceName = (SPACES.find(s => s.id === p.space) || {}).name || p.space;
+  const bodyStr = String(p.body || '');
+  return '<div class="card" style="padding:14px 16px;cursor:pointer" onclick="A.openPost(\'' + p.id + '\')">' +
+    '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">' +
+      avatar(p.av, p.initials, 26) +
+      '<span style="font-size:12.5px;font-weight:700">' + esc(p.author) + '</span>' +
+      (p.maven ? '<span class="maven-badge" style="font-size:10px;padding:1px 6px">MAVEN ✓</span>' : '') +
+      '<span style="font-size:11.5px;color:var(--faint)">' + esc(spaceName) + ' · ' + esc(p.time) + '</span>' +
+      (p.signal ? '<span class="' + sigClass(p.signal) + '" style="margin-left:auto">' + esc(p.signal) + '</span>' : '') +
+    '</div>' +
+    '<div style="font-size:14.5px;font-weight:650;line-height:1.35;margin-top:7px">' + esc(p.title) + '</div>' +
+    '<div style="font-size:12.5px;color:var(--body);line-height:1.5;margin-top:3px">' + esc(bodyStr.slice(0, 150)) + (bodyStr.length > 150 ? '…' : '') + '</div>' +
+  '</div>';
+}
+function commentResultHTML(c, p) {
+  const txt = String(c.text || '');
+  return '<div class="card" style="padding:14px 16px;cursor:pointer" onclick="A.openPost(\'' + p.id + '\')">' +
+    '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">' +
+      avatar(c.av, c.initials, 24) +
+      '<span style="font-size:12.5px;font-weight:700">' + esc(c.author) + '</span>' +
+      (c.maven ? '<span class="maven-badge" style="font-size:10px;padding:1px 6px">MAVEN ✓</span>' : '') +
+      (c.answer ? '<span style="background:var(--good-tint);color:var(--good);font-size:10px;font-weight:700;border-radius:5px;padding:1px 6px">✓ ANSWER</span>' : '') +
+      '<span style="font-size:11.5px;color:var(--faint)">' + esc(c.time) + '</span>' +
+    '</div>' +
+    '<div style="font-size:13px;color:var(--body);line-height:1.55;margin-top:6px">“' + esc(txt.slice(0, 180)) + (txt.length > 180 ? '…' : '') + '”</div>' +
+    '<div style="font-size:11.5px;color:var(--dim);margin-top:5px">on <b style="color:var(--body)">' + esc(p.title) + '</b></div>' +
+  '</div>';
+}
+function profileResultHTML(pr) {
+  const onclick = pr.kind === 'maven' ? 'A.openMaven(\'' + pr.id + '\')' : 'A.go(\'me\')';
+  const initials = pr.name.split(/[ _]/).map(x => x[0]).join('').slice(0, 2).toUpperCase();
+  return '<div class="card" style="padding:14px 16px;display:flex;gap:12px;align-items:center;cursor:pointer" onclick="' + onclick + '">' +
+    avatar(pr.av, initials, 40) +
+    '<div style="flex:1;min-width:0">' +
+      '<div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap"><span style="font-size:14px;font-weight:700">' + esc(pr.name) + '</span>' +
+        (pr.kind === 'maven'
+          ? '<span class="maven-badge" style="font-size:10px;padding:1px 6px">MAVEN ✓</span>'
+          : '<span style="border:1px solid var(--hairline);background:#FAFAF8;color:var(--dim);font-size:10px;font-weight:700;border-radius:5px;padding:1.5px 7px">PEER</span>') + '</div>' +
+      '<div style="font-size:12px;color:var(--dim);margin-top:2px">' + esc(pr.handle || '') + (pr.sub ? ' · ' + esc(pr.sub) : '') + '</div>' +
+    '</div>' +
+    '<span style="font-size:12px;color:var(--teal);font-weight:600;flex:none">' + (pr.kind === 'maven' ? 'Profile →' : 'You →') + '</span>' +
+  '</div>';
+}
+function kbResultHTML(k) {
+  return '<div class="card" style="padding:13px 16px;cursor:pointer" onclick="A.openKb()">' +
+    '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">' +
+      '<span style="font-size:13.5px;font-weight:650;flex:1;min-width:160px">' + esc(k.title) + '</span>' +
+      '<span style="border:1px solid var(--hairline);background:#FAFAF8;color:var(--dim);font-size:10.5px;font-weight:600;border-radius:6px;padding:2px 8px">' + esc(k.space) + '</span>' +
+    '</div>' +
+    '<div style="font-size:11.5px;color:var(--dim);margin-top:5px">' + k.helpful + ' found this helpful · updated ' + esc(k.updated) + '</div>' +
+  '</div>';
+}
+function searchResultCards(R, tab) {
+  const out = [];
+  const groupLabel = t => '<div class="seclabel" style="padding:14px 4px 2px">' + esc(t) + '</div>';
+  if ((tab === 'all' || tab === 'communities') && R.comms.length) {
+    if (tab === 'all') out.push(groupLabel('Communities'));
+    R.comms.forEach(c => out.push(communityResultHTML(c)));
+  }
+  if ((tab === 'all' || tab === 'posts') && R.posts.length) {
+    if (tab === 'all') out.push(groupLabel('Posts'));
+    R.posts.forEach(x => out.push(postResultHTML(x.p)));
+  }
+  if ((tab === 'all' || tab === 'comments') && R.comments.length) {
+    if (tab === 'all') out.push(groupLabel('Comments'));
+    R.comments.forEach(x => out.push(commentResultHTML(x.c, x.p)));
+  }
+  if ((tab === 'all' || tab === 'profiles') && R.profiles.length) {
+    if (tab === 'all') out.push(groupLabel('Profiles'));
+    R.profiles.forEach(pr => out.push(profileResultHTML(pr)));
+  }
+  if (tab === 'all' && R.kb.length) { // KB kept reachable from the All results
+    out.push(groupLabel('Knowledge base'));
+    R.kb.forEach(x => out.push(kbResultHTML(x.k)));
+  }
+  return out.join('');
+}
+function searchTipsHTML(q) {
+  return '<div style="border:1px dashed var(--hairline);border-radius:12px;padding:22px;text-align:center">' +
+    '<div style="font-size:14px;font-weight:650">' + (q ? 'No matches for “' + esc(q) + '”' : 'Search DesiSquare') + '</div>' +
+    '<div style="font-size:12.5px;color:var(--dim);line-height:1.6;margin-top:8px;max-width:460px;margin-left:auto;margin-right:auto">Try a ticker like <b>VTI</b>, a topic like <b>FCNR</b> or <b>DTAA</b>, a space like <b>Watercooler</b>, or a member name like <b>Nikhil</b>.</div>' +
+    '<div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:12px">' +
+      '<button class="btn-ghost" onclick="A.go(\'kb\')">Browse knowledge base</button>' +
+      '<button class="btn-ghost" onclick="A.go(\'directory\')">Expert directory</button>' +
+    '</div>' +
+  '</div>';
+}
+function searchView() {
+  const q = String(state.q || '').trim();
+  const tab = state.searchTab || 'all';
+  const head = '<div style="padding:2px 4px 12px">' +
+    '<div style="font-size:19px;font-weight:700;letter-spacing:-0.01em">Search</div>' +
+    '<div style="font-size:13px;color:var(--dim);margin-top:3px">' + (q ? 'Results for “' + esc(q) + '” across communities, posts, comments and profiles.' : 'Search communities, posts, comments and profiles — type in the bar above.') + '</div>' +
+  '</div>';
+  if (!q) return '<div style="max-width:820px">' + head + searchTipsHTML('') + '</div>';
+  const R = searchResults(q);
+  const counts = {
+    all: R.comms.length + R.posts.length + R.comments.length + R.profiles.length,
+    communities: R.comms.length, posts: R.posts.length, comments: R.comments.length, profiles: R.profiles.length
+  };
+  const tabs = [['all','All',counts.all],['communities','Communities',counts.communities],['posts','Posts',counts.posts],['comments','Comments',counts.comments],['profiles','Profiles',counts.profiles]];
+  const tabsHTML = '<div style="display:flex;gap:6px;flex-wrap:wrap;padding:2px 4px 12px">' +
+    tabs.map(t => '<button class="chip' + (tab === t[0] ? ' on' : '') + '" onclick="A.pickSearchTab(\'' + t[0] + '\')">' + t[1] + ' <span style="opacity:0.7">' + t[2] + '</span></button>').join('') +
+  '</div>';
+  const hasAny = tab === 'all' ? (counts.all + R.kb.length) > 0 : counts[tab] > 0;
+  return '<div style="max-width:820px">' + head + tabsHTML +
+    (hasAny ? '<div style="display:flex;flex-direction:column;gap:10px">' + searchResultCards(R, tab) + '</div>' : searchTipsHTML(q)) +
+  '</div>';
+}
+
 /* ---------- chrome renderers ---------- */
 function renderCountry() {
   const country = COUNTRIES.find(c => c.code === state.country) || COUNTRIES[0];
@@ -1242,14 +1593,17 @@ function renderSidebar() {
     '</div>';
 }
 
-const VIEWS = { feed: feedView, home: homeView, post: postView, maven: mavenView, directory: directoryView, kb: kbView, me: meView, settings: settingsView, mod: modView };
+const VIEWS = { feed: feedView, home: homeView, post: postView, maven: mavenView, directory: directoryView, kb: kbView, me: meView, settings: settingsView, mod: modView, search: searchView };
 
 function render() {
   renderCountry();
   renderSidebar();
   document.getElementById('main').innerHTML = (VIEWS[state.view] || feedView)();
-  // persistent "not investment advice" disclaimer on feed + maven surfaces
-  const showDisc = ['feed','post','maven','directory'].includes(state.view);
+  // keep the top-bar search box in sync with state.q (but never fight a mid-type user)
+  const topq = document.getElementById('topq');
+  if (topq && document.activeElement !== topq && topq.value !== (state.q || '')) topq.value = state.q || '';
+  // persistent "not investment advice" disclaimer on content surfaces
+  const showDisc = ['feed','post','maven','directory','search'].includes(state.view);
   document.getElementById('disclaimer').style.display = showDisc ? 'block' : 'none';
 }
 
