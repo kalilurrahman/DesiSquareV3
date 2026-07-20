@@ -2,6 +2,10 @@
 
 > **BiGMo Consulting · 20 Jul 2026.** Paste this document (or its raw GitHub URL) into a new Claude session to restore full project context. Everything listed is committed in **`kalilurrahman/DesiSquareV3`** — this repository is the product source of truth for **Product Version 3 ("The Living Square")**. The prior doc branch on `kalilurrahman/bigmo-consulting` (`claude/discourse-ghostfolio-forum-analysis-bvm3v7/docs`) is superseded by this repo.
 
+## Lineage & code integration (20 Jul 2026)
+
+This repo is the **final integrated product**, standing on the two prior codebases: **v1** `kalilurrahman/DesiSquare` (the runnable `phase1-mvp/` — `make demo`, plus the glue services) and **v2** `kalilurrahman/DesiSquareV2` (the `desisquare-app/` zero-dep product app + `services/models-service/` percent-only performance engine). V3 integrates the v2 product slice under **`app/`** and **`services/`** (models-service, wa-bridge, gf-provisioner), applies the Phase-1 feedback (search tabs; maven performance chart to prove expertise, leveraging Ghostfolio, **asset value never visible**) and the client's Maven/member visibility rules (percent-only, Monthly/Yearly/Overall, member gains visible/private), and keeps the docs/prototype/deploy/test layers already here.
+
 ## 30-second context brief
 
 **DesiSquare** = a members-only community for South-Asian ("desi") retail investors, built as **Discourse** (forum + **Chat**, custom "Porcelain Slate" light theme — client-selected 19 Jul 2026) + **Ghostfolio** (self-hosted portfolio tracker, bounded reskin only) + **WhatsApp Business Cloud API** (opt-in notifications; never the forum), glued by three small scripts: **wa-bridge** (WhatsApp→forum mirroring, consent-gated), **gf-provisioner** (signup→one Ghostfolio account, idempotent, 1-click SSO), **gf-stats** (percent-only maven performance proxy) — plus a **digest job** that builds the public teaser. Deployment target: **GCP, 2 VMs** (`deploy/gcp/`, demo mode on sslip.io). The client's original demo (`desisquare-production.up.railway.app`) is a rebranded Ghostfolio on Railway.
@@ -60,7 +64,7 @@
 1. Benchmark per corridor for the maven chart (S&P 500 TR for US; Nifty 50 TR for India?).
 2. Minimum history before a track record renders (proposed: 6 months).
 3. gf-stats refresh cadence (proposed: daily).
-4. Performance profiles maven-exclusive in Phase 1.5, or member opt-in later (proposed: maven-exclusive).
+4. ~~Performance profiles maven-exclusive, or member opt-in?~~ **DECIDED (20 Jul 2026): any member can opt in.** Story 6.7 — members share gains **percent-only, Monthly/Yearly/Overall, never dollars**, default private (self-reported/unverified); maven proof (7.1/7.2) is the Ghostfolio-*verified* superset. Implemented in the integrated `app/` + `services/models-service/`.
 5. Public teaser SEO: keep `noindex`, or open the landing digest to search engines? (#7-A currently ships `noindex`.)
 6. *(new, v3)* Which corridors get a chat Square at launch — all six, or US/CA first?
 7. *(new, v3)* Discourse AI needs an LLM key for summaries/triage — client to choose provider & budget (excerpt fallback works without it).

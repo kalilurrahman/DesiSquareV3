@@ -22,7 +22,9 @@ Six non-negotiable constraints bound everything: **#3** flags private · **#4** 
 
 | Path | What it is |
 |---|---|
-| **`docs/desisquare-user-stories.md`** | **The v3 corpus — 123 stories / 21 epics / 7 personas**, G/W/T acceptance criteria, P0–P2, per-story Discourse mappings. Start here. |
+| **`app/`** | **The integrated product app** (from v2 `desisquare-app`): zero-dependency single-file SPA + same-origin proxy. `cd app && node serve.mjs` → http://localhost:5191. Feed, maven profiles (Monthly/Yearly/Overall **% only**), member gains toggle (visible/private, % only), tabbed search (All/Communities/Posts/Comments/Profiles), moderation. Degrades gracefully to seeded content with all upstreams down. |
+| **`services/`** | **The glue services** (from v2): `models-service` (port 8791 — the **percent-only** performance engine: CAGR / vs-benchmark / max-drawdown / Monthly-Yearly-Overall, equity indexed to 100, no currency ever), `wa-bridge` (WhatsApp↔Discourse, consent-gated), `gf-provisioner` (signup→one Ghostfolio account, idempotent SSO). Each is `node --test` + `node scripts/smoke.js`. |
+| **`docs/desisquare-user-stories.md`** | **The v3 corpus — 124 stories / 21 epics / 7 personas**, G/W/T acceptance criteria, P0–P2, per-story Discourse mappings. Start here. |
 | `docs/desisquare-wireframes-v4-prototype.html` | **Interactive prototype v4 "The Living Square"** — open in any browser: landing digest, live feed, chat dock, events, leaderboard, ticker hub, label browse, search. |
 | `docs/desisquare-wireframes-v4-catalog.md` | Frame catalog W1–W19 for the v4 prototype: constraint ledger, flow map, traceability. |
 | `docs/desisquare-wireframes-v3-prototype.html` / `-catalog.md` | The prior (v1.5) prototype + catalog, kept for lineage. |
@@ -55,4 +57,8 @@ Educational community only — **no investment advice**. Every surface carries t
 
 ---
 
-*BiGMo Consulting · 20 Jul 2026 · lineage: v1 (70 stories) → v2 (85) → **v3 (123, incl. the R5 karma increment)***
+## Lineage
+
+Built on the two prior codebases — **v1** [`kalilurrahman/DesiSquare`](https://github.com/kalilurrahman/DesiSquare) (runnable `phase1-mvp`) and **v2** [`kalilurrahman/DesiSquareV2`](https://github.com/kalilurrahman/DesiSquareV2) (`desisquare-app` + `models-service`) — this repo (**V3**) is the final integration: the v2 product app and services brought in under `app/`/`services/`, plus the Phase-1 feedback (search tabs; maven performance chart, **asset value never visible**) and the Maven/member visibility rules (percent-only, Monthly/Yearly/Overall, member gains visible/private).
+
+*BiGMo Consulting · 20 Jul 2026 · lineage: v1 (70 stories) → v2 (85) → **v3 (124 stories, integrated app + services)***

@@ -2,7 +2,7 @@
 
 **Scope:** Product build **DesiSquareV3**, deployed on GCP per `deploy/gcp/` (discourse-1 + apps-1 VMs, Caddy TLS, GCS backups; demo mode on sslip.io hostnames). Systems: **Discourse** (Porcelain Slate theme + the v3 plugin set below), **Discourse Chat**, **Ghostfolio** (bounded reskin), **wa-bridge**, **gf-provisioner**, **gf-stats**, **WhatsApp Business Cloud API**, and the **digest job** (public teaser builder).
 **Positioning:** Educational community only. No investment advice. Non-negotiable constraints referenced inline: #3 flags private, #4 dollars owner-only / public % only, #5 WhatsApp consent + no E.164 leakage, #7-A public-teaser gate, #8 percent-only maven pipeline, **#9 recognition ranks engagement, never money (new in v3)**.
-**Lineage:** v1 (Phase 1, 70 stories) → v2 (Phase 1.5 + F4/F5/F6, 85 stories — archived at `docs/archive/desisquare-user-stories-v2.md`) → **v3 (this document, 123 stories)**. Stories carried from v2 keep their numbers; changes are marked **(AMENDED · v3)**; additions are marked **(NEW · v3)**.
+**Lineage:** v1 (Phase 1, 70 stories) → v2 (Phase 1.5 + F4/F5/F6, 85 stories — archived at `docs/archive/desisquare-user-stories-v2.md`) → **v3 (this document, 124 stories)**. Stories carried from v2 keep their numbers; changes are marked **(AMENDED · v3)**; additions are marked **(NEW · v3)**.
 
 ## What's new in v3 (client requirements, 20 Jul 2026)
 
@@ -289,19 +289,26 @@
 - Given a regression that exposes an amount, When CI runs, Then the deploy is blocked and Ops is alerted.
 - **Priority:** P0 · **Wireframe:** W6 · **Systems:** gf-stats, Ghostfolio
 
+**6.7** *(NEW · v3 · client decision 20 Jul 2026 — resolves open question #4)* As a **Member**, I want to make my portfolio **gains** visible or private — percent only, monthly / yearly / overall — so that any member (not only mavens) can build trust with a track record, on their own terms.
+- Given W7, When I open portfolio settings, Then a **"Share my gains — % only"** toggle exists, **OFF by default** and independent of the allocation-% toggle (6.4); the explainer states exactly what publishes: **Monthly, Yearly, and Overall percentage returns — never dollar amounts, never holdings values**.
+- Given I turn it ON, When my public profile (W6) renders for another member, Then a gains module shows my **This Month %, This Year %, and Overall % (cumulative + annualized)** plus a small monthly-returns strip — computed server-side by gf-stats, with currency stripped server-side (#4/#8), and labelled **"self-reported track record — not independently verified"** to distinguish it from a maven's Ghostfolio-verified proof (7.2).
+- Given the toggle is OFF, When anyone opens my W6, Then no gains module renders at all; and given it changes, Then a timestamped consent entry lands in my consent history (10.1).
+- Given the gains module and its API payload, When inspected, Then there is **zero currency, zero share count, zero absolute value** — percentages only (leak-sweep 12.5 asserts this on member profiles too, exactly as it does for mavens).
+- **Priority:** P0 · **Wireframe:** W6, W7, W14 · **Systems:** gf-stats, Discourse, Ghostfolio
+
 ---
 
 ## Epic 7 — Maven Trust & Performance Proof
 
-**7.1** As a **Maven**, I want to explicitly opt in before any performance data is published, so that public proof is always consensual (#8).
-- Given maven status, When I visit W7, Then a "Publish my performance (percent only)" toggle exists, OFF by default, with an explainer of exactly what will be shown.
+**7.1** As a **Maven**, I want to explicitly opt in before any performance data is published, so that public proof is always consensual (#8). **(AMENDED · v3: maven proof is now the *verified* superset of the member gains toggle 6.7)**
+- Given maven status, When I visit W7, Then a "Publish my performance (percent only) — **verified via linked Ghostfolio**" toggle exists, OFF by default, with an explainer of exactly what will be shown.
 - Given I opt in, When I confirm, Then consent is timestamped and my W14 module goes live on the next gf-stats cycle.
-- Given a non-maven member, When they view W7, Then this toggle does not exist for them.
+- Given a non-maven member, When they view W7, Then they see the **6.7 member gains toggle** instead (self-reported, unverified) — the *verified* maven toggle here is what the maven badge and credential (7.5) add on top.
 - **Priority:** P0 · **Wireframe:** W7, W14 · **Systems:** gf-stats, Discourse, Ghostfolio
 
-**7.2** As a **Member**, I want to see an opted-in maven's performance as percentages over standard periods (F2), so that credibility is evidence-based (#8).
-- Given `nikhil_cfa` opted in, When I open their W14 module, Then I see % returns for defined periods (e.g., 1M/3M/6M/YTD/1Y) plus allocation %, computed by gf-stats from their Ghostfolio data.
-- Given the rendered module and its API response, When inspected, Then no currency value, portfolio size, or share count appears — currency is stripped server-side in gf-stats.
+**7.2** As a **Member**, I want to see an opted-in maven's performance as percentages over standard periods (F2), so that credibility is evidence-based (#8). **(AMENDED · v3: Monthly / Yearly / Overall made explicit per client)**
+- Given `nikhil_cfa` opted in, When I open their W14 module, Then I see **Monthly, Yearly, and Overall** percentage returns — a headline **This Month % · This Year % · Overall % (cumulative + annualized)**, a **monthly-returns strip** (last ~12 months, eToro-style, % only) and **calendar-year bars** — plus allocation %, all computed by gf-stats from their Ghostfolio data. (Finer periods like 3M/6M/YTD may also render; Monthly/Yearly/Overall are required.)
+- Given the rendered module and its API response, When inspected, Then no currency value, portfolio size, share count, or absolute amount appears anywhere in the HTML or JSON — **only his asset value must never be visible** (client feedback); currency is stripped server-side in gf-stats (the models-service equity series is a percent index by construction).
 - Given the module, When it renders, Then a "past performance ≠ future results; educational only" disclaimer is adjacent, not hidden behind a click.
 - **Priority:** P0 · **Wireframe:** W14 (F2) · **Systems:** gf-stats, Ghostfolio
 
@@ -882,7 +889,7 @@
 | 3 | Reactions & Flagging | 4 | 1 | 0 | 5 |
 | 4 | Search & Discovery *(R1 ticker/label)* | 5 | 2 | 1 | 8 |
 | 5 | Communities & Corridors | 3 | 2 | 0 | 5 |
-| 6 | Portfolio & Privacy | 5 | 1 | 0 | 6 |
+| 6 | Portfolio & Privacy *(+6.7 NEW — member gains toggle)* | 6 | 1 | 0 | 7 |
 | 7 | Maven Trust & Performance Proof *(+7.7 NEW · R5)* | 5 | 2 | 0 | 7 |
 | 8 | WhatsApp Integration | 5 | 2 | 0 | 7 |
 | 9 | Moderation | 4 | 1 | 0 | 5 |
@@ -898,10 +905,12 @@
 | 19 | **Live Events & AMAs (NEW · R4)** | 1 | 3 | 1 | 5 |
 | 20 | **Market Pulse (NEW · R1+R4)** | 1 | 3 | 1 | 5 |
 | 21 | **Karma & Tiers (NEW · R5)** | 2 | 4 | 1 | 7 |
-| | **Total** | **62** | **47** | **14** | **123** |
+| | **Total** | **63** | **47** | **14** | **124** |
 
 **Reading guide:** P0 = the v3 demo cannot ship without it (every story whose *primary purpose* is enforcing a constraint — #3, #4, #5, #7-A, #8, #9 — is P0; stories that merely operate within a constraint may be P1/P2; plus the marquee moment of each new epic). P1 = strongly expected for a credible "Living Square" demo. P2 = stretch. Every story is testable as written; the leak-sweep CI (12.5) is the automated backstop for all six privacy/compliance constraints, and the demo drawer (12.7) is how stakeholders exercise the corpus end-to-end — now including the liveliness showcases.
 
 **v3 karma increment (20 Jul 2026, later same day):** +8 stories (115 → 123). **R5** carries the parallel session's karma build into v3: **Epic 21 — Karma & Tiers** (weighted earning Actionable/Helpful +3 > Insightful +2 > Like +1 · accepted answer +5 · upheld flag −5, pending client confirmation; anti-gaming: no self-reactions, day caps, ring detection; byline chips; tier ladder with unlocks; "Top contributors — by karma, never by returns" rail; moderator karma effects — the hook W9 parked in Phase 2; dated-changelog transparency page), **7.7** five-signal maven credibility strip (only the proof signal reacts to the 7.4 consent toggle), and **18.1 amended** to rank by karma. Numbering remap from the parallel session: their Epic 16 → our Epic 21; their W17 karma page → our W18; their Stage 8C → ported into runbook 01. Karma is #9-bounded end-to-end and its payloads join the 12.5 leak-sweep.
+
+**v3 Phase-1-integration increment (20 Jul 2026):** +1 story (123 → 124). Grounded in the actual v1/v2 codebases (`kalilurrahman/DesiSquare`, `DesiSquareV2` — the runnable `phase1-mvp` and the v2 `desisquare-app` + `services/models-service` percent-only engine, now integrated into this repo under `app/` and `services/`) and the client's Phase-1 feedback + Omkara reference deck. **6.7 (NEW, P0)** lets *any member* make portfolio **gains** visible/private — percent-only, **Monthly/Yearly/Overall**, never dollars — resolving open question #4; **7.1 amended** (maven proof is the Ghostfolio-*verified* superset of 6.7); **7.2 amended** to require the **Monthly/Yearly/Overall** breakdown explicitly and restate "only his asset value must never be visible." The models-service equity series is a percent index by construction (indexed to 100 at inception), so #8's "no currency reaches a non-owner" holds at the engine level, not just the view.
 
 **v3 changelog (20 Jul 2026):** +30 stories over v2 (85 → 115); 30 v2 stories amended in place (1.1, 1.4, 1.7, 2.2, 2.5, 3.1, 4.4, 4.5, 4.6, 6.5, 8.3, 8.4, 8.5, 9.1, 10.3, 10.4, 11.1, 11.3, 12.1, 12.2, 12.3, 12.4, 12.5, 12.7, 13.2, 14.2, 14.4, 14.5, 14.6, 15.1 — amendments marked inline). Additionally, purely mechanical renames touched carried stories without semantic change and are not marked: v2's F4/F5/F6 rationale tags → R1/R2/R3 (4.7, 4.8, 14.1, 14.3, 15.2, 15.4 and others), #7 → #7-A normalization, and VPS → VM wording for the GCP move. New constraint **#9** (recognition ranks engagement, never money). New epics: **16 The Living Feed** (MessageBus live updates, presence, user status, follow), **17 Squares Chat** (Discourse Chat: corridor Squares, threads, chat→discussion promotion, chat moderation), **18 Recognition & Playfulness** (engagement leaderboards, desi badge ladder, celebrations, polls, roadmap voting), **19 Live Events & AMAs** (calendar/post-event AMAs, automated rituals, recaps), **20 Market Pulse** (ticker hubs, trending tickers, cashtag chips, landing ticker strip). R1/R2/R3 (the client's restated search/label/landing-summary requirements) are carried from v2's F4/F5/F6 and deepened via 4.5/4.6 amendments, 14.5→20.1 hub linkage, and 20.4's landing strip. Everything new rides native Discourse machinery — the plugin-set table at the top is the definitive list.

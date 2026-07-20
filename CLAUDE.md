@@ -1,6 +1,13 @@
 # CLAUDE.md — DesiSquareV3
 
-This repository is the **product source of truth** for DesiSquare V3 ("The Living Square"): a Discourse + Ghostfolio + WhatsApp community for desi retail investors. It contains product docs (user stories, wireframe catalogs, interactive prototypes, contracts, runbooks) and the GCP deployment package — not application source code (Discourse/Ghostfolio are deployed upstream projects; the three glue services live in `deploy/gcp/`).
+This repository is the **product source of truth** for DesiSquare V3 ("The Living Square"): a Discourse + Ghostfolio + WhatsApp community for desi retail investors, and the **final integration of the v1/v2 codebases** (`kalilurrahman/DesiSquare`, `DesiSquareV2`). It contains product docs (user stories, wireframe catalogs, interactive prototypes, contracts, runbooks), the GCP deployment package, **and the integrated application code**: `app/` (the zero-dep product app, from v2 `desisquare-app`) and `services/` (models-service — the percent-only maven-performance engine — plus wa-bridge and gf-provisioner). Discourse/Ghostfolio themselves are deployed upstream projects.
+
+## Orientation to the code
+
+- **`app/`** — `node serve.mjs` → http://localhost:5191. Single-file SPA (`index.html`) + same-origin proxy to the services; degrades gracefully to seeded content when upstreams are down (so the demo runs standalone).
+- **`services/models-service/`** — port 8791, `node --test`. Computes CAGR / vs-benchmark / max-drawdown / **Monthly-Yearly-Overall % returns** from a declared-entry ledger + EOD prices. The equity series is a **percent index (100 at inception)** — currency never enters, so #4/#8 hold at the engine level. Tests grep responses for E.164/currency.
+- **`services/wa-bridge/`, `services/gf-provisioner/`** — WhatsApp↔Discourse mirror (consent-gated) and signup→one-Ghostfolio-account provisioning (idempotent, 1-click SSO).
+- **Maven & member performance is percent-only, Monthly/Yearly/Overall, never dollar amounts** — the single most-emphasized product rule. Owner-only dollar view (`#/me`) is the sole place an absolute value may render, and it must never leak to a public or maven surface (leak-sweep, story 12.5 + 6.7/7.2).
 
 ## Orientation
 
