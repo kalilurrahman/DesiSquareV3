@@ -42,8 +42,9 @@ Six non-negotiable constraints bound everything: **#3** flags private · **#4** 
 
 ## Quick start
 
+- **Run it locally (full stack):** `make install && make dev` → http://localhost:5191 — boots the app + models-service + wa-bridge + gf-provisioner together (zero npm installs, Node 18+). Maven Monthly/Yearly/Overall % is LIVE. See **`INSTALL.md`**.
 - **Read the product:** open `docs/desisquare-user-stories.md`.
-- **Feel the product:** open `docs/desisquare-wireframes-v4-prototype.html` in a browser. Sign in as `quiet_lotus` (member), `nikhil_cfa` (maven), or `desisquare_mod` (moderator) — or stay signed out to see the public teaser gate (#7-A).
+- **Feel the product (no install):** open `docs/desisquare-wireframes-v4-prototype.html` in a browser. Sign in as `quiet_lotus` (member), `nikhil_cfa` (maven), or `desisquare_mod` (moderator) — or stay signed out to see the public teaser gate (#7-A).
 - **Deploy the demo:** point Claude Code at `deploy/gcp/` (it picks up `CLAUDE.md`) with a billing-enabled GCP project; demo mode is the default. For Railway, read `deploy/railway/README.md` first — Ghostfolio is clean, Discourse-on-Railway is demo-only.
 - **Prove it lives:** once a Discourse is up, `DISCOURSE_URL=… DISCOURSE_API_KEY=… node test/community-sim/run.mjs` seeds 50 members + real dialogues and runs the 14-point acceptance suite.
 
