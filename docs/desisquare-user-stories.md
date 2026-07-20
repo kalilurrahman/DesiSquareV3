@@ -11,7 +11,7 @@
 | **R1** | "Search interface on general text or stock ticker or labels" | Epic 4 (4.6–4.8, carried) + **Epic 20 — Market Pulse** (ticker hubs, trending tickers) | Full-text search + tags-as-labels + `tags:` filters + cashtag automation + tag pages as ticker hubs |
 | **R2** | "Community conversations and interactions should be labelled … manually … automated if the tool allows … moderated by the moderator for effectiveness" | Epic 14 (carried, deepened) | Tags + tag groups (manual), discourse-automation + Discourse AI triage (automated), tag admin rename/merge/synonyms + label-quality view (moderated) |
 | **R3** | "Popular discussions, summaries should appear in the free landing page, and popular discussions in the group one chooses … Reddit-style summary interface, best of Discord discussions as reference" | Epic 15 (carried, deepened) + landing ticker strip (20.4) | Hot/Top lists (global + per category) + Discourse AI topic summaries + cached digest job + custom-homepage theme |
-| **R4** | **"The new version should be as lively and interactive as possible"** + "leverage the power of Discourse" | **New Epics 16–20** + R4-driven amendments across Epics 1, 2, 3, 9, 10, 11, 12, 13, 15 (1.1, 1.7, 2.2, 3.1, 9.1, 10.3, 10.4, 11.1, 11.3, 12.4, 12.5, 12.7, 13.2, 15.1) | MessageBus live updates, presence, user status, **Discourse Chat**, discourse-reactions, native polls, discourse-gamification, badges, discourse-calendar/post-event, discourse-automation, Data Explorer |
+| **R4** | **"The new version should be as lively and interactive as possible"** + "leverage the power of Discourse" | **New Epics 16–20** + R4-driven amendments across Epics 1, 2, 3, 9, 10, 11, 12, 13, 15 (1.1, 1.4, 1.7, 2.2, 2.5, 3.1, 9.1, 10.3, 10.4, 11.1, 11.3, 12.3, 12.4, 12.5, 12.7, 13.2, 15.1) | MessageBus live updates, presence, user status, **Discourse Chat**, discourse-reactions, native polls, discourse-gamification, badges, discourse-calendar/post-event, discourse-automation, Data Explorer |
 | **R5** | **Karma system** (carried from the parallel karma build, 20 Jul 2026): weighted earning + anti-gaming, byline chips, tiers, "top contributors by karma never returns", moderator karma effects, transparency page | **New Epic 21** + 7.7 five-signal credibility strip + 18.1 amendment | Gamification scoring + Solved accepted answers + scheduled badge queries (tiers) + theme components (chips/strip) |
 
 > **Constraint #9 (new, forced by R4):** *Recognition ranks engagement, never money.* No leaderboard, badge, streak, or trending surface may rank or score members by portfolio returns, and none may imply advice quality. Maven percentages appear **only** inside that maven's own W14 module (#8). Leaderboard and badge payloads are covered by the leak-sweep (12.5): zero % returns, zero currency, zero E.164.
@@ -61,8 +61,8 @@
 ## Epic 1 — Onboarding & Access
 
 **1.1** As a **Visitor**, I want the signed-out landing to show only the curated public teaser and nothing else, so that member content stays private until I'm invited (#7-A). **(AMENDED · v3: chat and presence added to the excluded list)**
-- Given I am signed out, When I open community.example.com, Then I see the W1 landing (value prop, invite field, sign-in link) plus the public digest (Epic 15) — and nothing beyond it: no full threads, no comments, no member lists, no search, **no chat, no presence/online indicators (16.6, 17.6)**.
-- Given I request any deep URL (post, profile, community, search, chat channel) while signed out, When the page loads, Then I am redirected to W1 with no content flash — teaser cards link to the join gate, not the thread (15.5).
+- Given I am signed out, When I open community.example.com, Then I see the W1 landing (value prop, invite field, sign-in link) plus the public digest (Epic 15) — and nothing beyond it: no full threads, no comments, no member lists, no search, **no chat, no presence/online indicators, no events/calendars, no leaderboards, no label/ticker hubs (16.6, 17.6, Epic 19, 18.1, 20.1)**.
+- Given I request any deep URL (post, profile, community, search, chat channel, label/ticker hub `/label/*`, event, or leaderboard page) while signed out, When the page loads, Then I am redirected to W1 with no content flash — teaser cards link to the join gate, not the thread (15.5).
 - Given I query Discourse member JSON endpoints (`/latest.json`, `/u/…`, `/search.json`, `/chat/…`) anonymously, When the response returns, Then it is 403/redirect, not content; the only anonymous data path is the cached digest payload of 15.1.
 - **Priority:** P0 · **Wireframe:** W1 · **Systems:** Discourse
 
@@ -78,9 +78,9 @@
 - Given 5 failed attempts, When I try again, Then the attempt is throttled.
 - **Priority:** P0 · **Wireframe:** W2 · **Systems:** Discourse
 
-**1.4** As a **Member**, I want to participate under a pseudonym, so that my financial discussions aren't tied to my legal identity.
+**1.4** As a **Member**, I want to participate under a pseudonym, so that my financial discussions aren't tied to my legal identity. **(AMENDED · v3: chat added to the pseudonymity surfaces; profile allowlist extended for v3 elements)**
 - Given signup, When I choose a handle like `quiet_lotus`, Then my real name and email never render on any public surface (posts, profiles, search, chat, mirrored content).
-- Given another member views my W6 public profile, When it loads, Then only pseudonym, corridor, join date, badges, and (if opted-in) allocation % appear.
+- Given another member views my W6 public profile, When it loads, Then only pseudonym, corridor, join date, badges (incl. featured badges and karma tier, Epic 21), user status (16.4), streak/cakeday marks (18.3, unless opted out per 10.5), and (if opted-in) allocation % appear — never a real name, email, or E.164 number.
 - Given an admin exports member lists, When staff views them, Then email visibility is restricted to admin role only.
 - **Priority:** P0 · **Wireframe:** W2, W6 · **Systems:** Discourse
 
@@ -129,10 +129,11 @@
 - Given a post is removed by moderation, When I open its URL, Then I see a neutral "removed" state, not the content.
 - **Priority:** P0 · **Wireframe:** W4 · **Systems:** Discourse
 
-**2.5** As a **Member**, I want the feed and composer to work well on mobile, so that I can participate from my phone.
+**2.5** As a **Member**, I want the feed and composer to work well on mobile, so that I can participate from my phone. **(AMENDED · v3: liveliness surfaces added to the mobile acceptance)**
 - Given a 360px viewport, When I browse W3/W4, Then no horizontal scroll occurs, tap targets are ≥44px, and the sort toggle and reaction pills remain reachable.
 - Given the mobile composer, When I post, Then behavior (required space, draft restore) matches desktop.
-- **Priority:** P1 · **Wireframe:** W12 · **Systems:** Discourse
+- Given a 360px viewport, When I use chat (W16), events/RSVP (W17), and the leaderboard (W18), Then the same rules hold — no horizontal scroll, ≥44px targets — and the chat dock goes full-screen (17.1).
+- **Priority:** P1 · **Wireframe:** W12, W16, W17, W18 · **Systems:** Discourse
 
 **2.6** As a **Maven**, I want my posts visibly badged, so that readers can weigh credentialed perspectives (without implying advice).
 - Given `nikhil_cfa` posts, When the card renders in W3/W4, Then the maven badge + credential label appear next to the pseudonym.
@@ -192,8 +193,9 @@
 - Given a profile result, When it renders, Then it shows pseudonym, badge, corridor — never email, real name, or E.164 number.
 - **Priority:** P0 · **Wireframe:** W13 · **Systems:** Discourse
 
-**4.4** As a **Visitor**, I want search to be inaccessible while signed out, so that the gate holds (#7-A).
+**4.4** As a **Visitor**, I want search to be inaccessible while signed out, so that the gate holds (#7-A). **(AMENDED · v3: #7→#7-A normalization; leak-sweep binding added)**
 - Given signed-out state, When I request the search UI or `/search.json?q=…`, Then I'm redirected to W1 / receive 403 with no result payload.
+- Given the leak-sweep (12.5), When it runs, Then the anonymous `/search.json` 403 is asserted on every run — a regression fails the deploy.
 - **Priority:** P1 · **Wireframe:** W1, W13 · **Systems:** Discourse
 
 **4.5** As a **Member**, I want recent-search and trending suggestions in the empty search state, so that discovery starts before I type. **(AMENDED · v3: trending now includes the Market Pulse ticker strip)**
@@ -277,8 +279,8 @@
 - Given the toggle changes, When it's recorded, Then a timestamped consent entry appears in my consent history (see 10.1).
 - **Priority:** P0 · **Wireframe:** W7, W6 · **Systems:** Discourse, gf-stats, Ghostfolio
 
-**6.5** As a **Member**, I want to record holdings and transactions in the reskinned Ghostfolio, so that my allocation and performance data are real.
-- Given the bounded reskin, When I use Ghostfolio, Then core flows (add activity, holdings view, performance chart) work and visually align with Porcelain Slate (logo, palette) without forked upstream internals.
+**6.5** As a **Member**, I want to record holdings and transactions in the reskinned Ghostfolio, so that my allocation and performance data are real. **(AMENDED · v3: acceptance made observable)**
+- Given the bounded reskin, When I use Ghostfolio, Then each core flow has an observable pass: an added activity appears in the holdings view within 60 seconds, the performance chart renders for the seeded account, and the reskin assertions hold (DesiSquare logo asset served; Porcelain Slate palette variables applied) — all without forked upstream internals.
 - Given I add a transaction, When gf-stats next computes, Then my allocation % (and maven % series if applicable) reflect it.
 - **Priority:** P1 · **Wireframe:** W5 · **Systems:** Ghostfolio
 
@@ -352,13 +354,13 @@
 - Given the mirrored post, When it renders, Then it's labeled as mirrored from WhatsApp **and auto-labelled by the 14.3 automation like any other post**.
 - **Priority:** P0 · **Wireframe:** W3, W4 · **Systems:** wa-bridge, WhatsApp, Discourse
 
-**8.4** As a **Member**, I want mirroring to apply only to participants who have consented, so that nobody's words are republished without permission (#5).
+**8.4** As a **Member**, I want mirroring to apply only to participants who have consented, so that nobody's words are republished without permission (#5). **(AMENDED · v3: revocation cache semantics tightened)**
 - Given a group participant who has NOT granted mirroring consent, When they send messages, Then wa-bridge drops them — nothing is posted, stored, or queued.
 - Given I revoke mirroring consent in W7, When I next message the group, Then mirroring has stopped for me (no grace-period leakage).
-- Given consent state changes, When wa-bridge evaluates a message, Then it checks current consent at processing time, not a cached value older than 60 seconds.
+- Given consent state changes, When wa-bridge evaluates a message, Then grants may be served from a short cache (≤60s) but **revocations invalidate the cache immediately** (push or lookup-on-revoke), so the no-grace-period guarantee above holds unconditionally.
 - **Priority:** P0 · **Wireframe:** W7 · **Systems:** wa-bridge, Discourse
 
-**8.5** As a **Member**, I want my phone number never to appear on the platform, so that mirroring can't deanonymize me (#5).
+**8.5** As a **Member**, I want my phone number never to appear on the platform, so that mirroring can't deanonymize me (#5). **(AMENDED · v3: VPS→VM wording per the GCP move)**
 - Given any mirrored post, When its content, metadata, and raw HTML are inspected, Then no E.164 number (mine or a quoted participant's) appears; attribution is pseudonym-only.
 - Given a message body that itself contains a phone number typed by a user, When mirrored, Then the number pattern is redacted (e.g., `[number removed]`).
 - Given wa-bridge logs on the VM, When reviewed, Then numbers are masked in application logs.
@@ -434,7 +436,7 @@
 
 **10.5** *(NEW · v3 · R4)* As a **Member**, I want liveliness controls — appear-offline and gamification opt-out — so that the lively layer is never surveillance.
 - Given W7, When I enable "Appear offline", Then my presence never renders anywhere (no typing indicator, no online dot, no "reading now" inclusion) while my own view of others is unchanged.
-- Given W7, When I opt out of gamification (18.6), Then I leave all leaderboards immediately and earn no further public points; badges already earned remain on my profile unless I hide them.
+- Given W7, When I opt out of gamification (18.1), Then I leave all leaderboards immediately and earn no further public points; my public streak chip and cakeday mark stop rendering too (18.3) — opt-out removes every public activity-pattern signal; badges already earned remain on my profile unless I hide them.
 - Given either toggle changes, When recorded, Then the change is timestamped in my settings history and takes effect within 60 seconds.
 - **Priority:** P1 · **Wireframe:** W7 · **Systems:** Discourse
 
@@ -443,10 +445,10 @@
 ## Epic 11 — Compliance & Disclaimers
 
 **11.1** As a **Compliance Officer**, I want "educational only — not investment advice" disclaimers on every content surface, so that positioning is unambiguous. **(AMENDED · v3: chat and event surfaces included)**
-- Given W1, W3, W4, W6, W14, **W16 (chat), and W17 (events)**, When each renders (desktop and W12 mobile), Then the disclaimer is visibly present (footer or module-adjacent) without user interaction.
+- Given W1, W3, W4, W6, W14, **W16 (chat), W17 (events), W18 (recognition), and W19 (ticker hubs — the most finance-adjacent v3 surface)**, When each renders (desktop and W12 mobile), Then the disclaimer is visibly present (footer or module-adjacent) without user interaction.
 - Given the composer, When a member posts in an investing space, Then a one-line reminder ("share education, not advice") appears above the editor; **chat channels pin the same line in the channel header/about**.
 - Given a themed page update, When the leak-sweep/UI test suite runs, Then a missing disclaimer fails the check.
-- **Priority:** P0 · **Wireframe:** W1, W3, W4, W6, W14, W16, W17 · **Systems:** Discourse, gf-stats
+- **Priority:** P0 · **Wireframe:** W1, W3, W4, W6, W14, W16, W17, W18, W19 · **Systems:** Discourse, gf-stats
 
 **11.2** As a **Compliance Officer**, I want the signed-out landing to position DesiSquare strictly as an educational community, so that acquisition copy creates no advisory expectation.
 - Given W1, When reviewed, Then copy contains no promises of returns, no "beat the market" language, and describes mavens as educators sharing track records, not advisors.
@@ -474,15 +476,16 @@
 - Given the demo dataset load, When monitored, Then steady-state memory fits the VM budget (4 GB discourse-1 / 8 GB apps-1) with swap as a safety net.
 - **Priority:** P0 · **Wireframe:** — · **Systems:** All
 
-**12.2** As a **Platform Operator**, I want nightly automated backups with a tested restore path, so that data survives mistakes.
+**12.2** As a **Platform Operator**, I want nightly automated backups with a tested restore path, so that data survives mistakes. **(AMENDED · v3: GCS offsite destination per deploy/gcp)**
 - Given the schedule, When the nightly job runs, Then Discourse (DB + uploads), Ghostfolio DB, and script state/consent stores are backed up off-box to GCS with retention lifecycle (per `deploy/gcp/scripts/04-backups.sh`).
 - Given the restore drill runbook, When executed against a scratch target, Then the platform restores to a working state and the drill result is logged.
 - Given a failed backup, When detected, Then Ops is alerted within the same day.
 - **Priority:** P0 · **Wireframe:** — · **Systems:** All
 
-**12.3** As a **Platform Operator**, I want health checks and alerting for every service, so that failures are noticed before members do.
+**12.3** As a **Platform Operator**, I want health checks and alerting for every service, so that failures are noticed before members do. **(AMENDED · v3: scheduled-job staleness alerts added)**
 - Given health endpoints/heartbeats for Discourse, Ghostfolio, wa-bridge, gf-provisioner, gf-stats, and SMTP, When any is down >5 minutes, Then an alert (email/WhatsApp to Ops) fires.
 - Given wa-bridge, When its mirror latency exceeds the 60s SLO over a 15-min window, Then a warning alert fires.
+- **Given the v3 scheduled jobs — digest build (15.1), ritual creation (19.2), recap generation (19.5), trending refresh (20.2) — When any fails or the cached public digest is older than 2 hours, Then Ops is alerted; the free landing never serves a stale teaser silently.**
 - Given disk >85% or memory pressure, When thresholds trip, Then Ops is alerted.
 - **Priority:** P1 · **Wireframe:** — · **Systems:** All
 
@@ -493,7 +496,7 @@
 
 **12.5** As a **Platform Operator**, I want a leak-sweep CI job that scans public surfaces for privacy violations, so that constraints #3/#4/#5/#7-A/#8/#9 are machine-enforced. **(AMENDED · v3: chat, presence, leaderboard, and event surfaces added to the sweep)**
 - Given the sweep, When it runs on every deploy and nightly, Then it crawls signed-out pages (expecting the #7-A boundary: the curated digest may render, but member endpoints 403, teaser cards contain no private-community content, no currency values, no E.164 numbers, and thread deep-links gate), non-owner W6/W14 pages and gf-stats endpoints (expecting zero currency values, #4/#8), recent mirrored posts (expecting zero E.164 patterns, #5), and checks that flag indicators are absent for non-mods (#3).
-- **Given the v3 surfaces, When the sweep runs, Then chat endpoints 403 anonymously (17.6), presence/online data never appears in signed-out payloads (16.6), event/calendar endpoints — upcoming-events lists, RSVP/attendee payloads, category calendars — 403 anonymously and no personal ICS-feed URL (which embeds a user API key, Epic 19) appears in any shared surface, and leaderboard/badge/karma payloads (incl. byline chips and the 7.7 credibility strip) contain no % returns or currency (#9, 18.6, 21.3).**
+- **Given the v3 surfaces, When the sweep runs, Then chat endpoints 403 anonymously (17.6), presence/online data never appears in signed-out payloads (16.6), event/calendar endpoints — upcoming-events lists, RSVP/attendee payloads, category calendars — 403 anonymously and no personal ICS-feed URL (which embeds a user API key, Epic 19) appears in any shared surface, leaderboard pages and gamification JSON 403 anonymously (18.1), label/ticker hub pages (`/label/*`) 403 anonymously (20.1), the teaser's `noindex` is present (15.1), and leaderboard/badge/karma payloads (incl. byline chips and the 7.7 credibility strip) contain no % returns or currency (#9, 18.6, 21.3).**
 - Given any violation, When detected, Then the pipeline fails/alerts with the offending URL and matched pattern.
 - Given a clean run, When it completes, Then a dated pass record is stored for compliance review.
 - **Priority:** P0 · **Wireframe:** W1, W6, W14, W16, W17, W18 · **Systems:** gf-stats, wa-bridge, Discourse, Ghostfolio
@@ -520,7 +523,7 @@
 - **Priority:** P2 · **Wireframe:** W10 · **Systems:** Discourse
 
 **13.2** As a **Community Admin**, I want guardrails on what can be experimented on, so that compliance and privacy surfaces are never in a test cell. **(AMENDED · v3: liveliness-privacy surfaces added to the blocklist)**
-- Given experiment targeting, When I attempt to vary disclaimers, the signed-out gate, flag privacy, consent flows, %-only rendering, **presence visibility, or leaderboard scoring inputs**, Then W10 blocks the configuration with an explanation.
+- Given experiment targeting, When I attempt to vary disclaimers, the signed-out gate, flag privacy, consent flows, %-only rendering, **presence visibility, leaderboard scoring inputs, or the teaser's `noindex`/indexability**, Then W10 blocks the configuration with an explanation.
 - Given allowed surfaces (sort defaults, copy on non-compliance elements, layout variants, **celebration styles, digest card layouts**), When configured, Then launch proceeds.
 - **Priority:** P2 · **Wireframe:** W10 · **Systems:** Discourse
 
@@ -542,7 +545,7 @@
 - Given a labelled post, When it renders anywhere (W3/W4/W13/W15), Then its label chips render and each chip links to the label browse page (14.6).
 - **Priority:** P0 · **Wireframe:** W3, W4 (F5) · **Systems:** Discourse (tags, tag groups)
 
-**14.2** As a **Community Admin**, I want curated label sets per space, so that labelling stays consistent and useful.
+**14.2** As a **Community Admin**, I want curated label sets per space, so that labelling stays consistent and useful. **(AMENDED · v3: `ama` added to the Format set for 19.1)**
 - Given tag-group admin, When I define sets (e.g., **Tickers** `nvda, vti, …`; **Themes** `fema, fcnr, 401k, roth, real-estate, insurance`; **Format** `question, guide, discussion, poll, ama`), Then each space declares which sets apply and which are required.
 - Given a label rename or merge (e.g., `fcnr-b` → `fcnr`), When executed, Then all existing conversations re-point automatically and old label URLs redirect — no dead links.
 - Given synonyms (e.g., `retirement` → `401k`), When a member applies the synonym, Then the canonical label is stored.
@@ -554,11 +557,11 @@
 - Given the author edits labels afterwards, When they remove an auto label, Then it stays removed (member intent beats automation; the removal is logged for tuning).
 - **Priority:** P1 · **Wireframe:** W3, W4 (F5) · **Systems:** Discourse (discourse-automation, Discourse AI triage, watched words), wa-bridge
 
-**14.4** As a **Moderator**, I want to curate labels for effectiveness, so that the taxonomy stays trustworthy (R2: "moderated by the moderator").
+**14.4** As a **Moderator**, I want to curate labels for effectiveness, so that the taxonomy stays trustworthy (R2: "moderated by the moderator"). **(AMENDED · v3: mislabel signals sourced from 14.3/14.6; label-health reporting made testable)**
 - Given any conversation, When I open its label editor, Then I can add/remove labels regardless of author settings, and my change is logged in the moderation audit trail (9.5).
 - Given the label-quality view, When I review, Then I see: auto-labels awaiting confirmation, most-used labels, orphaned/near-duplicate labels, and mislabel signals — auto-label removals logged by 14.3 plus label-issue reports filed from the label page (14.6) — with one-click confirm/fix/merge actions.
 - Given a junk or abusive label, When I delete it, Then it's removed from all conversations and (optionally) added to a blocked-label list.
-- Given label effectiveness metrics (via Data Explorer: label usage, search-click-through by label), When reviewed monthly, Then merge/rename decisions are data-driven.
+- Given label effectiveness metrics, When the monthly cycle runs, Then a label-health report generates (Data Explorer: usage and search click-through per label) and every merge/rename action in the audit log (9.5) links the report entry that motivated it.
 - **Priority:** P1 · **Wireframe:** W9 (F5) · **Systems:** Discourse (tag admin, Data Explorer)
 
 **14.5** As a **Member**, I want tickers mentioned as cashtags to become ticker labels automatically, so that ticker search (4.6) is reliable without manual effort. **(AMENDED · v3: cashtag chips link to the 20.1 hub)**
@@ -569,7 +572,7 @@
 **14.6** As a **Member**, I want a label browse page, so that each label works like a topic hub. **(AMENDED · v3: label-issue reporting closes the 14.4 loop)**
 - Given `/label/fema` (Discourse tag page), When it loads, Then all conversations carrying the label list with the standard Popular/New sort (F3) and the space filter.
 - Given the page header, When it renders, Then it shows the label description (admin-editable), conversation count, and a Follow-label action that adds label activity to my notifications.
-- Given the page's overflow menu, When I choose "Report a label issue" (wrong, missing, or duplicate label — with a short note), Then the report lands in the 14.4 label-quality view — not the flag queue: the five private flag reasons (3.3) stay content-only (#3).
+- Given the page's overflow menu, When I choose "Report a label issue" (wrong, missing, or duplicate label — with a short note), Then the report lands in the 14.4 label-quality view — not the flag queue: the five private flag reasons (3.3) stay content-only (#3). Reports are moderator-only and the reporter's identity is never disclosed outside the mod view (#3-equivalent privacy; the leak-sweep 12.5 asserts no reporter data leaks).
 - **Priority:** P2 · **Wireframe:** W13, W15 · **Systems:** Discourse (tag pages, tag tracking)
 
 ---
@@ -580,8 +583,8 @@
 
 **15.1** As a **Visitor**, I want the free landing page to show today's popular discussions as Reddit-style summary cards, so that I can see the community's value before joining (R3). **(AMENDED · v3: chat channels added to the structural exclusions)**
 - Given the signed-out W1, When it loads, Then below the join module a **"Popular this week"** digest renders: 5–10 cards, each with title, 2–3-sentence summary, space + label chips, engagement counts (reactions/comments), pseudonymous author (+ MAVEN ✓ badge where applicable), and relative age.
-- Given the digest source, When it's built, Then only content from **public corridors** is eligible; private/request-gated communities, the review queue, chat channels, and anything removed by moderation are structurally excluded (#7-A).
-- Given the cards, When rendered signed-out, Then no currency values, no E.164 numbers, and no member emails appear (the leak-sweep of 12.5 crawls this surface), and the page carries `noindex` until the client's SEO decision.
+- Given the digest source, When it's built, Then only content from **public corridors** is eligible; private/request-gated communities, the review queue, chat channels, **chat-origin promoted transcripts (17.3)**, and anything removed by moderation are structurally excluded (#7-A).
+- Given the cards, When rendered signed-out, Then no currency values, no E.164 numbers, and no member emails appear (the leak-sweep of 12.5 crawls this surface), and the page carries `noindex` **unconditionally — asserted by 12.5 on every run; any future SEO opening is a separate story requiring explicit #7-A re-review** (see the open-questions register).
 - Given the digest job fails, When the landing renders, Then it falls back to the last good cached digest (with its date) or hides the section — never an error.
 - **Priority:** P0 · **Wireframe:** W1 (F6) · **Systems:** Discourse (Top/Hot lists via API, digest job)
 
@@ -628,7 +631,7 @@
 **16.2** As a **Member**, I want an open thread to stream new comments in real time, so that busy discussions read like a live room.
 - Given W4 is open, When another member posts a comment, Then it appears in-thread within 10 seconds with a subtle entrance highlight, without reload.
 - Given a comment I'm reading is edited or removed by moderation, When the change lands, Then the thread updates in place (edit marker / neutral removed state).
-- Given more than ~20 members have the thread open, When the header renders, Then a modest "n reading now" indicator shows (count only — no name list; #7-A keeps this member-only).
+- Given at least 20 members (admin-configurable threshold) have the thread open, When the header renders, Then a count-only "n reading now" indicator shows (no names, no avatars; #7-A keeps this member-only).
 - **Priority:** P1 · **Wireframe:** W4 · **Systems:** Discourse (MessageBus, presence)
 
 **16.3** As a **Member**, I want to see when someone is composing a reply, so that I wait for an answer instead of leaving.
@@ -641,12 +644,12 @@
 - Given W7 or my avatar menu, When I set status (e.g., 🪔 "earnings week — heads down"), Then it renders beside my pseudonym in feed, thread, chat, and profile surfaces, with an optional auto-clear time.
 - Given status text, When saved, Then it passes the same denylist screening as bios (7.6) and length-caps at 60 characters.
 - Given signed-out surfaces, When the teaser renders, Then statuses never appear there (#7-A).
-- **Priority:** P2 · **Wireframe:** W3, W4, W7 · **Systems:** Discourse (user status)
+- **Priority:** P2 · **Wireframe:** W3, W4, W5, W6, W7, W16 · **Systems:** Discourse (user status)
 
-**16.5** As a **Member**, I want reaction and comment counts to tick live on cards I'm looking at, so that momentum is visible as it happens.
-- Given a W3/W4 card in view, When reactions or comments land, Then the pill counts update in place within 10 seconds with a subtle tick animation (no layout shift).
+**16.5** As a **Member**, I want engagement counts to tick live on what I'm looking at, so that momentum is visible as it happens.
+- Given a W3/W4 card in view, When engagement lands — reactions, comments, poll votes (18.4), RSVP counts (19.1) — Then the counts update in place within 10 seconds with a subtle tick animation (no layout shift).
 - Given a count updates, When I have already reacted, Then my own highlighted state is preserved through the update.
-- Given heavy activity, When updates exceed ~1/second, Then updates batch (≤1 render/2s per card) so the UI never flickers.
+- Given heavy activity, When updates exceed 1/second, Then updates batch (≤1 render/2s per card) so the UI never flickers.
 - **Priority:** P1 · **Wireframe:** W3, W4 · **Systems:** Discourse (MessageBus)
 
 **16.6** As a **Compliance Officer**, I want every presence surface gated to members and suppressible per member, so that liveliness never becomes surveillance or a gate leak (#7-A).
@@ -665,12 +668,13 @@
 
 ## Epic 17 — Squares Chat *(NEW · v3 · R4)*
 
-> **Discourse mapping:** **Discourse Chat** (core since 3.0): public channels are category-backed (one Square per corridor category — channel visibility inherits category security), threads (per-channel opt-in), DMs/group DMs, quote-to-topic **transcripts** (`Chat::TranscriptService` renders selected messages as a styled transcript in a topic — the native mechanic behind 17.3's "Continue as discussion"). Access is group-gated via `chat_allowed_groups`. Retention is set deliberately: channel messages default to 90-day auto-delete (right for "chat is ephemeral, the forum is durable"); DM retention documented in the privacy policy. Chat is the "Discord energy" surface; the forum stays the durable knowledge base — and 17.3 is the bridge between the two. Chat never renders signed-out (#7-A) and is excluded from the public digest and WhatsApp mirroring (#5 scope stays forum-only).
+> **Discourse mapping:** **Discourse Chat** (core since 3.0): public channels are category-backed (one Square per corridor category — channel visibility inherits category security), threads (per-channel opt-in), DMs/group DMs, quote-to-topic **transcripts** (`Chat::TranscriptService` renders selected messages as a styled transcript in a topic — the native mechanic behind 17.3's "Continue as discussion"). Access is group-gated via `chat_allowed_groups`. Retention is set deliberately: channel messages default to 90-day auto-delete (right for "chat is ephemeral, the forum is durable"); DM retention documented in the privacy policy. Chat is the "Discord energy" surface; the forum stays the durable knowledge base — and 17.3 is the bridge between the two. **Scope decision (R1/R2):** chat is deliberately outside universal search (W13) and tag labelling — Discourse tags don't apply to chat messages; native in-channel chat search covers the ephemeral layer (17.1), and anything worth finding forever gets promoted into a labelled topic (17.3). Chat never renders signed-out (#7-A) and chat *surfaces* are excluded from the public digest and WhatsApp mirroring (#5 scope stays forum-only); promoted transcripts are forum content but stay off the signed-out teaser (15.1, 17.3).
 
 **17.1** As a **Member**, I want a live chat Square per corridor community, so that quick back-and-forth has a home that isn't the feed.
 - Given my joined corridor (e.g., US), When I open W16 (chat dock or full-page), Then its Square channel renders with live messages, member count, and the pinned "education, not advice" line (11.1).
 - Given I join/leave a community (5.2), When membership changes, Then the corresponding Square appears/disappears from my channel list within 60 seconds.
 - Given a private/request-gated community, When its Square exists, Then only approved members see the channel — it never appears in any non-member's channel list (#3-adjacent privacy).
+- Given native in-channel chat search, When I search a channel, Then results are member-only and scoped to channels I can access; chat messages carry no labels and stay out of W13 universal search — the labelled, searchable, durable path is promotion (17.3).
 - **Priority:** P0 · **Wireframe:** W16 · **Systems:** Discourse Chat
 
 **17.2** As a **Member**, I want threads inside busy channels, so that a fast Square stays followable.
@@ -680,8 +684,8 @@
 
 **17.3** As a **Member**, I want to promote a good chat exchange into a labelled discussion, so that chat sparkle becomes durable, searchable knowledge (the anti-Discord-amnesia move).
 - Given a run of chat messages, When I (or a moderator) select them and tap "Continue as discussion", Then a new W4 topic is created in a chosen space with a quoted transcript (pseudonym-attributed), a back-link in the channel, and the composer's required label picker (14.1).
-- Given the created topic, When it publishes, Then it enters search (R1), the feed, and — if it earns engagement — the digests (R3), exactly like any native post.
-- Given any participant whose messages are quoted, When the transcript is built, Then attribution is pseudonym-only and E.164/emails never appear (#5-grade hygiene applies to transcripts).
+- Given the created topic, When it publishes, Then it enters search (R1), the feed, and — if it earns engagement — the **member-facing** digests (15.4, 15.6); it is structurally excluded from the signed-out public teaser (15.1), because chat participants spoke on a members-only surface.
+- Given any participant whose messages are quoted, When the topic publishes, Then each quoted participant is notified ("your chat messages were quoted into a discussion") with a remove-my-messages request affordance (moderator-reviewed), attribution is pseudonym-only, and E.164/emails never appear (#5-grade hygiene applies to transcripts).
 - **Priority:** P0 · **Wireframe:** W16 → W4 · **Systems:** Discourse Chat (quote/transcript), Discourse
 
 **17.4** As a **Moderator**, I want chat-native moderation tools, so that fast surfaces stay safe at speed.
@@ -713,6 +717,7 @@
 - Given the scoring config, When an admin edits weights, Then gf-stats fields are structurally unavailable as inputs (the scoring source list simply doesn't include them).
 - Given my row, When I view the board, Then I see my rank, points breakdown, and trend; given 10.5 opt-out, Then I'm absent and see a quiet "you're opted out" note where my row would be.
 - Given the board renders, When inspected, Then no % returns, no currency, no E.164 (leak-sweep 12.5 covers the payload; #9).
+- Given a signed-out request, When any W18 page or gamification JSON endpoint is fetched, Then 403/redirect (#7-A) — asserted by the leak-sweep (12.5).
 - **Priority:** P1 · **Wireframe:** W18 · **Systems:** Discourse (discourse-gamification)
 
 **18.2** As a **Member**, I want a desi-themed badge ladder, so that milestones feel like ours, not generic forum trophies.
@@ -790,6 +795,7 @@
 - Given `/label/nvda` (the tag page, upgraded), When it loads, Then I see: the ticker header ("$NVDA · NVIDIA"), discussion count + this-week velocity, Popular/New sorted labelled discussions (F3 pattern), and a Follow-ticker action (14.6 mechanics).
 - Given the hub of a ticker with recent AMA/event content, When it renders, Then those appear in a "moments" strip (events, promoted chat discussions) above the list.
 - Given any hub, When inspected, Then it contains zero member portfolio data — no "members holding this", no allocation aggregates (#4/#8: gf-stats never feeds hub surfaces).
+- Given a signed-out request for any hub or label page (`/label/*`), When fetched, Then 403/redirect to W1 (#7-A) — tag pages are member-only even though vanilla Discourse serves them publicly; the leak-sweep (12.5) crawls them anonymously.
 - **Priority:** P0 · **Wireframe:** W19 · **Systems:** Discourse (tag pages), automation
 
 **20.2** As a **Member**, I want a trending-tickers rail, so that I can see where the community's attention is moving right now.
@@ -894,8 +900,8 @@
 | 21 | **Karma & Tiers (NEW · R5)** | 2 | 4 | 1 | 7 |
 | | **Total** | **62** | **47** | **14** | **123** |
 
-**Reading guide:** P0 = the v3 demo cannot ship without it (every constraint-bearing story — #3, #4, #5, #7-A, #8, #9 — is P0, plus the marquee moment of each new epic). P1 = strongly expected for a credible "Living Square" demo. P2 = stretch. Every story is testable as written; the leak-sweep CI (12.5) is the automated backstop for all six privacy/compliance constraints, and the demo drawer (12.7) is how stakeholders exercise the corpus end-to-end — now including the liveliness showcases.
+**Reading guide:** P0 = the v3 demo cannot ship without it (every story whose *primary purpose* is enforcing a constraint — #3, #4, #5, #7-A, #8, #9 — is P0; stories that merely operate within a constraint may be P1/P2; plus the marquee moment of each new epic). P1 = strongly expected for a credible "Living Square" demo. P2 = stretch. Every story is testable as written; the leak-sweep CI (12.5) is the automated backstop for all six privacy/compliance constraints, and the demo drawer (12.7) is how stakeholders exercise the corpus end-to-end — now including the liveliness showcases.
 
 **v3 karma increment (20 Jul 2026, later same day):** +8 stories (115 → 123). **R5** carries the parallel session's karma build into v3: **Epic 21 — Karma & Tiers** (weighted earning Actionable/Helpful +3 > Insightful +2 > Like +1 · accepted answer +5 · upheld flag −5, pending client confirmation; anti-gaming: no self-reactions, day caps, ring detection; byline chips; tier ladder with unlocks; "Top contributors — by karma, never by returns" rail; moderator karma effects — the hook W9 parked in Phase 2; dated-changelog transparency page), **7.7** five-signal maven credibility strip (only the proof signal reacts to the 7.4 consent toggle), and **18.1 amended** to rank by karma. Numbering remap from the parallel session: their Epic 16 → our Epic 21; their W17 karma page → our W18; their Stage 8C → ported into runbook 01. Karma is #9-bounded end-to-end and its payloads join the 12.5 leak-sweep.
 
-**v3 changelog (20 Jul 2026):** +30 stories over v2 (85 → 115); 20 v2 stories amended in place (1.1, 1.7, 2.2, 3.1, 4.5, 4.6, 8.3, 9.1, 10.3, 10.4, 11.1, 11.3, 12.1, 12.4, 12.5, 12.7, 13.2, 14.5, 14.6, 15.1 — amendments marked inline). New constraint **#9** (recognition ranks engagement, never money). New epics: **16 The Living Feed** (MessageBus live updates, presence, user status, follow), **17 Squares Chat** (Discourse Chat: corridor Squares, threads, chat→discussion promotion, chat moderation), **18 Recognition & Playfulness** (engagement leaderboards, desi badge ladder, celebrations, polls, roadmap voting), **19 Live Events & AMAs** (calendar/post-event AMAs, automated rituals, recaps), **20 Market Pulse** (ticker hubs, trending tickers, cashtag chips, landing ticker strip). R1/R2/R3 (the client's restated search/label/landing-summary requirements) are carried from v2's F4/F5/F6 and deepened via 4.5/4.6 amendments, 14.5→20.1 hub linkage, and 20.4's landing strip. Everything new rides native Discourse machinery — the plugin-set table at the top is the definitive list.
+**v3 changelog (20 Jul 2026):** +30 stories over v2 (85 → 115); 30 v2 stories amended in place (1.1, 1.4, 1.7, 2.2, 2.5, 3.1, 4.4, 4.5, 4.6, 6.5, 8.3, 8.4, 8.5, 9.1, 10.3, 10.4, 11.1, 11.3, 12.1, 12.2, 12.3, 12.4, 12.5, 12.7, 13.2, 14.2, 14.4, 14.5, 14.6, 15.1 — amendments marked inline). Additionally, purely mechanical renames touched carried stories without semantic change and are not marked: v2's F4/F5/F6 rationale tags → R1/R2/R3 (4.7, 4.8, 14.1, 14.3, 15.2, 15.4 and others), #7 → #7-A normalization, and VPS → VM wording for the GCP move. New constraint **#9** (recognition ranks engagement, never money). New epics: **16 The Living Feed** (MessageBus live updates, presence, user status, follow), **17 Squares Chat** (Discourse Chat: corridor Squares, threads, chat→discussion promotion, chat moderation), **18 Recognition & Playfulness** (engagement leaderboards, desi badge ladder, celebrations, polls, roadmap voting), **19 Live Events & AMAs** (calendar/post-event AMAs, automated rituals, recaps), **20 Market Pulse** (ticker hubs, trending tickers, cashtag chips, landing ticker strip). R1/R2/R3 (the client's restated search/label/landing-summary requirements) are carried from v2's F4/F5/F6 and deepened via 4.5/4.6 amendments, 14.5→20.1 hub linkage, and 20.4's landing strip. Everything new rides native Discourse machinery — the plugin-set table at the top is the definitive list.
