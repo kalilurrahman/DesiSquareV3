@@ -1,0 +1,203 @@
+{
+  "meta": {
+    "version": 1,
+    "note": "Phase-1 seed state mirroring the design prototype (Phase 1 mode). Pseudonyms only — no phone numbers anywhere in this file, ever (CI greps for E.164)."
+  },
+  "inviteCodes": ["DSQ-2026", "DSQ-CHAI"],
+  "countries": [
+    { "code": "US", "name": "United States" },
+    { "code": "CA", "name": "Canada" },
+    { "code": "UK", "name": "United Kingdom" },
+    { "code": "AE", "name": "UAE" },
+    { "code": "AU", "name": "Australia" },
+    { "code": "SG", "name": "Singapore" }
+  ],
+  "communities": [
+    { "id": "usinv", "country": "US", "name": "US Investment", "type": "common", "members": 4823, "online": 142, "desc": "The common free community for desi investors in the US — moderated by DesiSquare, public-first, zero cost." },
+    { "id": "re", "country": "US", "name": "NRI Real Estate", "type": "public", "members": 1976, "online": 38, "desc": "US and India property: financing on visas, cross-border rentals, REITs vs the Gurgaon flat." },
+    { "id": "options", "country": "US", "name": "Options & Income", "type": "public", "members": 812, "online": 21, "desc": "Covered calls, cash-secured puts, hedging. No lottery tickets." },
+    { "id": "fire", "country": "US", "name": "Desi FIRE", "type": "private", "members": 640, "online": 17, "desc": "Early-retirement math for immigrant families balancing two countries. Request or get invited." },
+    { "id": "founders", "country": "US", "name": "Founders & Equity", "type": "private", "members": 355, "online": 9, "desc": "Startup equity, 83(b), secondaries, QSBS — founder-to-founder." },
+    { "id": "cainv", "country": "CA", "name": "Canada Investment", "type": "common", "members": 1204, "online": 44, "desc": "The common free community for desi investors in Canada — TFSA, RRSP, FHSA and more." },
+    { "id": "maple", "country": "CA", "name": "Maple Real Estate", "type": "public", "members": 512, "online": 12, "desc": "GTA & Vancouver property, pre-construction, rentals back home." },
+    { "id": "ukinv", "country": "UK", "name": "UK Investment", "type": "common", "members": 868, "online": 25, "desc": "ISAs, SIPPs, and NRI money matters for desis in the UK." },
+    { "id": "ukisa", "country": "UK", "name": "ISA Maximalists", "type": "public", "members": 301, "online": 8, "desc": "Getting every pound of the allowance working." },
+    { "id": "aeinv", "country": "AE", "name": "UAE Investment", "type": "common", "members": 1552, "online": 61, "desc": "Tax-free income ≠ plan-free life. The Gulf desi money community." },
+    { "id": "gold", "country": "AE", "name": "Gold & Remittance", "type": "public", "members": 423, "online": 15, "desc": "Gold, dirham FDs, and timing INR transfers." },
+    { "id": "auinv", "country": "AU", "name": "Australia Investment", "type": "common", "members": 644, "online": 19, "desc": "Super, franking credits and India money for desi Aussies." },
+    { "id": "sginv", "country": "SG", "name": "Singapore Investment", "type": "common", "members": 702, "online": 28, "desc": "CPF, SRS and cross-border planning for desis in Singapore." }
+  ],
+  "spaces": [
+    { "id": "stocks", "name": "Stocks & ETFs", "count": 214, "desc": "Index funds, single names and ETF strategy — evidence over hot takes.", "archived": false },
+    { "id": "tax", "name": "Taxes & FEMA", "count": 178, "desc": "US + India cross-border tax, FBAR, FEMA, DTAA and the paperwork nobody enjoys.", "archived": false },
+    { "id": "retire", "name": "401k & Retirement", "count": 131, "desc": "401(k), IRA, backdoor Roth and retirement math for immigrant households.", "archived": false },
+    { "id": "re", "name": "Real Estate", "count": 96, "desc": "US property and the flat back home: financing on visas, rentals, REITs.", "archived": false },
+    { "id": "help", "name": "Ask the community", "count": 84, "desc": "New here or stuck? Ask anything — the space WhatsApp shares mirror into.", "archived": false },
+    { "id": "insure", "name": "Insurance & Visas", "count": 61, "desc": "Visitor and health insurance, visa-linked money questions, real claim stories.", "archived": false },
+    { "id": "water", "name": "Watercooler", "count": 152, "desc": "Off-topic, memes, market-day moods and the occasional chai thread.", "archived": false }
+  ],
+  "users": [
+    { "id": "quiet_lotus", "name": "quiet_lotus", "email": "quiet_lotus@demo.desisquare.local", "avatarColor": "#54428E", "initials": "QL", "role": "peer", "groups": [], "desiVerified": true, "memberSince": "Mar 2026", "waLinked": true, "waConsentMirror": true, "waNotifs": true, "portfolioPublic": false, "isDemoLogin": true,
+      "portfolio": { "value": 182400, "ytd": 6.8, "holdings": [ { "t": "VTI", "pc": 42 }, { "t": "AAPL", "pc": 14 }, { "t": "MSFT", "pc": 12 }, { "t": "INFY", "pc": 8 }, { "t": "Cash", "pc": 24 } ] } },
+    { "id": "nikhil_cfa", "name": "Nikhil Sharma", "email": "nikhil_cfa@demo.desisquare.local", "avatarColor": "#0F766E", "initials": "NS", "role": "peer", "groups": ["mavens"], "credential": "CFA · ex-Fidelity PM, 12y", "desiVerified": true, "memberSince": "Jan 2026", "waLinked": true, "waConsentMirror": true, "waNotifs": true, "portfolioPublic": true, "isDemoLogin": true,
+      "portfolio": { "value": 0, "ytd": 8.1, "holdings": [ { "t": "VTI", "pc": 55 }, { "t": "VXUS", "pc": 20 }, { "t": "BND", "pc": 15 }, { "t": "Cash", "pc": 10 } ] },
+      "performance": {
+        "riskScore": 4, "profitableWeeksPct": 71,
+        "monthly": [
+          { "ym": "2025-01", "pct": 2.1 }, { "ym": "2025-02", "pct": 1.4 }, { "ym": "2025-03", "pct": -0.8 },
+          { "ym": "2025-04", "pct": 2.6 }, { "ym": "2025-05", "pct": 1.1 }, { "ym": "2025-06", "pct": 0.7 },
+          { "ym": "2025-07", "pct": 2.9 }, { "ym": "2025-08", "pct": -1.6 }, { "ym": "2025-09", "pct": 1.8 },
+          { "ym": "2025-10", "pct": 0.9 }, { "ym": "2025-11", "pct": 2.2 }, { "ym": "2025-12", "pct": 1.5 },
+          { "ym": "2026-01", "pct": 1.9 }, { "ym": "2026-02", "pct": 0.6 }, { "ym": "2026-03", "pct": 2.4 },
+          { "ym": "2026-04", "pct": -1.1 }, { "ym": "2026-05", "pct": 1.7 }, { "ym": "2026-06", "pct": 1.2 }
+        ],
+        "allocation": [ { "label": "US Equity", "pct": 55 }, { "label": "Intl Equity", "pct": 20 }, { "label": "Bonds", "pct": 15 }, { "label": "Cash", "pct": 10 } ],
+        "recent": [ { "ticker": "VTI", "side": "BUY", "daysAgo": 3, "plPct": 1.2 }, { "ticker": "NVDA", "side": "SELL", "daysAgo": 6, "plPct": 4.5 }, { "ticker": "VXUS", "side": "BUY", "daysAgo": 12, "plPct": 0.8 } ]
+      } },
+    { "id": "priya_taxes", "name": "Priya Desai", "email": "priya_taxes@demo.desisquare.local", "avatarColor": "#8E4256", "initials": "PD", "role": "peer", "groups": ["mavens"], "credential": "CPA · EA · cross-border tax, 9y", "desiVerified": true, "memberSince": "Jan 2026", "waLinked": true, "waConsentMirror": true, "waNotifs": true, "portfolioPublic": false,
+      "portfolio": { "value": 0, "ytd": 5.2, "holdings": [ { "t": "VTI", "pc": 60 }, { "t": "VNQ", "pc": 15 }, { "t": "Cash", "pc": 25 } ] },
+      "performance": {
+        "riskScore": 3, "profitableWeeksPct": 78,
+        "monthly": [
+          { "ym": "2025-01", "pct": 1.1 }, { "ym": "2025-02", "pct": 0.8 }, { "ym": "2025-03", "pct": 0.4 },
+          { "ym": "2025-04", "pct": 1.3 }, { "ym": "2025-05", "pct": 0.9 }, { "ym": "2025-06", "pct": 0.6 },
+          { "ym": "2025-07", "pct": 1.0 }, { "ym": "2025-08", "pct": -0.5 }, { "ym": "2025-09", "pct": 0.9 },
+          { "ym": "2025-10", "pct": 0.7 }, { "ym": "2025-11", "pct": 1.2 }, { "ym": "2025-12", "pct": 0.8 },
+          { "ym": "2026-01", "pct": 0.9 }, { "ym": "2026-02", "pct": 0.5 }, { "ym": "2026-03", "pct": 1.1 },
+          { "ym": "2026-04", "pct": -0.3 }, { "ym": "2026-05", "pct": 0.8 }, { "ym": "2026-06", "pct": 0.6 }
+        ],
+        "allocation": [ { "label": "US Equity", "pct": 60 }, { "label": "REITs", "pct": 15 }, { "label": "Bonds", "pct": 10 }, { "label": "Cash", "pct": 15 } ],
+        "recent": [ { "ticker": "VTI", "side": "BUY", "daysAgo": 5, "plPct": 0.6 }, { "ticker": "VNQ", "side": "BUY", "daysAgo": 20, "plPct": -0.4 } ]
+      } },
+    { "id": "arjun_quant", "name": "Arjun Rao", "email": "arjun_quant@demo.desisquare.local", "avatarColor": "#4A5568", "initials": "AR", "role": "peer", "groups": ["mavens"], "credential": "CFP® · quant PM", "desiVerified": true, "memberSince": "Feb 2026", "waLinked": false, "waConsentMirror": false, "waNotifs": false, "portfolioPublic": false,
+      "portfolio": { "value": 0, "ytd": 11.4, "holdings": [ { "t": "AVGO", "pc": 12 }, { "t": "VTI", "pc": 48 }, { "t": "Momentum", "pc": 25 }, { "t": "Cash", "pc": 15 } ] },
+      "performance": {
+        "riskScore": 6, "profitableWeeksPct": 62,
+        "monthly": [
+          { "ym": "2025-01", "pct": 4.2 }, { "ym": "2025-02", "pct": -2.3 }, { "ym": "2025-03", "pct": 5.1 },
+          { "ym": "2025-04", "pct": 3.4 }, { "ym": "2025-05", "pct": -3.1 }, { "ym": "2025-06", "pct": 4.8 },
+          { "ym": "2025-07", "pct": 2.2 }, { "ym": "2025-08", "pct": -1.9 }, { "ym": "2025-09", "pct": 6.3 },
+          { "ym": "2025-10", "pct": 3.0 }, { "ym": "2025-11", "pct": -2.6 }, { "ym": "2025-12", "pct": 5.4 },
+          { "ym": "2026-01", "pct": 3.8 }, { "ym": "2026-02", "pct": -1.4 }, { "ym": "2026-03", "pct": 4.6 },
+          { "ym": "2026-04", "pct": 2.9 }, { "ym": "2026-05", "pct": -2.2 }, { "ym": "2026-06", "pct": 3.7 }
+        ],
+        "allocation": [ { "label": "US Equity", "pct": 48 }, { "label": "Momentum", "pct": 25 }, { "label": "Semis", "pct": 12 }, { "label": "Cash", "pct": 15 } ],
+        "recent": [ { "ticker": "AVGO", "side": "BUY", "daysAgo": 2, "plPct": 3.1 }, { "ticker": "SMH", "side": "SELL", "daysAgo": 4, "plPct": 5.6 }, { "ticker": "VTI", "side": "BUY", "daysAgo": 9, "plPct": 1.1 } ]
+      } },
+    { "id": "quant_aunty", "name": "quant_aunty", "email": "quant_aunty@demo.desisquare.local", "avatarColor": "#5F7D4F", "initials": "QA", "role": "peer", "groups": [], "desiVerified": true, "memberSince": "Feb 2026", "waLinked": true, "waConsentMirror": true, "waNotifs": true, "portfolioPublic": false },
+    { "id": "first_gen_saver", "name": "first_gen_saver", "email": "first_gen_saver@demo.desisquare.local", "avatarColor": "#54428E", "initials": "FS", "role": "seeker", "groups": [], "desiVerified": true, "memberSince": "Apr 2026", "waLinked": true, "waConsentMirror": true, "waNotifs": true, "portfolioPublic": false },
+    { "id": "dallas_desi", "name": "dallas_desi", "email": "dallas_desi@demo.desisquare.local", "avatarColor": "#C05621", "initials": "DD", "role": "peer", "groups": [], "desiVerified": true, "memberSince": "Mar 2026", "waLinked": true, "waConsentMirror": true, "waNotifs": true, "portfolioPublic": false },
+    { "id": "chai_and_charts", "name": "chai_and_charts", "email": "chai_and_charts@demo.desisquare.local", "avatarColor": "#C05621", "initials": "CC", "role": "peer", "groups": [], "desiVerified": true, "memberSince": "Feb 2026", "waLinked": false, "waConsentMirror": false, "waNotifs": false, "portfolioPublic": false },
+    { "id": "desisquare_mod", "name": "desisquare_mod", "email": "desisquare_mod@demo.desisquare.local", "avatarColor": "#0F766E", "initials": "DM", "role": "peer", "groups": ["moderators"], "desiVerified": true, "memberSince": "Jan 2026", "waLinked": false, "waConsentMirror": false, "waNotifs": false, "portfolioPublic": false, "isDemoLogin": true },
+    { "id": "wealth_guru_77", "name": "wealth_guru_77", "email": "wealth_guru_77@demo.desisquare.local", "avatarColor": "#8E4256", "initials": "WG", "role": "peer", "groups": [], "desiVerified": false, "memberSince": "Jun 2026", "waLinked": false, "waConsentMirror": false, "waNotifs": false, "portfolioPublic": false },
+    { "id": "moon_bets", "name": "moon_bets", "email": "moon_bets@demo.desisquare.local", "avatarColor": "#4A5568", "initials": "MB", "role": "peer", "groups": [], "desiVerified": false, "memberSince": "Jun 2026", "waLinked": false, "waConsentMirror": false, "waNotifs": false, "portfolioPublic": false },
+    { "id": "desisquare_admin", "name": "desisquare_admin", "email": "desisquare_admin@demo.desisquare.local", "avatarColor": "#146B5C", "initials": "DA", "role": "peer", "groups": ["admins"], "desiVerified": true, "memberSince": "Jan 2026", "waLinked": false, "waConsentMirror": false, "waNotifs": false, "portfolioPublic": false, "isDemoLogin": true }
+  ],
+  "waMappings": [
+    { "waHandle": "wa-member-01", "userId": "quiet_lotus" },
+    { "waHandle": "wa-member-02", "userId": "dallas_desi" },
+    { "waHandle": "wa-member-03", "userId": "quant_aunty" },
+    { "waHandle": "wa-member-04", "userId": "first_gen_saver" }
+  ],
+  "posts": [
+    { "id": "p01", "space": "stocks", "author": "nikhil_cfa", "minsAgo": 120, "via": "web",
+      "title": "Trimming NVDA into strength — back to target weights",
+      "body": "Cut 3% into today's pop, proceeds to VTI. Valuation alone isn't a sell thesis, but position sizing is.",
+      "bodyFull": "Cut 3% into today's pop, proceeds to VTI. Valuation alone isn't a sell thesis, but position sizing is — NVDA had drifted to 11% when the rule says 8%.\n\nThis is the boring, repeatable part of investing: rebalance when the rule says so, not when it feels good.",
+      "reactions": { "helpful": 9, "insightful": 23, "actionable": 14, "like": 31 },
+      "comments": [
+        { "author": "quant_aunty", "minsAgo": 60, "text": "The discipline is the alpha. Copying the 8% cap rule for my own sheet." },
+        { "author": "first_gen_saver", "minsAgo": 44, "text": "Does the trim change your 2026 numbers?" }
+      ] },
+    { "id": "p02", "space": "tax", "author": "first_gen_saver", "minsAgo": 300, "via": "web",
+      "title": "FCNR deposits at 5.1% — am I missing a catch vs T-bills?",
+      "body": "Bank is pitching 5.1% on a 2-year FCNR. T-bills pay similar with zero India paperwork. What actually breaks the tie for an NRI on H-1B?",
+      "bodyFull": "Bank is pitching 5.1% on a 2-year FCNR. T-bills pay similar with zero India paperwork. What actually breaks the tie for an NRI on H-1B?\n\nI've read the brochure version — tax-free in India, repatriable — but I want the catches from people who actually held one to maturity.",
+      "reactions": { "helpful": 21, "insightful": 8, "actionable": 5, "like": 12 },
+      "comments": [
+        { "author": "dallas_desi", "minsAgo": 240, "text": "Held two to maturity. The paperwork is fine — the catch is breaking one early: you forfeit most interest." },
+        { "author": "priya_taxes", "minsAgo": 180, "text": "Three real catches: (1) premature withdrawal usually forfeits interest below 1 year; (2) FCNR interest is India-tax-free but US-taxable — it lands on your 1040 and needs FBAR over $10k; (3) repatriation is clean only from the FCNR — once in NRO, you're in TDS territory. If you'll be US-resident both years, T-bills win on simplicity." },
+        { "author": "first_gen_saver", "minsAgo": 120, "text": "This is exactly what the brochure never says. Thank you 🙏" }
+      ] },
+    { "id": "p03", "space": "tax", "author": "priya_taxes", "minsAgo": 480, "via": "web",
+      "title": "Mid-year tax moves for H-1B households — the 20-minute checklist",
+      "body": "Estimated taxes if you had RSU vests, FBAR if India accounts crossed $10k, and the Roth window if income dipped. Checklist attached.",
+      "bodyFull": "Estimated taxes if you had RSU vests, FBAR if India accounts crossed $10k, and the Roth window if income dipped. Checklist attached — 20 minutes now saves an April headache.",
+      "reactions": { "helpful": 48, "insightful": 19, "actionable": 37, "like": 22 },
+      "comments": [
+        { "author": "quiet_lotus", "minsAgo": 360, "text": "Done in 18 minutes. The FBAR reminder was the one I'd have missed." }
+      ] },
+    { "id": "p04", "space": "insure", "author": "dallas_desi", "minsAgo": 660, "via": "whatsapp",
+      "title": "Parents visiting for 6 months — which visitor insurance actually pays claims?",
+      "body": "Every plan looks identical until someone's in the ER. Real claim experiences please, not affiliate links.",
+      "bodyFull": "Every plan looks identical until someone's in the ER. Real claim experiences please, not affiliate links.\n\nDad is 68, pre-existing BP. Looking at 6-month coverage, Texas.",
+      "reactions": { "helpful": 17, "insightful": 4, "actionable": 9, "like": 8 },
+      "comments": [
+        { "author": "quant_aunty", "minsAgo": 540, "text": "Filed a real claim with one of the big two last year — paid, but only because we pre-authorized. Writing up details tonight." }
+      ] },
+    { "id": "p05", "space": "water", "author": "chai_and_charts", "minsAgo": 1440, "via": "web",
+      "title": "Portfolio down 2%, chai consumption up 40%.",
+      "body": "Balanced, as all things should be. Monday market meditation thread — drop your coping beverage. ☕",
+      "bodyFull": "Balanced, as all things should be. Monday market meditation thread — drop your coping beverage. ☕",
+      "reactions": { "helpful": 4, "insightful": 2, "actionable": 1, "like": 87 },
+      "comments": [
+        { "author": "quiet_lotus", "minsAgo": 1320, "text": "Filter chai, no sugar — like my expense ratio." }
+      ] },
+    { "id": "p06", "space": "retire", "author": "quiet_lotus", "minsAgo": 2100, "via": "web",
+      "title": "Backdoor Roth while on H-1B — worth the recharacterization risk?",
+      "body": "Income just crossed the limit mid-year. Is the pro-rata rule a real trap if I have an old rollover IRA sitting around?",
+      "bodyFull": "Income just crossed the limit mid-year. Is the pro-rata rule a real trap if I have an old rollover IRA sitting around?\n\nPlan: roll the old IRA into my current 401(k) first, then do the backdoor. Anyone actually done the reverse rollover on a visa?",
+      "reactions": { "helpful": 14, "insightful": 9, "actionable": 6, "like": 12 },
+      "comments": [
+        { "author": "nikhil_cfa", "minsAgo": 2000, "text": "The reverse rollover first is the right order. Confirm your plan accepts roll-ins — about a third don't." },
+        { "author": "first_gen_saver", "minsAgo": 1900, "text": "Following. Same boat, same old IRA." }
+      ] },
+    { "id": "p07", "space": "re", "author": "quant_aunty", "minsAgo": 2600, "via": "web",
+      "title": "REIT index vs the Gurgaon flat: I ran 15 years of numbers",
+      "body": "Rent yields, vacancy, INR depreciation, the works. The flat wins only if you assume 9% appreciation forever. Spreadsheet in comments.",
+      "bodyFull": "Rent yields, vacancy, INR depreciation, the works. The flat wins only if you assume 9% appreciation forever. Spreadsheet in comments.\n\nBiggest surprise: maintenance + society fees ate 22% of gross rent over the period. Nobody prices that in when uncle says 'property never loses'.",
+      "reactions": { "helpful": 26, "insightful": 33, "actionable": 11, "like": 19 },
+      "comments": [
+        { "author": "dallas_desi", "minsAgo": 2500, "text": "The INR depreciation line is the one people refuse to look at. Great work." }
+      ] },
+    { "id": "p08", "space": "help", "author": "first_gen_saver", "minsAgo": 3000, "via": "web",
+      "title": "First job, first RSUs — sell on vest or hold?",
+      "body": "Everyone at work holds. Everyone on this forum seems to say sell. Who's right for someone with $0 emergency fund?",
+      "bodyFull": "Everyone at work holds. Everyone on this forum seems to say sell. Who's right for someone with $0 emergency fund?",
+      "reactions": { "helpful": 31, "insightful": 12, "actionable": 24, "like": 15 },
+      "comments": [
+        { "author": "nikhil_cfa", "minsAgo": 2900, "text": "With no emergency fund, this isn't an investing question — sell on vest, fund 6 months of runway, then debate holding future grants." },
+        { "author": "chai_and_charts", "minsAgo": 2800, "text": "Concentration risk plus your paycheck from the same company. Sell, sleep." }
+      ] },
+    { "id": "p09", "space": "water", "author": "quant_aunty", "minsAgo": 3400, "via": "whatsapp",
+      "title": "Live session recording: options income basics — link inside",
+      "body": "Last night's WhatsApp live on covered calls, now with timestamps. 40 minutes, no hype.",
+      "bodyFull": "Last night's WhatsApp live on covered calls, now with timestamps. 40 minutes, no hype.\n\n00:00 what a covered call actually is · 08:12 picking strikes without astrology · 19:30 assignment isn't a tragedy · 31:00 taxes.",
+      "reactions": { "helpful": 12, "insightful": 7, "actionable": 8, "like": 21 },
+      "comments": [] },
+    { "id": "p10", "space": "stocks", "author": "dallas_desi", "minsAgo": 4000, "via": "web",
+      "title": "INFY ADR vs holding in India — dividend tax treatment surprised me",
+      "body": "The ADR route sidesteps the 20% India withholding headache on my US return. Am I reading the DTAA right?",
+      "bodyFull": "The ADR route sidesteps the 20% India withholding headache on my US return. Am I reading the DTAA right?\n\nContext: long INFY either way, just optimizing where it sits.",
+      "reactions": { "helpful": 8, "insightful": 11, "actionable": 4, "like": 6 },
+      "comments": [
+        { "author": "priya_taxes", "minsAgo": 3900, "text": "Broadly yes — ADR dividends come through the US custodian with treaty rates applied. Keep the 1042-S if any withholding shows up; the foreign tax credit math is cleaner." }
+      ] },
+    { "id": "p11", "space": "help", "author": "wealth_guru_77", "minsAgo": 150, "via": "web",
+      "title": "Premium signals group — first week free, guaranteed returns",
+      "body": "DM me for my premium signals group — guaranteed 3% monthly, first week free. Limited spots!!",
+      "bodyFull": "DM me for my premium signals group — guaranteed 3% monthly, first week free. Limited spots!!",
+      "reactions": { "helpful": 0, "insightful": 0, "actionable": 0, "like": 1 },
+      "comments": [] },
+    { "id": "p12", "space": "stocks", "author": "moon_bets", "minsAgo": 380, "via": "web",
+      "title": "FDs are a scam — real desis are 100% in leveraged ETFs",
+      "body": "My uncle turned 10L into 2Cr. Stop being poor, go 3x or go home.",
+      "bodyFull": "My uncle turned 10L into 2Cr. Stop being poor, go 3x or go home.",
+      "reactions": { "helpful": 0, "insightful": 0, "actionable": 0, "like": 2 },
+      "comments": [] }
+  ],
+  "reviewQueue": [
+    { "id": "q1", "postId": "p11", "reason": "Marketing", "flaggedBy": ["quant_aunty", "dallas_desi", "first_gen_saver", "quiet_lotus", "chai_and_charts", "nikhil_cfa", "priya_taxes", "arjun_quant", "desisquare_mod"], "status": "pending", "minsAgo": 120 },
+    { "id": "q2", "postId": "p12", "reason": "Misleading", "flaggedBy": ["nikhil_cfa", "quant_aunty", "quiet_lotus", "dallas_desi", "priya_taxes"], "status": "pending", "minsAgo": 360 }
+  ]
+}
