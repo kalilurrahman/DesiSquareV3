@@ -4,15 +4,16 @@
 |---|---|
 | Document | Technical Requirements Document (TRD) |
 | Product | DesiSquare V3 — Discourse + Ghostfolio + WhatsApp community for the desi retail-investor diaspora |
-| Version | 1.0 |
-| Status | Approved for build (Phase 1 shipped; Phase 2 in progress) |
+| Version | 1.1 |
+| Status | Approved for build (Phase 1 shipped; Phase 2 in progress; **Phase 5 EP-03 Hub wave 1 shipped 2026-07-21**) |
 | Owner | Engineering (rahman.kalilur@outlook.com) |
 | Date | 2026-07-21 |
+| Changelog | 2026-07-21 — Phase 5 EP-03 Hub module added (`v4/src/hub.mjs`, the `hub` store key, `/api/hub*` routes); see §2, §4.1, §5.1 and §5.5. Tracked in `PHASE-5-TICKETS.md` (DS-201..DS-206, wave 1) |
 | Repository | `DesiSquareV3` — product source of truth and final integration of the v1/v2 codebases |
 
 **One-line summary.** DesiSquare is a pseudonymous, public-first, educational community where desi retail investors get trusted answers on the web *and* on WhatsApp, backed by verified **percent-only** maven performance and a one-click Ghostfolio portfolio per member.
 
-**Relationship to the PRD.** This TRD is the engineering counterpart to the product specification carried in `docs/desisquare-user-stories.md` (the canonical PRD: 115 stories / 20 epics, stable story numbers across versions). The PRD states *what* and *why*; this TRD states *how* — architecture, data model, API contracts, security enforcement, and non-functional targets — and is bound by the six non-negotiable product constraints reproduced in §1 and enforced technically throughout. Where the PRD and this TRD disagree on a constraint, the constraint wins and the leak-sweep CI (story 12.5) is the machine backstop.
+**Relationship to the PRD.** This TRD is the engineering counterpart to the product specification carried in `docs/desisquare-user-stories.md` (the canonical PRD: 124 stories / 21 epics, stable story numbers across versions). The PRD states *what* and *why*; this TRD states *how* — architecture, data model, API contracts, security enforcement, and non-functional targets — and is bound by the six non-negotiable product constraints reproduced in §1 and enforced technically throughout. Where the PRD and this TRD disagree on a constraint, the constraint wins and the leak-sweep CI (story 12.5) is the machine backstop.
 
 ---
 
@@ -71,6 +72,7 @@ The three sidecar services each own one integration seam and are independently r
 | Component | Responsibility | Tech | Port | Stateful? | Scales how |
 |---|---|---|---|---|---|
 | `v4/` forum (app/API/compat/demo) | Branded SPA, member API, teaser, Reddit-style search, maven percent-proof, Discourse-compat intake for wa-bridge | Zero-dep Node 22 (`node:http`, `node:crypto`, `node:fs`) | 8786 | Yes — JSON file store (`data/db.json`) | Vertical now; stateless-app + Cloud SQL on F6 path |
+| `v4/src/hub.mjs` — **EP-03 Services & Products Hub** (Phase 5) | Pure, zero-dep serializers for the public Hub (expert directory + service catalog + canonical guides): `publicExpertCard` (percent-only track record via the maven `buildPerformance().overall.cumulativePct`; no email/phone), `publicServiceCard` (qualitative `priceTier` from `HUB_PRICE_TIERS` — never a currency amount), `publicGuideCard`, `orderExperts` (by name, never by returns), `validateBooking` | Zero-dep module inside `v4/` (no I/O; imported by the `api.mjs` hub routes) | (part of 8786) | No — pure functions over `store` state | With the v4 app |
 | models-service | Maven **investment models & signals**: declared-entry ledger + EOD prices → CAGR / vs-benchmark / max-drawdown, equity indexed to 100 | Zero-dep Node 22 (`node:http`, `node:test`) | 8791 | Yes — `data/state.json` (schema maps 1:1 to Postgres) | Stateless compute; promote store to Postgres |
 | gf-provisioner | On registration create/link **one** Ghostfolio account; serve % summary for profile card; mint 1-click SSO deep-link | Zero-dep Node (Ghostfolio client behind a seam) | 8789 | Yes — `identity_link` file store (per-process; → Postgres) | Stateless behind shared identity table |
 | wa-bridge | WhatsApp ↔ Discourse mirror (consent-gated); outbound notifications via Cloud API | Zero-dep Node (WA client behind a seam) | 8788 | Yes — phone map + message log (→ Postgres/Redis) | **Single stateful instance** (session/dedupe); StatefulSet+PVC on GKE |
@@ -101,7 +103,7 @@ Each datum lives in exactly one system of record. The integration layer never be
 
 ### 4.1 v4 forum state store
 
-State lives in `data/db.json` (git-ignored), built on first boot from `data/seed.json` and persisted with **atomic writes** (temp file + `rename`) that are **debounced 250 ms** so a burst of reactions costs one disk write. `store.reset()` rebuilds from seed (used by the demo reset). Top-level shape:
+State lives in `data/db.json` (git-ignored), built on first boot from `data/seed.json` and persisted with **atomic writes** (temp file + `rename`) that are **debounced 250 ms** so a burst of reactions costs one disk write. `store.reset()` rebuilds from seed (used by the demo reset). On boot, `store.load()` also runs a **backfill migration**: it diffs a fresh seed build against an existing `db.json` and copies over any **top-level key introduced since that file was written** (e.g. the Phase-5 `hub` key), persisting once if anything changed — so a running store gains a newly-shipped module without a `reset()` or manual wipe. Top-level shape:
 
 | Key | Shape | Notes |
 |---|---|---|
@@ -111,6 +113,7 @@ State lives in `data/db.json` (git-ignored), built on first boot from `data/seed
 | `communities` | `[ { id, name, country, type, members, online, desc } ]` | one free community per corridor (US/CA/UK/AE/AU/SG) + public/private sub-communities |
 | `reviewQueue` | `[ { id, postId, reason, flags[], status, createdAt, resolvedAt?, resolvedBy? } ]` | private flag store (constraint #3); `flags[]` records `{by,reason,at}` but is never surfaced publicly |
 | `calendar` | `[ { id, date, title, host, kind, scope } ]` | moderator-managed events, member-only read |
+| `hub` | `{ experts[], services[], guides[], bookings[] }` | **EP-03 Services & Products Hub** (Phase 5). `experts`/`services`/`guides` are curated from `seed.json`; `bookings` grow at runtime. `experts[]` = `{ userId, flair, tagline, specialties[], corridors[] }`; `services[]` = `{ id, expertId, title, kind, durationMin, format, priceTier }` (`priceTier` a qualitative tier, never a currency amount); `guides[]` = `{ id, slug, title, summary, body, author, sourcePostId, tags[], updatedAt }`; `bookings[]` = `{ id, serviceId, memberId, note, status, createdAt }` — `note` is phone-stripped at write and **never returned**. Added to existing stores by the `load()` backfill above, no reset required |
 | `inviteCodes` | `[ "DSQ-2026", … ]` | invite-gated registration |
 | `countries` | `[ { code, … } ]` | the six corridors |
 | `waMappings` | `[ { waHandle, userId } ]` | consent mapping seed; demo phone numbers are derived server-side and never stored here |
@@ -172,6 +175,10 @@ Auth level is what the **dispatcher** enforces before the handler runs (see §5.
 | GET | `/api/karma/rules` | auth | Published karma rules, sourced from the same constants that award karma |
 | GET | `/api/search` | auth | Reddit-style search across posts/communities/comments/profiles |
 | GET | `/api/mavens/:id/performance` | auth | **Percent-only** performance proof (404 unless target is a maven) |
+| GET | `/api/hub` | public | **EP-03 Hub** — expert directory + service catalog + canonical guides (percent-only, identity-safe; public like the teaser) |
+| GET | `/api/hub/guides/:slug` | public | A canonical guide by slug (programmatic/SEO page), currency-scrubbed (404 on unknown slug) |
+| POST | `/api/hub/bookings` | auth | Request a service booking; `note` is phone-stripped (#5) and **never echoed back** (400 on unknown `serviceId`) |
+| GET | `/api/hub/bookings` | auth | The member's own booking requests (`note` never returned) |
 | GET/POST | `/api/review-queue[/:id]` | mod | Moderator flag queue; `POST /:id/remove` (with `banDays`) and `/:id/dismiss` are mod-or-admin |
 | GET | `/api/admin/overview`, `/api/admin/users` | admin | Admin summaries (**the one place `email` may appear**) |
 | POST | `/api/admin/users/:id/role` | admin | Grant/revoke `mavens`/`moderators`/`admins` (+ credential) |
@@ -191,7 +198,7 @@ if (r.auth || r.mod || r.admin) {
 }
 ```
 
-Because the *default is authenticated*, a new route is private unless a developer explicitly opts it out. Only these are `auth:false`: `session`, `register`, `bootstrap`, `teaser`, `health`. Everything else — feed, post read, search, profiles, presence, calendar, leaderboard, maven performance — 401s anonymously with `{"error":"sign in first"}`. Handler exceptions become `HttpError.status` or a generic 500; bodies are capped at 256 KB and are `Cache-Control: no-store`.
+Because the *default is authenticated*, a new route is private unless a developer explicitly opts it out. Only these are `auth:false`: `session`, `register`, `bootstrap`, `teaser`, `health`, and the two EP-03 Hub reads (`/api/hub`, `/api/hub/guides/:slug`) — curated, currency-scrubbed, identity-safe public surfaces, like the teaser. Everything else — feed, post read, search, profiles, presence, calendar, leaderboard, maven performance, **Hub bookings** — 401s anonymously with `{"error":"sign in first"}`. Handler exceptions become `HttpError.status` or a generic 500; bodies are capped at 256 KB and are `Cache-Control: no-store`.
 
 ### 5.3 Status-code conventions
 
@@ -250,6 +257,17 @@ Because the *default is authenticated*, a new route is private unless a develope
   "recent": [ { "ticker": "NVDA", "side": "SELL", "at": "2026-07-14T00:00:00.000Z", "plPct": 4.2 } ]
 }
 ```
+
+### 5.5 EP-03 Services & Products Hub — constraint enforcement (Phase 5, wave 1)
+
+The **Services & Products Hub** (`PHASE-5-TICKETS.md`, DS-201..DS-206, wave 1) is a public, SEO-facing surface — an expert directory, a service catalog, and a canonical-guides library distilled from community answers. It is held to the same six non-negotiables as every other surface, and they are enforced **at the data layer** (the serializers in `v4/src/hub.mjs`), not merely in the UI:
+
+- **#4 / #8 — percent-only.** An expert's track record is `publicExpertCard`'s `trackRecordPct` — the maven's `buildPerformance().overall.cumulativePct` (a percent, rounded to 0.1) or `null` — and can never be a dollar value. Service prices are qualitative **tiers** (`HUB_PRICE_TIERS` = `Complimentary` / `Member` / `Premium`), words rather than a currency amount, so nothing on the Hub can trip the leak-sweep; `/api/hub/guides/:slug` additionally runs `scrubCurrency()` on the body defensively.
+- **#5 — no PII.** Cards are built from the identity-safe `authorCard()` — no email, no phone. A booking `note` is phone-stripped on write (`stripPhoneNumbers`) **and never echoed** by either the create or the list response, so an E.164 can never leak back out.
+- **#7-A — booking is member-gated.** `GET /api/hub` and `GET /api/hub/guides/:slug` are `auth:false` public reads; `POST /api/hub/bookings` and `GET /api/hub/bookings` carry the dispatcher `auth` flag, so anonymous callers 401 (§5.2).
+- **#9 — recognition ≠ money.** `orderExperts()` sorts the directory by **name** (every Hub expert is verified) — never by % returns or money.
+
+Backstopped by `v4/test/hub.test.js` (5 tests: directory is public, %-only, `$`-free and PII-free; ordering by name ≠ returns; member-gated booking where a phone-in-note is never echoed; unknown-service reject; canonical guide by slug). It runs green inside the v4 suite, which stands at **52/52**.
 
 ---
 
@@ -384,7 +402,7 @@ Outbound reply notifications follow the mirror image of (a): `POST /api/posts/:i
 ## 11. Testing & quality strategy
 
 - **Per-service `node --test`.** models-service (fixture recompute ±0.1%, immutability 409, webhook idempotency, `sincePct` SELL sign-flip), gf-provisioner (8 unit tests + offline smoke: register → provision → summary → SSO), wa-bridge (12 unit tests + smoke: map → mirror → dedupe → guest).
-- **v4 forum suites** (`node --test test/*.test.js`): `api.test.js` (core flows), `privacy.test.js` (E.164 / email leak sweeps), `increment.test.js` (incremental acceptance), `robustness.test.js` (malformed input, cookie faults, oversized bodies), `compat.test.js` (Discourse-compat surface), `extended.test.js`. `helpers.mjs` boots an ephemeral server per suite.
+- **v4 forum suites** (`node --test test/*.test.js`): `api.test.js` (core flows), `privacy.test.js` (E.164 / email leak sweeps), `increment.test.js` (incremental acceptance), `robustness.test.js` (malformed input, cookie faults, oversized bodies), `compat.test.js` (Discourse-compat surface), `hub.test.js` (EP-03 Hub: `$`-free/PII-free/percent-only directory, ordering ≠ returns, member-gated booking with a never-echoed phone-in-note, guide-by-slug), `extended.test.js`. `helpers.mjs` boots an ephemeral server per suite; the full v4 suite runs **52/52** green.
 - **Leak-sweep (`leak-sweep.test.mjs`, story 12.5).** The machine backstop for #8: forbidden keys/value-patterns asserted on the golden example and a poisoned Ghostfolio fixture; must run in CI.
 - **50-user community simulation (`test/community-sim/`).** Turns an empty Discourse into a living DesiSquare — 50 pseudonymous members across 6 corridors (2 mavens), 15 multi-turn discussions (59 replies), a native poll, a maven AMA, and two deliberate policy-violating posts — then runs **14 acceptance use-cases (UC1–UC14)** mapped to the story corpus and emits Markdown + JSON reports. Notable checks: UC9 private-flag → review queue (#3), UC10 signed-out member endpoints 403 (#7-A), UC11 no E.164/emails in payloads (#5), UC14 engagement leaderboard derivable but never money (#9). A bundled mock Discourse lets the whole pipeline self-test with no live forum. `WARN` (not `FAIL`) is used where a check depends on instance config the runbooks own.
 - **Cross-service smoke** (`make smoke`, `v4/scripts/smoke.mjs`) boots the services wired together and runs the acceptance gates.

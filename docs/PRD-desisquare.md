@@ -5,13 +5,14 @@
 | | |
 |---|---|
 | **Document** | Product Requirements Document (PRD) — DesiSquare V3 |
-| **Version** | 1.0 |
+| **Version** | 1.1 |
 | **Owner** | Product (DesiSquare V3) · rahman.kalilur@outlook.com |
 | **Date** | 2026-07-21 |
 | **Status** | Approved for build — pilot (<1,000 members) |
 | **Sits above** | `docs/desisquare-user-stories.md` (124 stories / 21 epics — the canonical acceptance corpus) |
-| **Companions** | `docs/desisquare-phase1b-trust-and-discovery-plan.md` · `deploy/CLIENT-INFRA-CHECKLIST.md` · `deploy/gcp/REQUIREMENTS.md` (F0–F5) · `docs/gf-stats-contract/` |
+| **Companions** | `docs/desisquare-phase1b-trust-and-discovery-plan.md` · `PHASE-5-TICKETS.md` (DS-201…DS-222) · `deploy/CLIENT-INFRA-CHECKLIST.md` · `deploy/gcp/REQUIREMENTS.md` (F0–F5) · `docs/gf-stats-contract/` |
 | **Theme** | Porcelain Slate (light, client-locked) |
+| **Changelog** | 2026-07-21 — v1.1: Phase 5 (EP-03 Hub shipped, EP-04 planned) added. |
 
 > **How to read this document.** This PRD is the "what & why" altitude: vision, users, goals, metrics, the six non-negotiable constraints, feature requirements by area, journeys, release plan, open decisions, and compliance posture. It does **not** describe implementation internals (Discourse plugin wiring, service topology, serializers) — those live in the user-story corpus, the deploy package, and the forthcoming TRD. Where a requirement below has a canonical acceptance test, it cites the story number (e.g. **7.2**) so the two documents never drift.
 
@@ -287,6 +288,34 @@ Chat content is **never** sent to WhatsApp — the #5 mirror scope is forum-only
 - **P1 — First-run onboarding** picks one corridor + auto-joins default spaces and the corridor chat Square (**1.7**).
 - **SSO plan.** Discourse is the identity provider; Ghostfolio access is via 1-click DiscourseConnect-style signed SSO (short-lived link, no PII in URL) minted by gf-provisioner (**6.1**). No second login exists for members.
 
+### 6.12 Services & Products Hub (EP-03) — Phase 5, Wave 1 (SHIPPED)
+
+The Hub turns the Square's accumulated expertise into a public, SEO-facing surface: a **verified-expert directory**, a **service catalog** priced in qualitative tiers, and **canonical guides** distilled from community answers — with **member-gated booking**. It is held to the same six constraints as every member surface, enforced server-side in the serializers (`v4/src/hub.mjs`), never by the UI: expert track records are **percent-only** (a cumulative % or null, never a dollar value) (**#4/#8**); cards carry **no email and no phone** (**#5**); booking is **member-only** (**#7-A**); and experts are **ranked by verification, then name — never by returns** (**#9**). Wave 1 (the module, data model, `/api/hub*` routes, and the `#/hub` SPA surface) shipped this phase; the public static hub site and full SEO/programmatic pages are Wave 2. Tickets **DS-201…DS-206** (`PHASE-5-TICKETS.md`).
+
+| Feature | Priority | Acceptance summary |
+|---|---|---|
+| Public expert directory (verified mavens: credential + flair + specialties + corridors) | P0 (shipped) | `GET /api/hub` returns verified-expert cards ordered by flair then name — **never by returns** (**#9**); no email/phone on any card (**#5**); track record is a cumulative **%** or null, never a $ value (**#4/#8**) (**DS-201**). |
+| Service catalog with qualitative price tiers | P0 (shipped) | Each service carries a word-only tier — **Complimentary / Member / Premium** — never a currency amount (**#4/#8**); each links to its expert (**DS-202**). |
+| Member-gated booking rail | P0 (shipped) | `POST /api/hub/bookings` 401s anonymously (**#7-A**); a signed-in member can book; the note is phone-stripped (**#5**) and never echoed back; `GET /api/hub/bookings` returns only the member's own requests (**DS-203**). |
+| Canonical guides distilled from community answers (programmatic/SEO slugs) | P0 (shipped — seed + API) | Guides seeded from an accepted answer (`sourcePostId`); `GET /api/hub/guides/:slug` resolves a programmatic page, currency-scrubbed defensively; auto-distillation automation is Wave 2 (**DS-204**). |
+| Hub SPA surface | P1 (shipped) | `#/hub` renders directory + catalog + guides + booking, `$`-free, with a nav entry (**DS-206**). |
+| Public static hub site + full SEO/programmatic pages | P1 (Wave 2) | No-auth hub site consuming the public `/api/hub*` endpoints; sitemap + per-guide/expert pages; `noindex` posture confirmed with the client before opening to crawlers (**DS-205**). |
+
+Wave-1 coverage: `v4/test/hub.test.js` (directory %-only / $-free / PII-free, ordering ≠ returns, booking member-gate, unknown-service reject, guide-by-slug) plus the full suite green; the Hub is in the leak-sweep crawl set (**12.5**), so a currency, E.164, or return-ranked leak fails the deploy like any other surface.
+
+### 6.13 Deals & Offers (EP-04) — Phase 5, Wave 2 (PLANNED)
+
+A member-facing **deals shelf** where sponsors surface honest commercial offers — the Square's first revenue-adjacent surface — designed from the outset so a deal can never be mistaken for portfolio value. Deals are **commercial offers, not portfolio dollars or returns**; they never render a member's money and never appear on any recognition/leaderboard surface (**#9**); every sponsored unit carries a **disclosure**; and signed-out visitors see **none of it** (**#7-A**). Planned for Wave 2 as a new zero-dependency module (`v4/src/deals.mjs` + a `deals` store key), mirroring the Hub's shape. Tickets **DS-210…DS-215**.
+
+| Feature | Priority | Acceptance summary |
+|---|---|---|
+| Deal object model | P0 (planned) | `deals` store key + serializer: id, sponsor, title, category, terms, window, caps, disclosure (**DS-210**). |
+| Deal lifecycle | P0 (planned) | draft → live → paused → expired state machine; offer windows enforced server-side (**DS-211**). |
+| Member deals shelf with honest (non-dark-pattern) filtering | P0 (planned) | Member-only shelf (**#7-A**); filters never dark-pattern; sponsored items clearly labelled (**DS-212**). |
+| Redemption + attribution rails | P0 (planned) | Redemption tokens + attribution events; **no portfolio $ or returns** ever attached (**#4/#9**) (**DS-213**). |
+| Sponsor walling + disclosure | P0 (planned) | Sponsor-only surfaces gated; disclosure copy on every sponsored unit (**DS-214**). |
+| Deals SPA surface | P1 (planned) | `#/deals` shelf, consistent with the Hub's design system (**DS-215**). |
+
 ---
 
 ## 7. Key user journeys
@@ -327,7 +356,7 @@ Chat content is **never** sent to WhatsApp — the #5 mirror scope is forum-only
 
 ---
 
-## 8. Release plan (F0–F5 + Phase-1b)
+## 8. Release plan (F0–F5 + Phase-1b + Phase 5)
 
 Delivery maps to the six GCP increments (`deploy/gcp/REQUIREMENTS.md`) — one increment per working session, each ending in its own acceptance table. **Web can be live in ~2 days** with items 1–3 of the infra checklist in hand; **WhatsApp production is 1–3 weeks**, gated by Meta Business Verification (the critical path — start day 0).
 
@@ -339,8 +368,11 @@ Delivery maps to the six GCP increments (`deploy/gcp/REQUIREMENTS.md`) — one i
 | **F3** | Ghostfolio + app layer | Provisioning, 1-click SSO, owner $ / public % / default private, maven percent-proof (W14), member gains toggle, v4 app (search, teaser) | #4, #8 | W6 %-only + W14 percent-proof pass; leak-sweep zero-currency green |
 | **F4** | WhatsApp | Consent-gated notifications + mirroring, STOP, E.164 hygiene, 24h-window discipline | #5 | Verified opt-in loop; mirror <60s; zero E.164 in sweep |
 | **F5** | Ops & hardening | Health checks/alerting, nightly backups + tested restore, pinned versions + upgrade rehearsal, budget alert (~$150/mo cap), demo drawer off in prod | all six (via 12.5) | Restore drill logged; leak-sweep blocking on deploy; budget alert live |
+| **Phase 5** | Hub + Deals + production-deploy prep | **EP-03 Services & Products Hub shipped** (expert directory + service catalog + canonical guides + member booking, Wave 1); **EP-04 Deals** + the public static hub site + SEO next (Wave 2); **DS-195 production-deploy prep complete** — runbook/phased plan ready, execution gated on client GCP creds/keys (Wave 3) | #4, #5, #7-A, #8, #9 (via 12.5) | Hub suite green + `$`-free/PII-free hub in leak-sweep; EP-04 + F1–F4 execution tracked in `PHASE-5-TICKETS.md` (DS-201…DS-222) |
 
 **Phase-1b (Trust & Discovery)** — the client's two headline asks — lands across F2/F3: universal search (F1 feedback → Epic 4) and maven performance proof (F2 feedback → Epic 7), plus popular-posts feeds (F3 feedback → Epics 2/15). Sequenced in the Phase-1b plan as S1 (search + gf-stats whitelist/leak-sweep first), S2 (W14 renderer + consent toggle end-to-end), S3 (hardening + benchmark overlay + counsel checkpoint), ~5–6 engineer-weeks.
+
+**Phase 5 (Hub, Deals & production deploy)** — the next roadmap slice, mapped to *this* repo's zero-dependency v4 shape (a module + file-backed store + `/api/*` routes + a `node:test` suite), not the sibling v1/InvestClub React line. It runs in three waves (see `PHASE-5-TICKETS.md`, DS-201…DS-222): **Wave 1 (shipped)** — EP-03 Services & Products Hub (§6.12): `v4/src/hub.mjs`, the public `/api/hub*` routes, the `#/hub` SPA surface, and the hub test suite. **Wave 2 (next)** — EP-04 Deals & Offers (§6.13) plus the EP-03 public static hub site + SEO/programmatic pages. **Wave 3 (gated)** — DS-195 production-cloud deploy: prep is complete (runbook, phased F1–F4 plan, security/compliance and cost/scaling notes), and execution is held on client GCP project/billing, the F0 intake form, and key-gated activations (live LLM, Stripe, WhatsApp Cloud template, VAPID push). Every new Hub/Deals surface enforces the six non-negotiables server-side and stays in the leak-sweep crawl set.
 
 ### 8.1 Milestone table
 
@@ -352,6 +384,7 @@ Delivery maps to the six GCP increments (`deploy/gcp/REQUIREMENTS.md`) — one i
 | M3 — WhatsApp production | F4 + Meta Business Verification | Consent loop + mirroring live on a dedicated number (1–3 weeks) |
 | M4 — Production hardened | F5 | Backups/restore/alerting/upgrade rehearsed; budget alert; sweep blocking |
 | M5 — Pilot open (<1,000) | M1–M4 | North-Star (WCM) instrumented; pilot invites issued |
+| M6 — Hub live; Deals + deploy next | Phase 5 Wave 1 | EP-03 Hub shipped (directory + catalog + guides + member booking), hub suite + leak-sweep green; EP-04 Deals + public hub site scoped for Wave 2; DS-195 production-deploy prep complete, execution gated on client GCP creds/keys |
 
 ---
 
@@ -435,6 +468,11 @@ DesiSquare is a **regulated-adjacent product built to stay on the safe side of t
 | **wa-bridge / gf-provisioner** | The consent-gated WhatsApp↔forum mirror, and the idempotent signup→one-Ghostfolio-account provisioner. |
 | **Corridor benchmark** | The neutral index overlaid on maven charts (S&P 500 TR / Nifty 50 TR — open decision D2). |
 | **F0–F5** | The six GCP delivery increments (accounts → foundation → Discourse → Ghostfolio+app → WhatsApp → ops/hardening). |
+| **Services & Products Hub (EP-03)** | The public, SEO-facing surface: verified-expert directory + service catalog + canonical guides, with member-gated booking (`v4/src/hub.mjs`, `/api/hub*`, `#/hub`). Percent-only, PII-free, ranked by verification not returns. |
+| **Price tier** | A Hub service's qualitative, word-only price — **Complimentary / Member / Premium** — never a currency amount (#4/#8). |
+| **Canonical guide** | A Hub SEO page distilled from a community answer (`sourcePostId`), resolved by programmatic slug (`/api/hub/guides/:slug`), currency-scrubbed. |
+| **Deals & Offers (EP-04)** | The planned member-only deals shelf (Phase 5, Wave 2): sponsor offers with lifecycle, honest filtering, redemption/attribution, sponsor walling. Commercial offers only — never portfolio value, never a recognition surface (#9), always disclosed (#7-A). |
+| **Phase 5 / DS-2xx** | The Hub (EP-03, shipped) + Deals (EP-04, planned) + production-deploy prep (DS-195) roadmap slice; ticket map in `PHASE-5-TICKETS.md` (DS-201…DS-222). |
 | **Porcelain Slate** | The client-locked light theme; no dark lanes, no user-selectable palettes. |
 | **DSQ-2026** | The pilot invite code. |
 
