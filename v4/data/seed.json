@@ -31,7 +31,7 @@
     { "id": "stocks", "name": "Stocks & ETFs", "count": 214, "desc": "Index funds, single names and ETF strategy — evidence over hot takes.", "archived": false },
     { "id": "tax", "name": "Taxes & FEMA", "count": 178, "desc": "US + India cross-border tax, FBAR, FEMA, DTAA and the paperwork nobody enjoys.", "archived": false },
     { "id": "retire", "name": "401k & Retirement", "count": 131, "desc": "401(k), IRA, backdoor Roth and retirement math for immigrant households.", "archived": false },
-    { "id": "re", "name": "Real Estate", "count": 96, "desc": "US property and the flat back home: financing on visas, rentals, REITs.", "archived": false },
+    { "id": "re", "name": "Real Estate", "count": 96, "desc": "US property and the flat back home: financing on visas, rentals, REITs.", "archived": false, "public": false },
     { "id": "help", "name": "Ask the community", "count": 84, "desc": "New here or stuck? Ask anything — the space WhatsApp shares mirror into.", "archived": false },
     { "id": "insure", "name": "Insurance & Visas", "count": 61, "desc": "Visitor and health insurance, visa-linked money questions, real claim stories.", "archived": false },
     { "id": "water", "name": "Watercooler", "count": 152, "desc": "Off-topic, memes, market-day moods and the occasional chai thread.", "archived": false }
@@ -197,7 +197,12 @@
       "comments": [] }
   ],
   "reviewQueue": [
-    { "id": "q1", "postId": "p11", "reason": "Marketing", "flaggedBy": ["quant_aunty", "dallas_desi", "first_gen_saver", "quiet_lotus", "chai_and_charts", "nikhil_cfa", "priya_taxes", "arjun_quant", "desisquare_mod"], "status": "pending", "minsAgo": 120 },
+    { "id": "q1", "postId": "p11", "reason": "Self-Marketing", "flaggedBy": ["quant_aunty", "dallas_desi", "first_gen_saver", "quiet_lotus", "chai_and_charts", "nikhil_cfa", "priya_taxes", "arjun_quant", "desisquare_mod"], "status": "pending", "minsAgo": 120 },
     { "id": "q2", "postId": "p12", "reason": "Misleading", "flaggedBy": ["nikhil_cfa", "quant_aunty", "quiet_lotus", "dallas_desi", "priya_taxes"], "status": "pending", "minsAgo": 360 }
+  ],
+  "calendar": [
+    { "id": "ev1", "date": "Jul 14", "title": "Office hours: cross-border tax", "host": "Priya Desai", "kind": "WhatsApp Live", "scope": "moderators" },
+    { "id": "ev2", "date": "Jul 18", "title": "Mid-year portfolio checkup", "host": "Nikhil Sharma", "kind": "group call", "scope": "mavens" },
+    { "id": "ev3", "date": "Jul 25", "title": "Watercooler: chai & charts", "host": "casual hangout", "kind": "", "scope": "everyone" }
   ]
 }

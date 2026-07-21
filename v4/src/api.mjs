@@ -68,10 +68,10 @@ export function createApi({ store, integrations, config }) {
   }
 
   // ---------- view models (never leak private fields) ----------
-  function authorCard(userId) {
+  function authorCard(userId, { withKarma = false } = {}) {
     const u = S().users[userId];
     if (!u) return { id: userId, name: userId, initials: '–', color: '#4A5568', isMaven: false, isSeeker: false };
-    return {
+    const card = {
       id: u.id,
       name: u.name,
       initials: u.initials,
@@ -82,6 +82,14 @@ export function createApi({ store, integrations, config }) {
       isBridge: u.role === 'bridge',
       credential: u.groups.includes('mavens') ? u.credential ?? null : null,
     };
+    // Karma (engagement-only, #9) is opt-in so the member feed's author chips stay lightweight
+    // and the Phase-1 feed carries no karma; profiles/search/leaderboard/me ask for it explicitly.
+    if (withKarma) {
+      const k = karmaFor(u.id);
+      card.karma = k;
+      card.tier = tierFor(k);
+    }
+    return card;
   }
 
   function myFlagFor(userId, postId) {
@@ -153,6 +161,8 @@ export function createApi({ store, integrations, config }) {
       isMaven: user.groups.includes('mavens'),
       isModerator: user.groups.includes('moderators'),
       isAdmin: user.groups.includes('admins'),
+      karma: karmaFor(user.id),
+      tier: tierFor(karmaFor(user.id)),
       pendingFlags: user.groups.includes('moderators') || user.groups.includes('admins')
         ? S().reviewQueue.filter((q) => q.status === 'pending').length
         : undefined,
@@ -169,6 +179,48 @@ export function createApi({ store, integrations, config }) {
 
   function totalReactions(post) {
     return POSITIVE_REACTIONS.reduce((n, k) => n + (post.reactions[k] ?? 0), 0);
+  }
+
+  const isModOrAdmin = (u) => !!u && (u.groups.includes('moderators') || u.groups.includes('admins'));
+
+  // Reddit-style "hot": positive reactions + a heavier weight on genuine discussion (comments).
+  // Recency is only a tie-break at the call site (newer wins equal scores).
+  function hotScore(post) {
+    return totalReactions(post) + 2 * post.comments.length;
+  }
+
+  // ---------- karma (ENGAGEMENT ONLY — non-negotiable #9) ----------
+  // Karma counts reactions RECEIVED on a member's posts and comments, weighted by reaction type.
+  // Portfolio value and % returns can NEVER enter this path — recognition ranks contribution,
+  // never money. Accepted answers would add +5 each, but Phase-1 tracks none, so that term is 0.
+  const KARMA_WEIGHTS = { actionable: 3, helpful: 3, insightful: 2, like: 1 };
+  const KARMA_TIERS = [[10000, 'Luminary'], [2000, 'Anchor'], [500, 'Trusted'], [100, 'Regular'], [0, 'New Arrival']];
+  function tierFor(karma) {
+    for (const [min, name] of KARMA_TIERS) if (karma >= min) return name;
+    return 'New Arrival';
+  }
+  function karmaFor(userId) {
+    let karma = 0;
+    for (const p of S().posts) {
+      if (p.removed) continue; // moderated-out content grants no karma
+      if (p.author === userId) {
+        for (const k in KARMA_WEIGHTS) karma += (p.reactions[k] ?? 0) * KARMA_WEIGHTS[k];
+      }
+      for (const c of p.comments) {
+        if (c.author === userId) {
+          for (const k in KARMA_WEIGHTS) karma += (c.reactions?.[k] ?? 0) * KARMA_WEIGHTS[k];
+        }
+      }
+    }
+    return karma;
+  }
+
+  // Public surfaces never show a currency amount (#4/#8). Drop any currency symbol that sits in
+  // front of a number so an educational "$10k" reads as "10k" on the signed-out teaser.
+  const scrubCurrency = (text) => String(text ?? '').replace(/[$₹£]\s?(?=\d)/g, '');
+  function teaserSnippet(text, len = 160) {
+    const t = scrubCurrency(String(text ?? '').replace(/\s+/g, ' ').trim());
+    return t.length > len ? `${t.slice(0, len - 1).trimEnd()}…` : t;
   }
 
   // A short excerpt centred on the first occurrence of the query (already phone-stripped at rest).
@@ -464,16 +516,54 @@ export function createApi({ store, integrations, config }) {
   }, { auth: false });
 
   // --- feed / posts ---
+  // Member-only feed (subscribed members). sort=popular (default, hot ranking) | new (recency).
   route('GET', '/api/feed', (req, res, params, user, query) => {
     const space = query.get('space') || 'all';
-    const posts = visiblePosts()
-      .filter((p) => space === 'all' || p.space === space)
-      .sort((a, b) => b.createdAt - a.createdAt)
-      .map((p) => postVM(p, user));
-    return json(res, 200, { posts });
+    const sort = query.get('sort') === 'new' ? 'new' : 'popular';
+    const pool = visiblePosts().filter((p) => space === 'all' || p.space === space);
+    if (sort === 'new') {
+      const posts = pool
+        .sort((a, b) => b.createdAt - a.createdAt)
+        .map((p) => ({ ...postVM(p, user), score: hotScore(p) }));
+      return json(res, 200, { sort, posts });
+    }
+    // popular/hot: hotScore desc, newer wins ties; top 3 carry a popRank badge (#n POPULAR).
+    const posts = pool
+      .sort((a, b) => hotScore(b) - hotScore(a) || b.createdAt - a.createdAt)
+      .map((p, i) => {
+        const vm = { ...postVM(p, user), score: hotScore(p) };
+        if (i < 3) vm.popRank = i + 1;
+        return vm;
+      });
+    return json(res, 200, { sort, posts });
   });
 
+  // Public "Popular this week" teaser — the ONLY unauthenticated content path (#7-A).
+  // Top ~6 hot posts from PUBLIC spaces only; no bodies, email, phone or currency ever leave here.
+  route('GET', '/api/teaser', (req, res) => {
+    const publicSpaces = new Set(S().spaces.filter((s) => s.public !== false).map((s) => s.id));
+    const posts = visiblePosts()
+      .filter((p) => publicSpaces.has(p.space))
+      .sort((a, b) => hotScore(b) - hotScore(a) || b.createdAt - a.createdAt)
+      .slice(0, 6)
+      .map((p) => ({
+        id: p.id,
+        title: scrubCurrency(p.title),
+        snippet: teaserSnippet(p.body),
+        space: S().spaces.find((s) => s.id === p.space)?.name ?? p.space,
+        author: authorCard(p.author).name, // pseudonym only — never a card, email or phone
+        reactions: totalReactions(p),
+        commentCount: p.comments.length,
+        age: timeAgo(p.createdAt),
+      }));
+    return json(res, 200, { posts });
+  }, { auth: false });
+
   route('POST', '/api/posts', async (req, res, params, user) => {
+    // Posting penalty (Reddit-style): a suspended author cannot create posts. Do not leak the flag.
+    if (user.postingBannedUntil > Date.now()) {
+      return json(res, 403, { error: 'posting suspended', until: user.postingBannedUntil });
+    }
     const body = await readJson(req);
     const title = stripPhoneNumbers(String(body.title ?? '').trim()).slice(0, 200);
     if (!title) return json(res, 422, { error: 'a title is required' });
@@ -497,6 +587,9 @@ export function createApi({ store, integrations, config }) {
   });
 
   route('POST', '/api/posts/:id/comments', async (req, res, params, user) => {
+    if (user.postingBannedUntil > Date.now()) {
+      return json(res, 403, { error: 'posting suspended', until: user.postingBannedUntil });
+    }
     const post = visiblePosts().find((p) => p.id === params.id);
     if (!post) return json(res, 404, { error: 'not found' });
     const body = await readJson(req);
@@ -568,7 +661,7 @@ export function createApi({ store, integrations, config }) {
     const isSelf = target.id === user.id;
     const out = {
       profile: {
-        ...authorCard(target.id),
+        ...authorCard(target.id, { withKarma: true }),
         desiVerified: target.desiVerified,
         memberSince: target.memberSince,
         reactionsReceived: reactionsReceived(target.id),
@@ -672,20 +765,82 @@ export function createApi({ store, integrations, config }) {
     return json(res, 200, { status: 'joined' });
   });
 
+  // --- community calendar (moderator-managed; member-only read) ---
+  const calendarSortKey = (e) => {
+    const t = Date.parse(`${e.date} ${new Date().getFullYear()}`);
+    return Number.isNaN(t) ? Number.MAX_SAFE_INTEGER : t; // unparseable dates sink to the bottom
+  };
+  route('GET', '/api/calendar', (req, res) => {
+    const events = [...(S().calendar ?? [])]
+      .sort((a, b) => calendarSortKey(a) - calendarSortKey(b))
+      .map((e) => ({ id: e.id, date: e.date, title: e.title, host: e.host, kind: e.kind ?? '', scope: e.scope ?? 'everyone' }));
+    return json(res, 200, { events });
+  });
+
+  route('POST', '/api/calendar', async (req, res, params, user) => {
+    if (!isModOrAdmin(user)) return json(res, 403, { error: 'moderators or admins only' });
+    const body = await readJson(req);
+    const date = stripPhoneNumbers(String(body.date ?? '').trim()).slice(0, 40);
+    const title = stripPhoneNumbers(String(body.title ?? '').trim()).slice(0, 140);
+    if (!date || !title) return json(res, 422, { error: 'date and title are required' });
+    const event = {
+      id: store.newId('ev'),
+      date,
+      title,
+      host: stripPhoneNumbers(String(body.host ?? '').trim()).slice(0, 80),
+      kind: stripPhoneNumbers(String(body.kind ?? '').trim()).slice(0, 40),
+      scope: String(body.scope ?? 'everyone').trim().slice(0, 40) || 'everyone',
+    };
+    (S().calendar ??= []).push(event);
+    store.save();
+    integrations.event('calendar_add', { id: event.id, by: user.id });
+    return json(res, 201, { event });
+  });
+
+  route('DELETE', '/api/calendar/:id', (req, res, params, user) => {
+    if (!isModOrAdmin(user)) return json(res, 403, { error: 'moderators or admins only' });
+    const cal = S().calendar ?? [];
+    const i = cal.findIndex((e) => e.id === params.id);
+    if (i < 0) return json(res, 404, { error: 'not found' });
+    const [removed] = cal.splice(i, 1);
+    store.save();
+    integrations.event('calendar_delete', { id: removed.id, by: user.id });
+    return json(res, 200, { status: 'deleted', id: removed.id });
+  });
+
+  // --- leaderboard (member-only; ranks ENGAGEMENT karma, never money or % returns — #9) ---
+  route('GET', '/api/leaderboard', (req, res) => {
+    const contributors = Object.values(S().users)
+      .filter((u) => u.role !== 'bridge') // never surface the WhatsApp guest bucket
+      .map((u) => { const karma = karmaFor(u.id); return { id: u.id, name: u.name, karma, tier: tierFor(karma), isMaven: u.groups.includes('mavens') }; })
+      .sort((a, b) => b.karma - a.karma)
+      .slice(0, 10);
+    return json(res, 200, { contributors });
+  });
+
   // --- review queue (moderators; the "native flag queue" of the prototype) ---
   route('GET', '/api/review-queue', (req, res, params, user) => {
     const items = S().reviewQueue.map((q) => {
       const post = S().posts.find((p) => p.id === q.postId);
+      const spaceName = post ? (S().spaces.find((s) => s.id === post.space)?.name ?? post.space) : null;
+      const flagCount = (q.flags?.length ?? 0) + (q.flaggedBy?.length ?? 0);
       return {
         id: q.id,
+        postId: q.postId,
         reason: q.reason,
-        flagCount: (q.flags?.length ?? 0) + (q.flaggedBy?.length ?? 0),
+        author: post ? authorCard(post.author).name : null, // pseudonym only
+        space: spaceName,
+        age: timeAgo(q.createdAt),
+        quote: post ? post.body : null, // the flagged post's body
+        flagCount,
+        removed: post ? post.removed : false,
+        // legacy shape kept for the existing moderator surface + tests:
         status: q.status,
         createdAt: q.createdAt,
         timeAgo: timeAgo(q.createdAt),
         post: post ? {
           id: post.id, title: post.title, body: post.body, removed: post.removed,
-          author: authorCard(post.author), spaceName: S().spaces.find((s) => s.id === post.space)?.name ?? post.space,
+          author: authorCard(post.author), spaceName,
         } : null,
       };
     });
@@ -711,32 +866,41 @@ export function createApi({ store, integrations, config }) {
     return json(res, 200, { status: q.status });
   }, { mod: true });
 
-  // Explicit sub-path variants (moderator OR admin). Mirror the {action} endpoint above.
-  function resolveQueueItem(q, action, actorId) {
-    if (action === 'remove') {
-      const post = S().posts.find((p) => p.id === q.postId);
-      if (post) post.removed = true;
-      q.status = 'removed';
-    } else {
-      q.status = 'dismissed';
+  // Explicit sub-path variants (moderator OR admin). Reddit-style: remove can also suspend the
+  // author's posting for banDays; dismiss leaves the content untouched.
+  route('POST', '/api/review-queue/:id/remove', async (req, res, params, user) => {
+    if (!isModOrAdmin(user)) return json(res, 403, { error: 'moderators or admins only' });
+    const q = S().reviewQueue.find((item) => item.id === params.id);
+    if (!q) return json(res, 404, { error: 'not found' });
+    const body = await readJson(req);
+    const banDays = Number.isFinite(Number(body.banDays)) ? Math.max(0, Math.floor(Number(body.banDays))) : 0;
+    const post = S().posts.find((p) => p.id === q.postId);
+    if (post) post.removed = true;
+    let banUntil = null;
+    if (banDays > 0 && post) {
+      const author = S().users[post.author];
+      if (author) { author.postingBannedUntil = Date.now() + banDays * 86_400_000; banUntil = author.postingBannedUntil; }
     }
+    q.status = 'removed';
     q.resolvedAt = Date.now();
-    q.resolvedBy = actorId;
+    q.resolvedBy = user.id;
     store.save();
-    return q.status;
-  }
+    // Log the moderation action only — never who flagged the post.
+    integrations.event('mod_remove', { queueId: q.id, postId: q.postId, banDays, by: user.id });
+    return json(res, 200, { status: 'removed', banned: banDays > 0, banUntil });
+  });
 
-  for (const action of ['remove', 'dismiss']) {
-    route('POST', `/api/review-queue/:id/${action}`, (req, res, params, user) => {
-      // Moderators run this queue; admins may also act on it.
-      if (!user.groups.includes('moderators') && !user.groups.includes('admins')) {
-        return json(res, 403, { error: 'moderators or admins only' });
-      }
-      const q = S().reviewQueue.find((item) => item.id === params.id);
-      if (!q) return json(res, 404, { error: 'not found' });
-      return json(res, 200, { status: resolveQueueItem(q, action, user.id) });
-    });
-  }
+  route('POST', '/api/review-queue/:id/dismiss', (req, res, params, user) => {
+    if (!isModOrAdmin(user)) return json(res, 403, { error: 'moderators or admins only' });
+    const q = S().reviewQueue.find((item) => item.id === params.id);
+    if (!q) return json(res, 404, { error: 'not found' });
+    q.status = 'dismissed'; // content untouched
+    q.resolvedAt = Date.now();
+    q.resolvedBy = user.id;
+    store.save();
+    integrations.event('mod_dismiss', { queueId: q.id, postId: q.postId, by: user.id });
+    return json(res, 200, { status: 'dismissed' });
+  });
 
   // --- search (member-only, Reddit-style; anonymous callers already 401 via the dispatcher) ---
   route('GET', '/api/search', (req, res, params, user, query) => {
@@ -802,15 +966,20 @@ export function createApi({ store, integrations, config }) {
       if (s > 0) profScored.push({ u, s });
     }
     profScored.sort((a, b) => b.s - a.s);
-    // Profiles carry NO email and NO phone — pseudonym, badges, credential and corridor only.
-    const profiles = profScored.map(({ u }) => ({
-      id: u.id,
-      name: u.name,
-      isMaven: u.groups.includes('mavens'),
-      isModerator: u.groups.includes('moderators'),
-      credential: u.groups.includes('mavens') ? (u.credential ?? null) : null,
-      corridor: u.country,
-    }));
+    // Profiles carry NO email and NO phone — pseudonym, badges, credential, corridor, karma only.
+    const profiles = profScored.map(({ u }) => {
+      const karma = karmaFor(u.id);
+      return {
+        id: u.id,
+        name: u.name,
+        isMaven: u.groups.includes('mavens'),
+        isModerator: u.groups.includes('moderators'),
+        credential: u.groups.includes('mavens') ? (u.credential ?? null) : null,
+        corridor: u.country,
+        karma,
+        tier: tierFor(karma),
+      };
+    });
 
     const counts = { posts: posts.length, communities: communities.length, comments: comments.length, profiles: profiles.length };
     counts.all = counts.posts + counts.communities + counts.comments + counts.profiles;

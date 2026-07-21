@@ -53,6 +53,7 @@ export function createStore({ dataDir, seedDir, dbFile = 'db.json', seedFile = '
       waMappings: seed.waMappings,
       posts,
       reviewQueue: seed.reviewQueue.map((q) => ({ ...q, createdAt: t - q.minsAgo * 60_000 })),
+      calendar: (seed.calendar ?? []).map((e) => ({ ...e })),
       reactionsBy: {}, // `${userId}:${postId}` -> { helpful:true, ... } (toggle state per member)
       sessions: {},    // token -> { userId, createdAt }
       events: [],      // demo/ops log: wa inbound, webhooks, provisioning — NEVER contains phone numbers
