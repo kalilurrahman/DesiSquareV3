@@ -818,6 +818,30 @@ export function createApi({ store, integrations, config }) {
     return json(res, 200, { contributors });
   });
 
+  // --- how karma works (member-only transparency; sourced from the SAME constants that award
+  //     karma above, so the published rules can never drift from what the code actually does) ---
+  route('GET', '/api/karma/rules', (req, res) => {
+    const REACTION_LABEL = { actionable: 'Actionable', helpful: 'Helpful', insightful: 'Insightful', like: 'Like' };
+    return json(res, 200, {
+      statement: 'Karma measures community engagement — never money. Portfolio value and % returns can never affect it (#9).',
+      earn: [
+        ...Object.entries(KARMA_WEIGHTS).map(([k, pts]) => ({
+          action: `“${REACTION_LABEL[k] ?? k}” reaction received on your post or comment`, points: pts,
+        })),
+        { action: 'Your reply is marked the accepted answer', points: 5, note: 'Phase-2 — accepted answers are not tracked yet' },
+      ],
+      tiers: KARMA_TIERS.slice().reverse().map(([min, name]) => ({ name, min })),
+      antiGaming: [
+        'You cannot react to your own posts, so you cannot award yourself karma.',
+        'Content removed by moderation grants no karma — and its author is stripped of any karma it earned.',
+        'Karma only ever comes from reactions others give your contributions; it never uses portfolio value or returns.',
+      ],
+      changelog: [
+        { date: '2026-07-21', note: 'Initial weights published: Actionable/Helpful +3, Insightful +2, Like +1, accepted answer +5.' },
+      ],
+    });
+  });
+
   // --- review queue (moderators; the "native flag queue" of the prototype) ---
   route('GET', '/api/review-queue', (req, res, params, user) => {
     const items = S().reviewQueue.map((q) => {

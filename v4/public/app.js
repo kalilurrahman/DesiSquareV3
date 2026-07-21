@@ -220,6 +220,26 @@ async function apiSafe(path, fallback) {
   try { return await api(path); } catch { return fallback; }
 }
 
+// Standalone-demo copy of the karma rules (the live /api/karma/rules is preferred). Mirrors the
+// backend's real KARMA_WEIGHTS/KARMA_TIERS so the "How karma works" page renders offline too.
+const KARMA_RULES_FALLBACK = {
+  statement: 'Karma measures community engagement — never money. Portfolio value and % returns can never affect it (#9).',
+  earn: [
+    { action: '“Actionable” reaction received on your post or comment', points: 3 },
+    { action: '“Helpful” reaction received on your post or comment', points: 3 },
+    { action: '“Insightful” reaction received on your post or comment', points: 2 },
+    { action: '“Like” reaction received on your post or comment', points: 1 },
+    { action: 'Your reply is marked the accepted answer', points: 5, note: 'Phase-2 — accepted answers are not tracked yet' },
+  ],
+  tiers: [{ name: 'New Arrival', min: 0 }, { name: 'Regular', min: 100 }, { name: 'Trusted', min: 500 }, { name: 'Anchor', min: 2000 }, { name: 'Luminary', min: 10000 }],
+  antiGaming: [
+    'You cannot react to your own posts, so you cannot award yourself karma.',
+    'Content removed by moderation grants no karma — and its author is stripped of any karma it earned.',
+    'Karma only ever comes from reactions others give your contributions; it never uses portfolio value or returns.',
+  ],
+  changelog: [{ date: '2026-07-21', note: 'Initial weights published: Actionable/Helpful +3, Insightful +2, Like +1, accepted answer +5.' }],
+};
+
 /* ---------------- routing ---------------- */
 function parseRoute() {
   const hash = location.hash.replace(/^#\/?/, '');
@@ -227,7 +247,7 @@ function parseRoute() {
   const idx = hash.indexOf('/');
   const name = idx < 0 ? hash : hash.slice(0, idx);
   const rawParam = idx < 0 ? '' : hash.slice(idx + 1);
-  const known = ['feed', 'post', 'communities', 'u', 'me', 'settings', 'review', 'register', 'search', 'maven', 'admin'];
+  const known = ['feed', 'post', 'communities', 'u', 'me', 'settings', 'review', 'register', 'search', 'maven', 'admin', 'karma'];
   let param = null;
   if (rawParam) { try { param = decodeURIComponent(rawParam); } catch { param = rawParam; } }
   state.route = known.includes(name) ? { name, param } : { name: 'feed', param: null };
@@ -334,6 +354,9 @@ async function loadRouteData() {
     } else if (r.name === 'register') {
       // Signed-in user hit #/register — nothing to load; render() will fall through to the feed.
       state.route = { name: 'feed', param: null };
+    } else if (r.name === 'karma') {
+      state.karmaRules = await apiSafe('/api/karma/rules', state.karmaRules ?? KARMA_RULES_FALLBACK);
+      if (token !== routeToken) return;
     }
   } catch (err) {
     if (token === routeToken && err.message !== 'unauthorized') toast(err.message);
@@ -690,8 +713,55 @@ function topContributorsCard() {
         </div>`;
       }).join('')}
     </div>
-    <div class="lb-note">Karma reflects Helpful / Insightful / Actionable / Like reactions — engagement, not money.</div>
+    <div class="lb-note">Karma reflects Helpful / Insightful / Actionable / Like reactions — engagement, not money. <a class="lb-how" data-action="go" data-to="karma">How karma works →</a></div>
   </div>`;
+}
+
+/* ---------------- "How karma works" — the transparency page (story 21.7) ----------------
+   Shows exactly how points are awarded, the tier ladder, the anti-gaming rules and a dated
+   changelog. Sourced live from /api/karma/rules (the SAME constants that award karma), so what
+   members read here can never drift from what the code does. */
+function renderKarma() {
+  const k = state.karmaRules ?? KARMA_RULES_FALLBACK;
+  return `
+  <section class="karma-page">
+    <a class="back-link" data-action="go" data-to="feed">← Back to feed</a>
+    <h1 class="karma-h1">How karma works</h1>
+    <p class="karma-statement">${esc(k.statement)}</p>
+
+    <div class="card karma-card">
+      <div class="section-label">Earning karma</div>
+      <table class="karma-table">
+        <thead><tr><th>Action</th><th class="pts">Points</th></tr></thead>
+        <tbody>
+          ${k.earn.map((e) => `<tr>
+            <td>${esc(e.action)}${e.note ? ` <span class="karma-soon">${esc(e.note)}</span>` : ''}</td>
+            <td class="pts">${e.points >= 0 ? '+' : ''}${esc(String(e.points))}</td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+      <div class="karma-note">Points come from reactions <b>others</b> give your posts and comments. Never from portfolio value or returns.</div>
+    </div>
+
+    <div class="card karma-card">
+      <div class="section-label">Tiers</div>
+      <div class="karma-tiers">
+        ${k.tiers.map((t) => `<div class="karma-tier-row"><span class="tier-chip tier-${esc(t.name.toLowerCase().replace(/\\s+/g, '-'))}">${esc(t.name)}</span><span class="karma-tier-min">${esc(String(t.min))}+ karma</span></div>`).join('')}
+      </div>
+    </div>
+
+    <div class="card karma-card">
+      <div class="section-label">Anti-gaming</div>
+      <ul class="karma-rules">${k.antiGaming.map((r) => `<li>${esc(r)}</li>`).join('')}</ul>
+    </div>
+
+    <div class="card karma-card">
+      <div class="section-label">Changelog</div>
+      <div class="karma-changelog">${k.changelog.map((c) => `<div class="karma-cl-row"><span class="karma-cl-date">${esc(c.date)}</span><span>${esc(c.note)}</span></div>`).join('')}</div>
+      <div class="karma-note">Weight changes are always dated here — never silent.</div>
+    </div>
+    <div class="disclaimer" style="margin-top:14px">Recognition ranks engagement, never money (#9). Maven track records live on maven profiles, as percentages only.</div>
+  </section>`;
 }
 
 function renderRail() {
@@ -1255,13 +1325,31 @@ function renderSearch() {
 // Every value on this surface is a percent or a unitless index (100 at inception). A currency
 // symbol must never appear here — the leak-sweep + browser assertion both check for /\$\d/.
 function barChart(items, getVal, getLabel) {
-  const max = Math.max(1, ...items.map((it) => Math.abs(Number(getVal(it)) || 0)));
-  return `<div class="mv-bars">${items.map((it) => {
+  // Signed bar chart: a zero baseline, positive returns grow UP, negative returns grow
+  // DOWN on the opposite side. The baseline sits proportionally between the two extremes
+  // so an all-positive (or all-negative) series still uses the full height, while a mixed
+  // series shows losses mirrored below the line. Values stay percent-only (constraint #8).
+  const vals = items.map((it) => Number(getVal(it)) || 0);
+  const posMax = Math.max(0, ...vals);            // largest gain (0 if none positive)
+  const negMax = Math.max(0, ...vals.map((v) => -v)); // magnitude of largest loss
+  const total = Math.max(1e-9, posMax + negMax);
+  const posFrac = (posMax / total) * 100;         // share of the track above the baseline
+  const negFrac = (negMax / total) * 100;         // share below the baseline
+  return `<div class="mv-bars mv-bars-signed">${items.map((it) => {
     const v = Number(getVal(it)) || 0;
-    const h = Math.round((Math.abs(v) / max) * 100);
+    const cls = pctClass(v);
+    const posH = posMax > 0 && v > 0 ? Math.max(4, Math.round((v / posMax) * 100)) : 0;
+    const negH = negMax > 0 && v < 0 ? Math.max(4, Math.round((-v / negMax) * 100)) : 0;
     return `<div class="mv-bar-col">
-      <div class="mv-bar-track"><div class="mv-bar ${pctClass(v)}" style="height:${Math.max(3, h)}%"></div></div>
-      <div class="mv-bar-val ${pctClass(v)}">${fmtPct(v)}</div>
+      <div class="mv-bar-track">
+        <div class="mv-bar-zone mv-bar-zone-pos" style="flex-basis:${posFrac.toFixed(2)}%">
+          ${v >= 0 ? `<div class="mv-bar-val ${cls}">${fmtPct(v)}</div>${v > 0 ? `<div class="mv-bar ${cls} up" style="height:${posH}%"></div>` : ''}` : ''}
+        </div>
+        <div class="mv-bar-baseline"></div>
+        <div class="mv-bar-zone mv-bar-zone-neg" style="flex-basis:${negFrac.toFixed(2)}%">
+          ${v < 0 ? `<div class="mv-bar ${cls} down" style="height:${negH}%"></div><div class="mv-bar-val ${cls}">${fmtPct(v)}</div>` : ''}
+        </div>
+      </div>
       <div class="mv-bar-label">${esc(getLabel(it))}</div>
     </div>`;
   }).join('')}</div>`;
@@ -1546,6 +1634,7 @@ function render() {
   else if (r === 'search') main = renderSearch();
   else if (r === 'maven') main = renderMaven();
   else if (r === 'admin') main = state.me.isAdmin ? renderAdmin() : renderFeed();
+  else if (r === 'karma') main = renderKarma();
   else main = renderFeed();
 
   $app.innerHTML = `

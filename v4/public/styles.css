@@ -609,13 +609,21 @@ input::placeholder, textarea::placeholder { color: var(--faint); }
 /* green ≥0, red <0 */
 .mv-hero-v.pos, .mv-tile-v.pos, .mv-bar-val.pos, .mv-trade-pl.pos, .mv-chart-chg.pos { color: var(--good); }
 .mv-hero-v.neg, .mv-tile-v.neg, .mv-bar-val.neg, .mv-trade-pl.neg, .mv-chart-chg.neg { color: var(--bad); }
-.mv-bars { display: flex; align-items: flex-end; gap: 12px; height: 150px; padding: 6px 4px 0; }
+.mv-bars { display: flex; align-items: stretch; gap: 12px; height: 168px; padding: 6px 4px 0; }
 .mv-bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; gap: 4px; min-width: 0; }
-.mv-bar-track { flex: 1; width: 100%; display: flex; align-items: flex-end; justify-content: center; }
-.mv-bar { width: 58%; max-width: 44px; border-radius: 5px 5px 0 0; min-height: 3px; }
+/* signed track: a zero baseline splits the column — gains grow up, losses grow down */
+.mv-bar-track { flex: 1; width: 100%; display: flex; flex-direction: column; align-items: stretch; }
+.mv-bar-zone { display: flex; justify-content: center; width: 100%; min-height: 0; }
+.mv-bar-zone-pos { flex-direction: column; justify-content: flex-end; }   /* value on top, bar sits on the baseline */
+.mv-bar-zone-neg { flex-direction: column; justify-content: flex-start; } /* bar hangs from the baseline, value below */
+.mv-bar-zone-pos > * , .mv-bar-zone-neg > * { align-self: center; }
+.mv-bar-baseline { height: 0; border-top: 1px dashed var(--hairline); flex: 0 0 auto; }
+.mv-bar { width: 58%; max-width: 44px; min-height: 3px; }
+.mv-bar.up { border-radius: 5px 5px 0 0; }
+.mv-bar.down { border-radius: 0 0 5px 5px; }
 .mv-bar.pos { background: var(--good); }
 .mv-bar.neg { background: var(--bad); }
-.mv-bar-val { font-size: 11px; font-weight: 700; }
+.mv-bar-val { font-size: 11px; font-weight: 700; line-height: 1.3; }
 .mv-bar-label { font-size: 11px; color: var(--dim); }
 .mv-tiles { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; margin-top: 14px; }
 .mv-tile { background: var(--surface); border: 1px solid var(--hairline); border-radius: var(--radius-ctl); padding: 12px 8px; text-align: center; }
@@ -749,6 +757,28 @@ input::placeholder, textarea::placeholder { color: var(--faint); }
 .tier-trusted { background: var(--good-tint); color: var(--good); }
 .tier-regular { background: var(--wash); color: var(--dim); }
 .tier-new-arrival { background: var(--wash); color: var(--faint); }
+
+/* ---------- "How karma works" transparency page (#/karma) ---------- */
+.karma-page { max-width: 680px; margin: 0 auto; }
+.karma-h1 { font-size: 22px; font-weight: 800; margin: 2px 0 6px; }
+.karma-statement { font-size: 14px; color: var(--body); line-height: 1.6; margin-bottom: 16px; }
+.karma-card { padding: 16px 18px; margin-top: 14px; }
+.karma-table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+.karma-table th { text-align: left; font-size: 11px; font-weight: 700; color: var(--dim); text-transform: uppercase; letter-spacing: 0.03em; padding: 0 0 8px; border-bottom: 1px solid var(--hairline); }
+.karma-table th.pts, .karma-table td.pts { text-align: right; white-space: nowrap; }
+.karma-table td { padding: 9px 0; border-bottom: 1px solid var(--wash); }
+.karma-table tr:last-child td { border-bottom: none; }
+.karma-table td.pts { font-weight: 800; color: var(--good); font-variant-numeric: tabular-nums; }
+.karma-soon { font-size: 10.5px; font-weight: 700; color: var(--faint); background: var(--wash); border-radius: 4px; padding: 1px 6px; margin-left: 4px; }
+.karma-note { font-size: 11.5px; color: var(--faint); line-height: 1.5; margin-top: 12px; }
+.karma-tiers { display: flex; flex-direction: column; gap: 8px; }
+.karma-tier-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.karma-tier-min { font-size: 12.5px; color: var(--dim); font-variant-numeric: tabular-nums; }
+.karma-rules { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 7px; }
+.karma-rules li { font-size: 13px; color: var(--body); line-height: 1.5; }
+.karma-changelog { display: flex; flex-direction: column; gap: 8px; }
+.karma-cl-row { display: flex; gap: 12px; font-size: 13px; color: var(--body); }
+.karma-cl-date { flex: 0 0 84px; font-weight: 700; color: var(--dim); font-variant-numeric: tabular-nums; }
 
 /* ---------- landing teaser ("Popular this week" — general visitors) ---------- */
 .teaser { max-width: 640px; margin: 18px auto 0; text-align: left; }
