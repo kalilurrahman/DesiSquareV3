@@ -57,6 +57,41 @@ DISCOURSE_WEBHOOK_SECRET=<same secret you set on the Discourse webhook>
 
 ---
 
+## C · Add the **Ghostfolio site** to the mix (real portfolios + maven proof)
+
+Ghostfolio is where members' real portfolios live. In DesiSquare the owner sees dollar values in Ghostfolio; **every public/maven surface shows percent only** (constraints #4/#8). Two glue services connect the forum to it — both already in `services/`, both with a **real Ghostfolio client verified against Ghostfolio v3.21.0**:
+
+- **`gf-provisioner`** (:8789) — on registration, creates/links one Ghostfolio account; serves the profile portfolio summary; mints the **"Open in Ghostfolio →" 1-click SSO** deep-link.
+- **`models-service`** (:8791) — the percent-only performance engine behind the maven proof.
+
+### Run the full mix locally (one command)
+
+```bash
+make dev-v4          # v4 forum :8786 + gf-provisioner :8789 + wa-bridge :8788 + models-service :8791
+```
+
+v4 probes the services and upgrades live automatically (its demo drawer shows each as ● up). gf-provisioner runs in **mock** mode until a real Ghostfolio is present. To add the **real Ghostfolio site** (needs Docker):
+
+```bash
+cd services/ghostfolio && docker compose up -d          # Ghostfolio + Postgres + Redis → :3333 (~1 min)
+GHOSTFOLIO_URL=http://localhost:3333 GHOSTFOLIO_LIVE=true make dev-v4
+```
+
+Now registration provisions a **real** Ghostfolio account and "Open in Ghostfolio →" single-click-logs into it.
+
+### Deploy the Ghostfolio site on Railway (it deploys cleanly — unlike Discourse)
+
+1. **Ghostfolio** — one-click template `https://railway.com/deploy/ghostfolio` (or the official image `ghostfolio/ghostfolio:latest` + Railway Postgres/Redis). Health `/api/v1/health`, port 3333. Full steps + env in `deploy/railway/RUNBOOK-RAILWAY.md` (Stage A1) and `deploy/railway/env/ghostfolio.env.sample`. Claim admin immediately (first `POST /api/v1/user` = admin).
+2. **gf-provisioner** — deploy as a Railway service from `services/gf-provisioner/` (Root Directory = `services/gf-provisioner`); set `GHOSTFOLIO_URL=<your Ghostfolio Railway URL>`, `GHOSTFOLIO_LIVE=true`, and the shared `DISCOURSE_WEBHOOK_SECRET`.
+3. **Wire v4** — on the `desisquarev4` service set:
+   ```
+   GF_PROVISIONER_URL=<gf-provisioner Railway URL>
+   GHOSTFOLIO_URL=<Ghostfolio Railway URL>
+   ```
+4. v4 now shows the portfolio card (owner $ / public % / private default), provisions on signup, and "Open in Ghostfolio →" SSO into the live Ghostfolio site.
+
+The result is the full mix: **v4 forum** (registration/admin/moderation) · **Ghostfolio** (portfolios) · **gf-provisioner** (glue + SSO) · **models-service** (percent-only maven proof) — with dollar values owner-only and every public surface percent-only.
+
 ## Which mode am I in?
 
 - **No `DISCOURSE_URL` set** → v4 is the forum (its own registration/admin/moderation). Perfect for the Railway demo.
