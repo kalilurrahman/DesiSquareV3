@@ -2,10 +2,12 @@
 node_modules/
 
 # Service runtime state (JSON-file persistence; recreated on boot).
-# Ignore the runtime files only — NOT committed seed content (e.g. v4/data/seed.json).
+# Ignore runtime files only — NOT committed seed content (e.g. v4/data/seed.json;
+# service seeds live under services/*/seed/, never under */data/).
 **/state.json
 **/data/db.json
 **/data/db.json.tmp-*
+services/*/data/
 
 # Local secrets — never commit; samples are .env.example
 .env
