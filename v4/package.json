@@ -1,0 +1,15 @@
+{
+  "name": "desisquare-phase1-mvp",
+  "version": "1.0.0",
+  "description": "DesiSquare Phase-1 cut-down MVP — runnable Reddit-style community prototype with WhatsApp (wa-bridge), Ghostfolio (gf-provisioner) and Discourse POC wiring",
+  "type": "module",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "start": "node server.mjs",
+    "dev": "node --watch server.mjs",
+    "test": "node --test test/*.test.js",
+    "smoke": "node scripts/smoke.mjs"
+  },
+  "dependencies": {},
+  "license": "UNLICENSED"
+}
