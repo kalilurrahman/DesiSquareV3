@@ -1,0 +1,12 @@
+{
+  "name": "desisquare-demo",
+  "version": "3.0.0",
+  "private": true,
+  "description": "DesiSquare V3 cutdown demo — serves the product app (/), the design prototype (/prototype), the 50-user test report, and docs. Zero runtime dependencies.",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "start": "node demo/server.mjs"
+  }
+}
