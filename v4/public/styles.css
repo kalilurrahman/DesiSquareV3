@@ -709,3 +709,122 @@ input::placeholder, textarea::placeholder { color: var(--faint); }
   .search { display: none; }
   .lab-choices { grid-template-columns: 1fr; }
 }
+
+/* ============================================================================
+   v4b additions — Popular/New feed · public teaser · structured flags + penalties
+   · community calendar · karma (engagement reputation). All engagement/percent-free:
+   never a $ or a % return on any karma / leaderboard / calendar surface (#9). */
+
+/* ---------- feed sort tabs (Reddit-style) ---------- */
+.feed-sort {
+  display: inline-flex; gap: 2px; align-self: flex-start;
+  background: var(--wash); border: 1px solid var(--hairline); border-radius: 999px; padding: 3px;
+}
+.feed-sort-tab {
+  border: none; background: transparent; border-radius: 999px; padding: 6px 16px;
+  font-size: 12.5px; font-weight: 700; color: var(--dim); transition: color .12s ease, background .12s ease;
+}
+.feed-sort-tab:hover { color: var(--ink); }
+.feed-sort-tab.on { background: var(--surface); color: var(--teal); box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08); }
+
+/* ---------- "#n POPULAR" chip ---------- */
+.pop-rank {
+  display: inline-flex; align-items: center; gap: 4px; font-size: 10px; font-weight: 800;
+  letter-spacing: 0.06em; color: var(--saffron); background: var(--saffron-tint);
+  border-radius: 999px; padding: 2px 9px; margin-bottom: 8px;
+}
+
+/* ---------- karma + tier chips (bylines / profiles / leaderboard) ---------- */
+.karma-chip {
+  display: inline-flex; align-items: center; gap: 3px; font-size: 10.5px; font-weight: 700;
+  color: var(--teal-hover); background: var(--teal-tint); border-radius: 999px;
+  padding: 1px 7px; white-space: nowrap; cursor: help;
+}
+.tier-chip {
+  font-size: 9.5px; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase;
+  border-radius: 5px; padding: 1.5px 7px; white-space: nowrap; background: var(--wash); color: var(--dim); cursor: help;
+}
+.tier-luminary { background: var(--saffron-tint); color: var(--saffron); }
+.tier-anchor { background: var(--teal-tint); color: var(--teal-hover); }
+.tier-trusted { background: var(--good-tint); color: var(--good); }
+.tier-regular { background: var(--wash); color: var(--dim); }
+.tier-new-arrival { background: var(--wash); color: var(--faint); }
+
+/* ---------- landing teaser ("Popular this week" — general visitors) ---------- */
+.teaser { max-width: 640px; margin: 18px auto 0; text-align: left; }
+.teaser-head { display: flex; align-items: baseline; gap: 8px; padding: 0 2px 10px; }
+.teaser-flame { color: var(--saffron); font-weight: 800; }
+.teaser-title-lbl { font-size: 15px; font-weight: 700; }
+.teaser-sub { font-size: 11.5px; color: var(--dim); }
+.teaser-list { display: flex; flex-direction: column; gap: 10px; }
+.teaser-card {
+  display: block; width: 100%; text-align: left; padding: 13px 16px; cursor: pointer;
+  background: var(--surface); transition: border-color .12s ease, box-shadow .12s ease;
+}
+.teaser-card:hover { border-color: var(--teal); box-shadow: 0 4px 16px rgba(29, 29, 31, 0.06); }
+.teaser-meta { font-size: 11.5px; color: var(--dim); }
+.teaser-space { font-weight: 700; color: var(--teal); }
+.teaser-card-title { font-size: 15px; font-weight: 650; line-height: 1.35; margin-top: 3px; font-family: var(--font-display); }
+.teaser-snip { font-size: 12.5px; color: var(--body); line-height: 1.5; margin-top: 4px; }
+.teaser-foot { display: flex; align-items: center; gap: 14px; margin-top: 9px; font-size: 11.5px; color: var(--faint); }
+.teaser-lock { margin-left: auto; color: var(--teal); font-weight: 700; }
+.teaser-note { font-size: 11.5px; color: var(--faint); text-align: center; margin-top: 12px; }
+.join-gate-note {
+  font-size: 12px; font-weight: 650; color: var(--teal-hover); background: var(--teal-tint);
+  border-radius: var(--radius-ctl); padding: 8px 10px; line-height: 1.45;
+}
+
+/* ---------- top contributors (feed rail) ---------- */
+.lb-card .lb-sub { font-size: 11px; color: var(--dim); margin-top: 1px; margin-bottom: 8px; }
+.lb-list { display: flex; flex-direction: column; }
+.lb-row { display: flex; align-items: center; gap: 8px; padding: 7px 0; border-bottom: 1px solid var(--wash); font-size: 12.5px; }
+.lb-row:last-child { border-bottom: none; }
+.lb-rank { width: 16px; flex: none; font-weight: 800; color: var(--faint); text-align: center; }
+.lb-name { min-width: 0; font-weight: 700; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lb-name:hover { color: var(--teal); }
+.lb-karma { margin-left: auto; flex: none; font-weight: 700; color: var(--teal-hover); white-space: nowrap; cursor: help; }
+.lb-note { font-size: 10.5px; color: var(--faint); margin-top: 9px; line-height: 1.5; }
+
+/* ---------- community calendar (moderator surface; compact in the rail) ---------- */
+.cal-panel { background: var(--surface); border: 1px solid var(--hairline); border-radius: var(--radius-card); padding: 14px 16px; }
+.cal-head { display: flex; align-items: baseline; gap: 8px; }
+.cal-title { font-size: 13px; font-weight: 700; }
+.cal-managed { font-size: 10px; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; color: var(--teal); background: var(--teal-tint); border-radius: 5px; padding: 1.5px 7px; }
+.cal-note { font-size: 11px; color: var(--dim); margin: 4px 0 10px; line-height: 1.45; }
+.cal-list { display: flex; flex-direction: column; gap: 8px; }
+.cal-event { display: flex; align-items: center; gap: 11px; }
+.cal-date { flex: none; width: 42px; text-align: center; border: 1px solid var(--hairline); border-radius: 8px; padding: 4px 0; line-height: 1.05; background: #FAFAF8; }
+.cal-date .m { display: block; font-size: 9px; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase; color: var(--saffron); }
+.cal-date .d { display: block; font-size: 15px; font-weight: 700; color: var(--ink); }
+.cal-mid { flex: 1; min-width: 0; }
+.cal-ev-title { font-size: 12.5px; font-weight: 650; line-height: 1.3; }
+.cal-ev-sub { font-size: 11px; color: var(--dim); margin-top: 1px; }
+.cal-scope { flex: none; font-size: 9.5px; font-weight: 700; letter-spacing: 0.03em; color: var(--dim); background: var(--wash); border-radius: 5px; padding: 2px 7px; white-space: nowrap; }
+.cal-del { flex: none; background: none; border: none; color: var(--faint); font-size: 16px; line-height: 1; padding: 0 2px; }
+.cal-del:hover { color: var(--bad); }
+.cal-empty { font-size: 12px; color: var(--dim); }
+.cal-tools { margin-top: 10px; }
+.cal-add-btn { padding: 5px 12px; font-size: 12px; }
+.cal-form { display: flex; flex-direction: column; gap: 7px; margin-top: 10px; border-top: 1px solid var(--wash); padding-top: 10px; }
+.cal-form .input { width: 100%; }
+.cal-form-row { display: flex; gap: 7px; }
+.cal-form-row .input { flex: 1; min-width: 0; }
+.cal-form .btn-primary { margin-top: 2px; }
+.cal-panel.compact .cal-scope { display: none; }
+.cal-panel.compact .cal-note { margin-bottom: 8px; }
+
+/* ---------- structured flag cards + posting penalties (review queue) ---------- */
+.flag-card { padding: 15px 18px; margin-bottom: 10px; }
+.flag-card-top { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; }
+.flag-reason { font-size: 10.5px; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase; border-radius: 5px; padding: 2.5px 9px; }
+.flag-reason.reason-market { background: var(--saffron-tint); color: var(--saffron); }
+.flag-reason.reason-mislead { background: var(--bad-tint); color: var(--bad); }
+.flag-who { font-size: 12px; color: var(--dim); }
+.flag-count { margin-left: auto; font-size: 12px; font-weight: 800; color: var(--bad); background: var(--bad-tint); border-radius: 999px; padding: 2px 10px; }
+.flag-quote { font-size: 13.5px; color: var(--body); line-height: 1.55; margin-top: 10px; border-left: 3px solid var(--hairline); padding-left: 12px; font-style: italic; }
+.flag-actions { display: flex; gap: 8px; margin-top: 13px; flex-wrap: wrap; }
+.flag-actions .btn { font-size: 12.5px; padding: 8px 14px; }
+.flag-resolution { font-size: 12.5px; font-weight: 650; margin-top: 12px; border-radius: var(--radius-ctl); padding: 8px 12px; }
+.flag-resolution.removed { color: var(--bad); background: var(--bad-tint); }
+.flag-resolution.dismissed { color: var(--dim); background: var(--wash); }
+.review-cal { margin-top: 18px; }

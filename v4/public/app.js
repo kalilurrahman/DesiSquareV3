@@ -8,6 +8,10 @@ const state = {
   route: { name: 'feed', param: null },
   space: 'all',
   posts: [],
+  feedSort: 'popular', // feed sort tab: popular | new (Popular is the default)
+  teaser: null,        // /api/teaser payload for the signed-out landing
+  calendar: null,      // /api/calendar payload (community calendar — moderators)
+  leaderboard: null,   // /api/leaderboard payload (top contributors, by karma)
   post: null,          // active post detail
   profile: null,       // active profile payload
   profileTab: 'posts',
@@ -21,7 +25,7 @@ const state = {
   admin: null,         // { overview, users } for the active #/admin view
   authMode: 'register',// landing auth card: register | signin
   authError: '',       // inline auth error (dup username, weak password…)
-  ui: { menu: false, country: false, composer: false, flagFor: null, lab: false, demo: false, signin: false },
+  ui: { menu: false, country: false, composer: false, flagFor: null, lab: false, demo: false, signin: false, joinGate: false, calAdd: false },
   draft: { title: '', body: '', space: 'help' },
   newSpace: '',        // admin: new space name draft
   reply: '',
@@ -99,6 +103,123 @@ function authorBadges(a) {
 
 function exp(key) { return state.me?.experiments?.[key] ?? 'A'; }
 
+/* ---------------- karma (engagement reputation — #9-bounded) ----------------
+   Karma is earned from Helpful/Insightful/Actionable/Like reactions — NEVER from
+   portfolio performance, never a currency, never a % return. When the backend supplies
+   `karma`/`tier` on an author card those win; the seeded map below only fills in so the
+   demo stands alone (matching the app's "degrade to seeded content" philosophy). */
+// Tier bands mirror the backend's KARMA_TIERS so fallback labels never contradict live ones.
+function tierFromKarma(n) {
+  n = Number(n) || 0;
+  return n >= 10000 ? 'Luminary' : n >= 2000 ? 'Anchor' : n >= 500 ? 'Trusted' : n >= 100 ? 'Regular' : 'New Arrival';
+}
+// Static last-resort karma (id → number) for the fully standalone demo. The live leaderboard
+// (loaded for the rail) is preferred so feed bylines match the Top-contributors card exactly.
+const KARMA_FALLBACK = {
+  nikhil_cfa: 4200, priya_taxes: 3600, quant_aunty: 3100, arjun_quant: 2800,
+  desisquare_mod: 2100, desisquare_admin: 1800, quiet_lotus: 1400, chai_and_charts: 1200,
+  first_gen_saver: 980, dallas_desi: 760, new_investor: 60, wealth_guru_77: 40, moon_bets: 25,
+};
+// The live leaderboard row for a user id, if it has been loaded (carries real karma + tier).
+function liveKarmaRow(id) {
+  const rows = state.leaderboard?.contributors;
+  if (!Array.isArray(rows)) return null;
+  const hit = rows.find((x) => x.id === id);
+  return hit && typeof hit.karma === 'number' ? hit : null;
+}
+function karmaOf(a) {
+  if (!a) return null;
+  if (typeof a.karma === 'number') return a.karma;        // author card / profile / search carry it
+  const live = liveKarmaRow(a.id);
+  if (live) return live.karma;                            // leaderboard-derived (real, matches rail)
+  const f = KARMA_FALLBACK[a.id];
+  return f != null ? f : null;                            // standalone-demo last resort
+}
+function tierOf(a) {
+  if (!a) return null;
+  if (a.tier) return a.tier;
+  const live = liveKarmaRow(a.id);
+  if (live && live.tier) return live.tier;
+  const k = karmaOf(a);
+  return k != null ? tierFromKarma(k) : null;
+}
+// Thousands → "2.8k". Below 1000 stays a plain integer. Never a $ or % — engagement only.
+function fmtKarma(n) {
+  n = Number(n) || 0;
+  if (n >= 1000) { const k = n / 1000; return `${k >= 10 ? Math.round(k) : Math.round(k * 10) / 10}k`; }
+  return String(Math.round(n));
+}
+const KARMA_TIP = 'Karma — earned from Helpful/Insightful/Actionable/Like reactions. Never from portfolio performance.';
+function karmaChip(a) {
+  const k = karmaOf(a);
+  if (k == null) return '';
+  return `<span class="karma-chip" title="${esc(KARMA_TIP)}">▲ ${esc(fmtKarma(k))}</span>`;
+}
+function tierChip(a) {
+  const t = tierOf(a);
+  if (!t) return '';
+  const slug = String(t).toLowerCase().replace(/\s+/g, '-');
+  return `<span class="tier-chip tier-${esc(slug)}" title="Reputation tier — from community engagement, never portfolio value.">${esc(t)}</span>`;
+}
+
+/* ---------------- popular / calendar / teaser / leaderboard fallbacks ----------------
+   All engagement/percent-free. Real backend payloads (with popRank/score, events,
+   contributors) take precedence; these keep the standalone demo whole. */
+// Popularity score used only when the backend hasn't ranked the feed itself.
+function postScore(p) {
+  if (typeof p.score === 'number') return p.score;
+  const rx = p.reactions && typeof p.reactions === 'object'
+    ? Object.values(p.reactions).reduce((n, r) => n + (typeof r === 'number' ? r : (r?.n ?? 0)), 0) : 0;
+  return rx * 2 + (p.commentCount ?? 0) * 3;
+}
+// Tag the top-3 with popRank (1..3) for the "#n POPULAR" chip; clear ranks on the New sort.
+function decoratePopular(posts, sort) {
+  const list = (posts ?? []).slice();
+  if (sort !== 'popular') { list.forEach((p) => { p.popRank = null; }); return list; }
+  const preRanked = list.some((p) => p.popRank);
+  if (preRanked) {
+    list.sort((a, b) => (a.popRank ?? 99) - (b.popRank ?? 99) || postScore(b) - postScore(a));
+  } else {
+    list.sort((a, b) => postScore(b) - postScore(a));
+    list.forEach((p, i) => { p.popRank = i < 3 ? i + 1 : null; });
+  }
+  return list;
+}
+
+const TEASER_FALLBACK = { posts: [
+  { id: 'p03', title: 'FEMA + FBAR: the NRI filing checklist I wish I had in year one', snippet: 'Every account, every threshold, in the order the IRS actually asks for them — FCNR, NRE/NRO, and the Schedule B trap.', space: 'Tax & FEMA', author: 'priya_taxes', reactions: 126, commentCount: 1, age: '2d' },
+  { id: 'p07', title: 'Rental vs REIT for the diaspora landlord — a 10-year model', snippet: 'I ran the numbers on managing a Dallas rental from abroad against an equivalent REIT allocation. Sharing the sheet.', space: 'Real Estate', author: 'quant_aunty', reactions: 89, commentCount: 1, age: '3d' },
+  { id: 'p01', title: 'Why I trimmed my US large-cap and what I rotated into', snippet: 'Not advice — my reasoning, on the record: valuations, the rupee, and a barbell I can actually sleep with.', space: 'Stocks & ETFs', author: 'nikhil_cfa', reactions: 77, commentCount: 2, age: '1d' },
+  { id: 'p08', title: 'First 401(k): the three-fund lazy portfolio, desi edition', snippet: 'Match first, then Roth, then taxable. Here is the exact fund split and the why behind each slice.', space: 'Ask the community', author: 'first_gen_saver', reactions: 82, commentCount: 2, age: '4d' },
+]};
+
+const CALENDAR_FALLBACK = { events: [
+  { id: 'ev1', date: '2026-07-28', title: 'AMA: FCNR vs US CDs in a rate-cut cycle', host: 'nikhil_cfa', kind: 'Maven AMA', scope: 'US Investment' },
+  { id: 'ev2', date: '2026-08-04', title: 'Tax clinic: FBAR & FEMA questions, live', host: 'priya_taxes', kind: 'Live session', scope: 'Tax & FEMA' },
+  { id: 'ev3', date: '2026-08-12', title: 'Community townhall — moderation & roadmap', host: 'desisquare_mod', kind: 'Townhall', scope: 'All communities' },
+]};
+
+function calEvents() {
+  const evs = state.calendar?.events;
+  return Array.isArray(evs) ? evs : CALENDAR_FALLBACK.events;
+}
+
+function leaderboardContributors() {
+  const backend = state.leaderboard?.contributors;
+  if (Array.isArray(backend) && backend.length) return backend.slice(0, 5);
+  const mavens = new Set(['nikhil_cfa', 'priya_taxes', 'arjun_quant']);
+  return Object.entries(KARMA_FALLBACK)
+    .map(([id, karma]) => ({ id, name: id, karma, tier: tierFromKarma(karma), isMaven: mavens.has(id) }))
+    .sort((a, b) => b.karma - a.karma)
+    .slice(0, 5);
+}
+
+// Best-effort GET that returns a fallback (never throws / toasts) — for endpoints the
+// parallel backend may not expose yet. Keeps existing views working and the console clean.
+async function apiSafe(path, fallback) {
+  try { return await api(path); } catch { return fallback; }
+}
+
 /* ---------------- routing ---------------- */
 function parseRoute() {
   const hash = location.hash.replace(/^#\/?/, '');
@@ -136,9 +257,16 @@ async function loadRouteData() {
   else if (r.name === 'admin') state.admin = null;
   try {
     if (r.name === 'feed') {
-      const { posts } = await api(`/api/feed?space=${encodeURIComponent(state.space)}`);
+      const sort = state.feedSort || 'popular';
+      const [feed, calendar, leaderboard] = await Promise.all([
+        api(`/api/feed?space=${encodeURIComponent(state.space)}&sort=${encodeURIComponent(sort)}`),
+        apiSafe('/api/calendar', state.calendar ?? CALENDAR_FALLBACK),
+        apiSafe('/api/leaderboard', state.leaderboard ?? { contributors: leaderboardContributors() }),
+      ]);
       if (token !== routeToken) return;
-      state.posts = posts;
+      state.posts = decoratePopular(feed.posts, sort);
+      state.calendar = calendar;
+      state.leaderboard = leaderboard;
     } else if (r.name === 'post' && r.param) {
       const { post } = await api(`/api/posts/${encodeURIComponent(r.param)}`);
       if (token !== routeToken) return;
@@ -154,9 +282,13 @@ async function loadRouteData() {
       state.profile = profile;
       state.profileTab = 'posts';
     } else if (r.name === 'review' && state.me.isModerator) {
-      const review = await api('/api/review-queue');
+      const [review, calendar] = await Promise.all([
+        api('/api/review-queue'),
+        apiSafe('/api/calendar', state.calendar ?? CALENDAR_FALLBACK),
+      ]);
       if (token !== routeToken) return;
       state.review = review;
+      state.calendar = calendar;
     } else if (r.name === 'review') {
       // Non-moderator deep-linked to #/review: fall back to the feed so they don't see a
       // false 'nothing here yet' empty state built from unloaded data.
@@ -208,6 +340,36 @@ async function loadRouteData() {
   }
 }
 
+/* ---------------- render: landing teaser (general-visitor "Popular this week") ----------------
+   A curated public taste of the community. Cards are Reddit-style summaries; clicking ANY card
+   opens the join/register gate — never the full thread (#7-A: full discussions are member-only). */
+function renderTeaser() {
+  const posts = (state.teaser?.posts ?? TEASER_FALLBACK.posts);
+  if (!posts.length) return '';
+  return `
+  <div class="teaser">
+    <div class="teaser-head">
+      <span class="teaser-flame">▲</span>
+      <span class="teaser-title-lbl">Popular this week</span>
+      <span class="teaser-sub">A curated public preview</span>
+    </div>
+    <div class="teaser-list">
+      ${posts.map((p) => `
+        <button class="card teaser-card" data-action="teaser-gate" aria-label="Join to read: ${esc(p.title)}">
+          <div class="teaser-meta"><span class="teaser-space">${esc(p.space ?? '')}</span> · ${esc(authorName(p.author))} · ${esc(p.age ?? '')}</div>
+          <div class="teaser-card-title">${esc(p.title)}</div>
+          ${p.snippet ? `<div class="teaser-snip">${esc(p.snippet)}</div>` : ''}
+          <div class="teaser-foot">
+            <span>▲ ${reactionTotal(p.reactions)} reactions</span>
+            <span>${p.commentCount ?? 0} ${p.commentCount === 1 ? 'comment' : 'comments'}</span>
+            <span class="teaser-lock">🔒 Join to read</span>
+          </div>
+        </button>`).join('')}
+    </div>
+    <div class="teaser-note">A taste of the community — join to read full discussions.</div>
+  </div>`;
+}
+
 /* ---------------- render: landing ---------------- */
 function renderLanding() {
   const b = state.boot ?? { stats: { members: '—', online: '—', mavens: '—', communities: '—' }, demoAccounts: [] };
@@ -235,6 +397,7 @@ function renderLanding() {
         </div>
         ${state.authMode === 'register' ? `
           <div class="auth-form">
+            ${state.ui.joinGate ? `<div class="join-gate-note">🔒 Join free to read the full discussion — it only takes a minute.</div>` : ''}
             <input id="reg-email" class="input" type="email" placeholder="Email — verified, never shown to members" autocomplete="off">
             <input id="reg-username" class="input" placeholder="Username — your public pseudonym" autocomplete="off">
             <input id="reg-password" class="input" type="password" placeholder="Password — 8+ characters" autocomplete="new-password">
@@ -250,6 +413,7 @@ function renderLanding() {
             <div class="auth-foot">Welcome back. Your session lasts two weeks on this device.</div>
           </div>`}
       </div>
+      ${renderTeaser()}
       ${state.ui.signin ? `
       <div class="card landing-signin-panel">
         <div style="font-size:13.5px;font-weight:700">Explore as a demo persona</div>
@@ -400,11 +564,13 @@ function postCard(post) {
   const a = post.author;
   return `
   <article class="card post-card" data-search="${esc((post.title + ' ' + post.body + ' ' + a.name).toLowerCase())}">
+    ${post.popRank ? `<div class="pop-rank">#${post.popRank} POPULAR</div>` : ''}
     <div class="post-head">
       ${avatar(a, exp('density') === 'B' ? 26 : 34)}
       <div class="who">
         <div class="line">
           <span class="name" data-action="open-profile" data-user="${esc(a.id)}">${esc(a.name)}</span>
+          ${karmaChip(a)}
           ${authorBadges(a)}
           ${post.via === 'whatsapp' ? '<span class="badge badge-wa">via WhatsApp</span>' : ''}
         </div>
@@ -455,6 +621,79 @@ function renderComposer() {
   </div>`;
 }
 
+/* ---------------- shared: community calendar + top contributors ----------------
+   The calendar is a MODERATOR surface (moderators ≠ mavens): mods add/remove events; the
+   panel renders in the moderation view and, compact, in the feed right-rail. Top contributors
+   ranks by KARMA (engagement) only — never portfolio value or % returns (#9). */
+function calDateBlock(iso) {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return `<span class="m">—</span><span class="d">·</span>`;
+  return `<span class="m">${MONTHS[d.getUTCMonth()]}</span><span class="d">${d.getUTCDate()}</span>`;
+}
+
+function calendarPanel({ mod = false, compact = false } = {}) {
+  const events = calEvents();
+  return `
+  <div class="cal-panel ${compact ? 'compact' : ''}">
+    <div class="cal-head">
+      <span class="cal-title">Community calendar</span>
+      <span class="cal-managed">managed here</span>
+    </div>
+    <div class="cal-note">moderators ≠ mavens — sessions are hosted here, performance lives on maven profiles.</div>
+    <div class="cal-list">
+      ${events.length ? events.map((ev) => `
+        <div class="cal-event">
+          <div class="cal-date">${calDateBlock(ev.date)}</div>
+          <div class="cal-mid">
+            <div class="cal-ev-title">${esc(ev.title)}</div>
+            <div class="cal-ev-sub">${esc(authorName(ev.host))}${ev.kind ? ` · ${esc(ev.kind)}` : ''}</div>
+          </div>
+          <span class="cal-scope">${esc(ev.scope ?? '')}</span>
+          ${mod ? `<button class="cal-del" data-action="cal-remove" data-id="${esc(ev.id)}" title="Remove event" aria-label="Remove event">×</button>` : ''}
+        </div>`).join('') : `<div class="cal-empty">No events scheduled.</div>`}
+    </div>
+    ${mod ? `
+      <div class="cal-tools">
+        <button class="btn btn-ghost cal-add-btn" data-action="toggle-cal-add">${state.ui.calAdd ? '× Cancel' : '+ Add event'}</button>
+      </div>
+      ${state.ui.calAdd ? `
+      <div class="cal-form">
+        <input id="cal-f-title" class="input" placeholder="Event title" autocomplete="off">
+        <div class="cal-form-row">
+          <input id="cal-f-date" class="input" type="date" value="${esc(new Date().toISOString().slice(0, 10))}">
+          <input id="cal-f-kind" class="input" placeholder="Kind — e.g. Maven AMA" autocomplete="off">
+        </div>
+        <div class="cal-form-row">
+          <input id="cal-f-host" class="input" placeholder="Host" autocomplete="off">
+          <input id="cal-f-scope" class="input" placeholder="Scope — e.g. US Investment" autocomplete="off">
+        </div>
+        <button class="btn btn-primary" data-action="cal-add">Add to calendar</button>
+      </div>` : ''}` : ''}
+  </div>`;
+}
+
+function topContributorsCard() {
+  const rows = leaderboardContributors();
+  return `
+  <div class="card lb-card">
+    <div class="section-label">Top contributors</div>
+    <div class="lb-sub">by karma, never by returns</div>
+    <div class="lb-list">
+      ${rows.map((c, i) => {
+        const dest = c.isMaven ? 'open-maven' : 'open-profile';
+        return `
+        <div class="lb-row">
+          <span class="lb-rank">${i + 1}</span>
+          <span class="lb-name" data-action="${dest}" data-user="${esc(c.id)}">${esc(c.name)}${c.isMaven ? ' <span class="badge badge-maven" style="font-size:9px;padding:0 5px">✓</span>' : ''}</span>
+          ${tierChip(c)}
+          <span class="lb-karma" title="${esc(KARMA_TIP)}">▲ ${esc(fmtKarma(c.karma))}</span>
+        </div>`;
+      }).join('')}
+    </div>
+    <div class="lb-note">Karma reflects Helpful / Insightful / Actionable / Like reactions — engagement, not money.</div>
+  </div>`;
+}
+
 function renderRail() {
   if (exp('rail') === 'B') return '';
   const common = state.boot.communities?.find((c) => c.type === 'common');
@@ -481,6 +720,8 @@ function renderRail() {
         </div>`).join('')}
       <div class="foot-note">Performance is percent-only — Monthly / Yearly / Overall. Asset value is never shown.</div>
     </div>
+    ${topContributorsCard()}
+    ${calendarPanel({ mod: !!state.me?.isModerator, compact: true })}
   </aside>`;
 }
 
@@ -493,9 +734,13 @@ function renderFeed() {
   <div class="main-grid ${exp('rail') === 'B' ? 'no-rail' : ''}">
     <div class="feed-col ${exp('density') === 'B' ? 'compact' : ''}">
       ${renderComposer()}
+      <div class="feed-sort" role="tablist" aria-label="Sort feed">
+        <button class="feed-sort-tab ${state.feedSort === 'popular' ? 'on' : ''}" data-action="feed-sort" data-sort="popular" role="tab" aria-selected="${state.feedSort === 'popular'}">▲ Popular</button>
+        <button class="feed-sort-tab ${state.feedSort === 'new' ? 'on' : ''}" data-action="feed-sort" data-sort="new" role="tab" aria-selected="${state.feedSort === 'new'}">New</button>
+      </div>
       <div class="feed-head">
         <span class="t">${esc(spaceName)}</span>
-        <span class="s">${state.space === 'all' ? `Latest across ${esc(commonName)}` : `Space in ${esc(commonName)} · latest first`}${q ? ` · filtered by “${esc(q)}”` : ''}</span>
+        <span class="s">${state.space === 'all' ? (state.feedSort === 'popular' ? `Most engaged across ${esc(commonName)}` : `Latest across ${esc(commonName)}`) : `Space in ${esc(commonName)} · ${state.feedSort === 'popular' ? 'most engaged' : 'latest first'}`}${q ? ` · filtered by “${esc(q)}”` : ''}</span>
       </div>
       ${posts.length ? posts.map(postCard).join('') : `
         <div class="card empty"><div class="t">Nothing here yet</div><div class="d">Be the first — the composer is right above.</div></div>`}
@@ -562,6 +807,7 @@ function renderPostDetail() {
         <div class="who">
           <div class="line">
             <span class="name" data-action="open-profile" data-user="${esc(a.id)}">${esc(a.name)}</span>
+            ${karmaChip(a)}
             ${authorBadges(a)}
             ${post.via === 'whatsapp' ? '<span class="badge badge-wa">via WhatsApp</span>' : ''}
           </div>
@@ -670,6 +916,8 @@ function renderProfile() {
         <div class="who">
           <div class="name-row">
             <span class="n">${esc(p.name)}</span>
+            ${karmaChip(p)}
+            ${tierChip(p)}
             ${authorBadges(p)}
             ${!p.isMaven && !p.isModerator && !p.isSeeker ? '<span class="badge badge-seeker">PEER</span>' : ''}
             ${p.desiVerified ? '<span class="badge badge-verified">DESI-VERIFIED ✓</span>' : ''}
@@ -738,32 +986,56 @@ function renderSettings() {
   </div>`;
 }
 
-/* ---------------- render: review queue ---------------- */
+/* ---------------- render: review queue (structured flags + posting penalties) ---------------- */
+// Normalise the reason to the product's two headline categories where it maps cleanly.
+function reviewReasonLabel(r) {
+  const s = String(r ?? '');
+  if (/market/i.test(s)) return 'Self-Marketing';
+  if (/mislead/i.test(s)) return 'Misleading';
+  return s || 'Flagged';
+}
+
+function flagCard(q) {
+  // Accept both the flat contract ({author, space, age, quote}) and the nested post shape.
+  const author = q.author ?? q.post?.author?.name ?? q.post?.author?.id ?? 'unknown';
+  const space = q.space ?? q.post?.spaceName ?? '';
+  const age = q.age ?? q.timeAgo ?? '';
+  const quote = q.quote ?? q.post?.body ?? '';
+  const flags = q.flagCount ?? (q.flaggedBy?.length ?? q.flags?.length ?? 0);
+  const reason = reviewReasonLabel(q.reason);
+  const isMarket = /market/i.test(q.reason ?? '');
+  const status = q.status ?? 'pending';
+  return `
+  <div class="card flag-card">
+    <div class="flag-card-top">
+      <span class="flag-reason ${isMarket ? 'reason-market' : 'reason-mislead'}">${esc(reason)}</span>
+      <span class="flag-who">@${esc(author)} · in ${esc(space)} · ${esc(age)}</span>
+      <span class="flag-count">${flags} ${flags === 1 ? 'flag' : 'flags'}</span>
+    </div>
+    <div class="flag-quote">“${esc(quote)}”</div>
+    ${status === 'pending' ? `
+    <div class="flag-actions">
+      <button class="btn btn-danger" data-action="review-penalty" data-id="${esc(q.id)}" data-act="remove" data-author="${esc(author)}">Remove + ban posting 3 days</button>
+      <button class="btn btn-quiet" data-action="review-penalty" data-id="${esc(q.id)}" data-act="dismiss">Dismiss flags</button>
+    </div>` : `
+    <div class="flag-resolution ${status === 'removed' ? 'removed' : 'dismissed'}">
+      ${status === 'removed' ? `Removed · @${esc(author)} banned from posting for 3 days` : 'Dismissed · content kept'}
+    </div>`}
+  </div>`;
+}
+
 function renderReview() {
   const items = state.review?.items ?? [];
   return `
   <div class="review">
     <div style="padding:2px 4px 12px">
       <div class="page-title">Review queue</div>
-      <div class="page-sub">Members' negative reactions land here privately — Misleading, Low Effort, Spam, Violation, Marketing. Nothing below is ever public.</div>
+      <div class="page-sub">Members' private flags land here — Self-Marketing, Misleading and more. Nothing below is ever public. Removing a post also bans its author from posting for 3 days.</div>
     </div>
-    ${items.length ? items.map((q) => `
-      <div class="card review-card">
-        <div class="top">
-          <span class="reason">${esc(q.reason)}</span>
-          <span class="meta">${esc(q.post?.author?.name ?? 'unknown')} · in ${esc(q.post?.spaceName ?? '')} · ${esc(q.timeAgo)}</span>
-          <span class="flags">${q.flagCount} ${q.flagCount === 1 ? 'flag' : 'flags'}</span>
-        </div>
-        <div class="quote">“${esc(q.post?.body ?? '')}”</div>
-        ${q.status === 'pending' ? `
-        <div class="actions">
-          <button class="btn btn-danger" style="font-size:12.5px;padding:7px 14px" data-action="review-act" data-id="${esc(q.id)}" data-act="remove">Remove post</button>
-          <button class="btn btn-quiet" style="font-size:12.5px;padding:7px 14px" data-action="review-act" data-id="${esc(q.id)}" data-act="dismiss">Dismiss flags</button>
-        </div>` : `
-        <div class="resolution" style="color:${q.status === 'removed' ? 'var(--bad)' : 'var(--dim)'}">
-          ${q.status === 'removed' ? 'Removed from the feed' : 'Flags dismissed'}
-        </div>`}
-      </div>`).join('') : '<div class="card empty"><div class="t">Queue is clear</div><div class="d">Negative reactions from members will appear here.</div></div>'}
+    ${items.length ? items.map(flagCard).join('') : '<div class="card empty"><div class="t">Queue clear ✓</div><div class="d">No flagged content awaiting review.</div></div>'}
+    <div class="review-cal">
+      ${calendarPanel({ mod: true, compact: false })}
+    </div>
   </div>`;
 }
 
@@ -895,6 +1167,7 @@ function searchProfileCard(pr) {
     <span class="avatar" style="width:40px;height:40px;background:${esc(pr.color ?? '#4A5568')};font-size:14px;cursor:pointer" data-action="${dest}" data-user="${esc(pr.id)}">${esc(initials)}</span>
     <div class="sr-profile-mid">
       <div class="sr-profile-name" data-action="${dest}" data-user="${esc(pr.id)}">${esc(pr.name)}
+        ${karmaChip(pr)}
         ${pr.isMaven ? '<span class="badge badge-maven">MAVEN ✓</span>' : ''}
         ${pr.isModerator ? '<span class="badge badge-mod">MOD</span>' : ''}
       </div>
@@ -1361,6 +1634,7 @@ const actions = {
     await api('/api/session', { method: 'DELETE' });
     state.me = null; state.ui.menu = false; state.ui.signin = false;
     await refreshBootstrap();
+    state.teaser = await apiSafe('/api/teaser', TEASER_FALLBACK);
     render();
   },
   'go': async (el) => {
@@ -1570,6 +1844,68 @@ const actions = {
     render();
     toast(el.dataset.act === 'remove' ? 'Post removed from the feed' : 'Flags dismissed');
   },
+  // Structured posting penalties. Remove also bans the author from posting for 3 days.
+  'review-penalty': async (el) => {
+    const { id, act, author } = el.dataset;
+    await api(`/api/review-queue/${encodeURIComponent(id)}/${act}`, {
+      method: 'POST',
+      body: act === 'remove' ? { banDays: 3 } : {},
+    });
+    state.review = await api('/api/review-queue');
+    await refreshMe();
+    render();
+    toast(act === 'remove' ? `Removed · @${author} banned from posting for 3 days` : 'Dismissed · content kept');
+  },
+  'feed-sort': async (el) => {
+    const sort = el.dataset.sort;
+    if (sort === state.feedSort) return;
+    state.feedSort = sort;
+    render(); // instant tab feedback; no full page reload
+    await loadRouteData(); // refetch with the new sort
+    render();
+  },
+  'teaser-gate': (el) => {
+    // A teaser card never opens the full thread — it opens the join/register gate (#7-A).
+    state.authMode = 'register';
+    state.ui.joinGate = true;
+    state.ui.signin = false;
+    state.authError = '';
+    render();
+    document.querySelector('.landing-auth')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    document.getElementById('reg-email')?.focus();
+  },
+  'toggle-cal-add': () => { state.ui.calAdd = !state.ui.calAdd; render(); },
+  'cal-add': async () => {
+    const v = (id) => document.getElementById(id)?.value ?? '';
+    const title = v('cal-f-title').trim();
+    if (!title) { toast('Give the event a title'); return; }
+    const body = {
+      title,
+      date: v('cal-f-date') || new Date().toISOString().slice(0, 10),
+      kind: v('cal-f-kind').trim() || 'Session',
+      host: v('cal-f-host').trim() || state.me.name,
+      scope: v('cal-f-scope').trim() || 'US Investment',
+    };
+    // Optimistic local add (keeps the demo whole if the calendar endpoint isn't live yet).
+    const ev = { id: `evx_${Date.now()}`, ...body };
+    const next = [...calEvents(), ev].sort((a, b) => String(a.date).localeCompare(String(b.date)));
+    state.calendar = { events: next };
+    state.ui.calAdd = false;
+    render();
+    toast(`Event added — ${title}`);
+    try {
+      await api('/api/calendar', { method: 'POST', body });
+      const fresh = await apiSafe('/api/calendar', null);
+      if (fresh) { state.calendar = fresh; render(); }
+    } catch { /* backend not live yet — optimistic add stands */ }
+  },
+  'cal-remove': async (el) => {
+    const id = el.dataset.id;
+    state.calendar = { events: calEvents().filter((e) => e.id !== id) };
+    render();
+    toast('Event removed');
+    try { await api(`/api/calendar/${encodeURIComponent(id)}`, { method: 'DELETE' }); } catch { /* optimistic */ }
+  },
   'demo-wa-send': async () => {
     const userId = document.getElementById('demo-wa-user')?.value;
     const text = document.getElementById('demo-wa-text')?.value ?? '';
@@ -1720,5 +2056,6 @@ async function refreshMe() {
   }
   parseRoute();
   if (state.me) await loadRouteData();
+  else state.teaser = await apiSafe('/api/teaser', TEASER_FALLBACK);
   render();
 })();
