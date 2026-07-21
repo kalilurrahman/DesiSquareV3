@@ -478,6 +478,13 @@ Goal: prove the full bidirectional loop on the **free test number** first (Parts
 production once Meta verification clears (Part 5). Official **Meta Cloud API only** — never a
 WhatsApp-Web library (ToS violation, ban risk). Reference: `deploy/gcp/whatsapp/WHATSAPP-SETUP.md`.
 
+> **Scope decision (this deployment): 1:1 intake only.** Members message the DesiSquare business
+> number → topic in Discourse → reply → member. This is fully official-Cloud-API and ToS-compliant.
+> WhatsApp **group mirroring is OUT OF SCOPE**: the optional `wa-bridge` inbound seam
+> (`src/wa-client-live.js`, unofficial `whatsapp-web.js`) stays **disabled** — leave `WA_BACKEND`
+> unset and do **not** run `npm run install:wa`, so `whatsapp-web.js`/Chromium are never installed.
+> Revisit only as a separately-approved exception (see `docs/SECURITY-COMPLIANCE.md`).
+
 Platform rules the bridge already enforces: **24-hour window** (free-form in-window, approved
 `community_reply` template outside); **HMAC signature verify** (`X-Hub-Signature-256`, raw body, app
 secret); **`wamid` dedupe** (Meta delivers at-least-once); **STOP/UNSUBSCRIBE/CANCEL opt-out**;
