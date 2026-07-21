@@ -5,6 +5,7 @@
 //   #4 portfolio private by default; public view = allocation % only, never dollar values
 //   #7 signed-out users see only the landing page (every member route 401s)
 import { json, readJson, parseCookies, newToken, stripPhoneNumbers, timeAgo, HttpError, hashPassword, verifyPassword } from './util.mjs';
+import { publicExpertCard, publicServiceCard, publicGuideCard, orderExperts, validateBooking } from './hub.mjs';
 
 const POSITIVE_REACTIONS = ['helpful', 'insightful', 'actionable', 'like'];
 const NEGATIVE_REASONS = ['Misleading', 'Low Effort', 'Spam', 'Violation', 'Marketing'];
@@ -841,6 +842,79 @@ export function createApi({ store, integrations, config }) {
       ],
     });
   });
+
+  // ---------- EP-03 Services & Products Hub (Phase 5 · DS-201..DS-206) ----------
+  // A public, SEO-facing surface (expert directory + service catalog + canonical guides). Held to
+  // the non-negotiables at the serializer: percent-only track records (#4/#8), no email/phone on
+  // any card (#5), and ordering by verified flair + name, never by returns or money (#9). Reading
+  // the directory is public (like the teaser); BOOKING a service is a member action (#7-A).
+  function hubExpertCards() {
+    const cards = (S().hub?.experts ?? [])
+      .filter((e) => S().users[e.userId]?.groups.includes('mavens'))
+      .map((e) => {
+        const card = authorCard(e.userId); // identity-safe: no email, no phone
+        let pct = null;
+        try { pct = buildPerformance(S().users[e.userId])?.overall?.cumulativePct ?? null; } catch { pct = null; }
+        const servicesCount = (S().hub?.services ?? []).filter((s) => s.expertId === e.userId).length;
+        return publicExpertCard(e, card, pct, servicesCount);
+      });
+    return orderExperts(cards); // #9: never ordered by % returns
+  }
+  function hubServiceCards() {
+    return (S().hub?.services ?? []).map((s) => publicServiceCard(s, authorCard(s.expertId).name));
+  }
+  function hubGuideCards() {
+    return (S().hub?.guides ?? [])
+      .slice()
+      .sort((a, b) => (b.updatedAt ?? 0) - (a.updatedAt ?? 0))
+      .map(publicGuideCard);
+  }
+
+  // Public: the whole Hub payload for the directory surface / future static SEO site.
+  route('GET', '/api/hub', (req, res) => {
+    return json(res, 200, { experts: hubExpertCards(), services: hubServiceCards(), guides: hubGuideCards() });
+  }, { auth: false });
+
+  // Public: a canonical guide by slug (programmatic/SEO page). Currency scrubbed defensively.
+  route('GET', '/api/hub/guides/:slug', (req, res, params) => {
+    const g = (S().hub?.guides ?? []).find((x) => x.slug === params.slug);
+    if (!g) return json(res, 404, { error: 'not found' });
+    const author = authorCard(g.author);
+    return json(res, 200, {
+      ...publicGuideCard(g),
+      body: scrubCurrency(g.body || g.summary || ''),
+      authorName: author.name,
+      authorCredential: author.credential,
+    });
+  }, { auth: false });
+
+  // Member-only: request a booking. Anonymous callers 401 via the dispatcher (#7-A).
+  route('POST', '/api/hub/bookings', async (req, res, params, user) => {
+    const body = await readJson(req);
+    const serviceIds = (S().hub?.services ?? []).map((s) => s.id);
+    const { serviceId, note } = validateBooking(body, serviceIds);
+    const booking = {
+      id: store.newId('bkg'),
+      serviceId,
+      memberId: user.id,
+      note: stripPhoneNumbers(note), // #5 defense-in-depth: never persist an E.164
+      status: 'requested',
+      createdAt: Date.now(),
+    };
+    (S().hub.bookings ??= []).push(booking);
+    store.save();
+    integrations.event('hub_booking', { serviceId }); // ops log — carries no PII/phone
+    // The response never echoes the note back, so a phone number can never leak via the API.
+    return json(res, 201, { booking: { id: booking.id, serviceId, status: booking.status, createdAt: booking.createdAt } });
+  }, { auth: true });
+
+  // Member-only: my booking requests (note is never returned).
+  route('GET', '/api/hub/bookings', (req, res, params, user) => {
+    const bookings = (S().hub?.bookings ?? [])
+      .filter((b) => b.memberId === user.id)
+      .map((b) => ({ id: b.id, serviceId: b.serviceId, status: b.status, createdAt: b.createdAt }));
+    return json(res, 200, { bookings });
+  }, { auth: true });
 
   // --- review queue (moderators; the "native flag queue" of the prototype) ---
   route('GET', '/api/review-queue', (req, res, params, user) => {

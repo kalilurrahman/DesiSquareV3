@@ -54,6 +54,13 @@ export function createStore({ dataDir, seedDir, dbFile = 'db.json', seedFile = '
       posts,
       reviewQueue: seed.reviewQueue.map((q) => ({ ...q, createdAt: t - q.minsAgo * 60_000 })),
       calendar: (seed.calendar ?? []).map((e) => ({ ...e })),
+      // EP-03 Services & Products Hub (Phase 5). Experts/services/guides are curated; bookings grow at runtime.
+      hub: seed.hub ? {
+        experts: (seed.hub.experts ?? []).map((e) => ({ ...e })),
+        services: (seed.hub.services ?? []).map((s) => ({ ...s })),
+        guides: (seed.hub.guides ?? []).map((g) => ({ ...g, updatedAt: t - (g.updatedMinsAgo ?? 0) * 60_000 })),
+        bookings: [],
+      } : { experts: [], services: [], guides: [], bookings: [] },
       reactionsBy: {}, // `${userId}:${postId}` -> { helpful:true, ... } (toggle state per member)
       sessions: {},    // token -> { userId, createdAt }
       events: [],      // demo/ops log: wa inbound, webhooks, provisioning — NEVER contains phone numbers
@@ -63,6 +70,14 @@ export function createStore({ dataDir, seedDir, dbFile = 'db.json', seedFile = '
   function load() {
     if (existsSync(dbPath)) {
       state = JSON.parse(readFileSync(dbPath, 'utf8'));
+      // Backfill top-level keys added since this db.json was written (e.g. new Phase-5 modules
+      // like `hub`), so an existing store gains new capabilities without a manual reset.
+      const fresh = buildFromSeed();
+      let changed = false;
+      for (const k of Object.keys(fresh)) {
+        if (!(k in state)) { state[k] = fresh[k]; changed = true; }
+      }
+      if (changed) persistNow();
     } else {
       state = buildFromSeed();
       persistNow();

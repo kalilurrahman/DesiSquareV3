@@ -204,5 +204,24 @@
     { "id": "ev1", "date": "Jul 14", "title": "Office hours: cross-border tax", "host": "Priya Desai", "kind": "WhatsApp Live", "scope": "moderators" },
     { "id": "ev2", "date": "Jul 18", "title": "Mid-year portfolio checkup", "host": "Nikhil Sharma", "kind": "group call", "scope": "mavens" },
     { "id": "ev3", "date": "Jul 25", "title": "Watercooler: chai & charts", "host": "casual hangout", "kind": "", "scope": "everyone" }
-  ]
+  ],
+  "hub": {
+    "experts": [
+      { "userId": "nikhil_cfa", "flair": "Verified Maven", "tagline": "Long-horizon equity and CFA-grade portfolio reviews for the diaspora.", "specialties": ["Equity", "Portfolio review", "Index-first"], "corridors": ["US", "IN"] },
+      { "userId": "priya_taxes", "flair": "Verified Maven", "tagline": "Cross-border tax and FEMA clinics for NRI investors.", "specialties": ["Tax", "FEMA", "Compliance"], "corridors": ["US", "AE", "IN"] },
+      { "userId": "arjun_quant", "flair": "Verified Maven", "tagline": "Quant strategy, risk and position-sizing — percent-only track record.", "specialties": ["Quant", "Risk", "Options"], "corridors": ["US", "SG"] }
+    ],
+    "services": [
+      { "id": "svc_review", "expertId": "nikhil_cfa", "title": "1:1 portfolio review", "kind": "consult", "durationMin": 45, "format": "video", "priceTier": "Member" },
+      { "id": "svc_intro", "expertId": "nikhil_cfa", "title": "New-investor starter call", "kind": "consult", "durationMin": 20, "format": "video", "priceTier": "Complimentary" },
+      { "id": "svc_tax", "expertId": "priya_taxes", "title": "NRI tax and FEMA clinic", "kind": "clinic", "durationMin": 30, "format": "video", "priceTier": "Premium" },
+      { "id": "svc_quant", "expertId": "arjun_quant", "title": "Risk and position-sizing session", "kind": "consult", "durationMin": 30, "format": "chat", "priceTier": "Member" }
+    ],
+    "guides": [
+      { "id": "g_index", "slug": "why-index-first", "title": "Why index-first beats stock-picking for most", "summary": "The evidence for low-cost index funds as the default core for diaspora investors, and when to deviate.", "body": "Distilled from the community's most-helpful answers: keep a low-cost index core, add satellites deliberately, and rebalance on a schedule — not on headlines.", "author": "nikhil_cfa", "sourcePostId": "p01", "tags": ["Equity", "Basics"], "updatedMinsAgo": 2880 },
+      { "id": "g_fema", "slug": "nri-fema-basics", "title": "FEMA basics every NRI investor should know", "summary": "Repatriable vs non-repatriable, NRE/NRO, and the filings that keep cross-border investing clean.", "body": "A plain-language walkthrough of the FEMA rules that come up most often in the corridors, canonicalised from repeated answers.", "author": "priya_taxes", "sourcePostId": "p02", "tags": ["FEMA", "Tax"], "updatedMinsAgo": 4320 },
+      { "id": "g_risk", "slug": "position-sizing-101", "title": "Position sizing 101 — never risk the whole portfolio", "summary": "How mavens think about risk per idea, drawdown budgets, and sizing so one bad call can't sink you.", "body": "Risk is the first input, not the last. Size positions from a drawdown budget and let conviction scale within it.", "author": "arjun_quant", "sourcePostId": "p05", "tags": ["Risk", "Quant"], "updatedMinsAgo": 1440 }
+    ],
+    "bookings": []
+  }
 }

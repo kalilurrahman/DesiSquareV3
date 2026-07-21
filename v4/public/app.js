@@ -240,6 +240,9 @@ const KARMA_RULES_FALLBACK = {
   changelog: [{ date: '2026-07-21', note: 'Initial weights published: Actionable/Helpful +3, Insightful +2, Like +1, accepted answer +5.' }],
 };
 
+// EP-03 Hub fallback — shown if /api/hub is briefly unreachable (the app degrades, never blanks).
+const HUB_FALLBACK = { experts: [], services: [], guides: [] };
+
 /* ---------------- routing ---------------- */
 function parseRoute() {
   const hash = location.hash.replace(/^#\/?/, '');
@@ -247,7 +250,7 @@ function parseRoute() {
   const idx = hash.indexOf('/');
   const name = idx < 0 ? hash : hash.slice(0, idx);
   const rawParam = idx < 0 ? '' : hash.slice(idx + 1);
-  const known = ['feed', 'post', 'communities', 'u', 'me', 'settings', 'review', 'register', 'search', 'maven', 'admin', 'karma'];
+  const known = ['feed', 'post', 'communities', 'u', 'me', 'settings', 'review', 'register', 'search', 'maven', 'admin', 'karma', 'hub'];
   let param = null;
   if (rawParam) { try { param = decodeURIComponent(rawParam); } catch { param = rawParam; } }
   state.route = known.includes(name) ? { name, param } : { name: 'feed', param: null };
@@ -357,6 +360,14 @@ async function loadRouteData() {
     } else if (r.name === 'karma') {
       state.karmaRules = await apiSafe('/api/karma/rules', state.karmaRules ?? KARMA_RULES_FALLBACK);
       if (token !== routeToken) return;
+    } else if (r.name === 'hub') {
+      const [hub, bookings] = await Promise.all([
+        apiSafe('/api/hub', state.hub ?? HUB_FALLBACK),
+        apiSafe('/api/hub/bookings', { bookings: state.hubBookings ?? [] }),
+      ]);
+      if (token !== routeToken) return;
+      state.hub = hub;
+      state.hubBookings = bookings.bookings ?? [];
     }
   } catch (err) {
     if (token === routeToken && err.message !== 'unauthorized') toast(err.message);
@@ -539,6 +550,7 @@ function renderSidebar() {
     <nav style="display:flex;flex-direction:column;gap:2px">
       <div class="nav-item ${r === 'feed' || r === 'post' ? 'on' : ''}" data-action="go" data-to="feed">Feed</div>
       <div class="nav-item ${r === 'communities' ? 'on' : ''}" data-action="go" data-to="communities">Communities</div>
+      <div class="nav-item ${r === 'hub' ? 'on' : ''}" data-action="go" data-to="hub">Experts &amp; services</div>
       <div class="nav-item ${r === 'settings' ? 'on' : ''}" data-action="go" data-to="settings">Settings</div>
       ${me.isModerator ? `<div class="nav-item ${r === 'review' ? 'on' : ''}" data-action="go" data-to="review"><span style="flex:1">Review queue</span>${me.pendingFlags ? `<span class="count-pill">${me.pendingFlags}</span>` : ''}</div>` : ''}
       ${me.isAdmin ? `<div class="nav-item ${r === 'admin' ? 'on' : ''}" data-action="go" data-to="admin">Admin</div>` : ''}
@@ -761,6 +773,74 @@ function renderKarma() {
       <div class="karma-note">Weight changes are always dated here — never silent.</div>
     </div>
     <div class="disclaimer" style="margin-top:14px">Recognition ranks engagement, never money (#9). Maven track records live on maven profiles, as percentages only.</div>
+  </section>`;
+}
+
+/* ---------------- render: Services & Products Hub (EP-03, percent-only, #4/#8) ---------------- */
+function renderHub() {
+  const hub = state.hub ?? HUB_FALLBACK;
+  const experts = hub.experts ?? [];
+  const services = hub.services ?? [];
+  const guides = hub.guides ?? [];
+  const bookings = state.hubBookings ?? [];
+  const nameOf = (id) => experts.find((e) => e.id === id)?.name ?? id;
+  const svcTitleOf = (id) => services.find((s) => s.id === id)?.title ?? id;
+
+  const expertCard = (e) => `
+    <div class="hub-expert">
+      <div class="hub-expert-top">
+        <span class="hub-av" style="background:${esc(e.color || '#4A5568')}">${esc(e.initials || '–')}</span>
+        <div class="hub-expert-id">
+          <div class="hub-expert-name">${esc(e.name)} <span class="hub-flair">✓ ${esc(e.flair || 'Verified')}</span></div>
+          ${e.credential ? `<div class="hub-cred">${esc(e.credential)}</div>` : ''}
+        </div>
+        ${typeof e.trackRecordPct === 'number' ? `<div class="hub-track ${e.trackRecordPct < 0 ? 'neg' : 'pos'}"><div class="hub-track-v">${fmtPct(e.trackRecordPct)}</div><div class="hub-track-l">track record</div></div>` : ''}
+      </div>
+      ${e.tagline ? `<div class="hub-tagline">${esc(e.tagline)}</div>` : ''}
+      <div class="hub-chips">
+        ${(e.specialties || []).map((s) => `<span class="hub-chip">${esc(s)}</span>`).join('')}
+        ${(e.corridors || []).map((c) => `<span class="hub-chip corridor">${esc(c)}</span>`).join('')}
+      </div>
+      <div class="hub-expert-foot">${esc(String(e.servicesCount || 0))} service${e.servicesCount === 1 ? '' : 's'} · <a class="hub-link" data-action="go" data-to="maven/${esc(e.id)}">View track record →</a></div>
+    </div>`;
+
+  const serviceRow = (s) => `
+    <div class="hub-service">
+      <div class="hub-service-main">
+        <div class="hub-service-title">${esc(s.title)}</div>
+        <div class="hub-service-meta">${esc(nameOf(s.expertId))} · ${esc(String(s.durationMin))} min · ${esc(s.format === 'chat' ? 'chat' : 'video')}</div>
+      </div>
+      <span class="hub-tier tier-${esc(String(s.priceTier).toLowerCase())}">${esc(s.priceTier)}</span>
+      <button class="btn btn-sm hub-book" data-action="hub-book" data-svc="${esc(s.id)}">Request</button>
+    </div>`;
+
+  const guideRow = (g) => `
+    <div class="hub-guide">
+      <div class="hub-guide-title">${esc(g.title)}</div>
+      <div class="hub-guide-sum">${esc(g.summary || '')}</div>
+      <div class="hub-guide-meta">${(g.tags || []).map((t) => `<span class="hub-chip">${esc(t)}</span>`).join('')} <span class="hub-guide-by">by ${esc(nameOf(g.author) || g.author)}</span></div>
+    </div>`;
+
+  return `
+  <section class="hub-page">
+    <div class="hub-head">
+      <h1 class="hub-h1">Experts &amp; services</h1>
+      <p class="hub-sub">Verified mavens, their services, and canonical guides distilled from the community's best answers. Track records are shown as percentages only — never dollar amounts.</p>
+    </div>
+
+    <div class="section-label">Verified experts</div>
+    <div class="hub-experts">${experts.length ? experts.map(expertCard).join('') : '<div class="hub-empty">No experts listed yet.</div>'}</div>
+
+    <div class="section-label" style="margin-top:20px">Services</div>
+    <div class="card hub-services">${services.length ? services.map(serviceRow).join('') : '<div class="hub-empty">No services yet.</div>'}</div>
+
+    ${bookings.length ? `<div class="section-label" style="margin-top:20px">Your booking requests</div>
+    <div class="card hub-bookings">${bookings.map((b) => `<div class="hub-booking"><span>${esc(svcTitleOf(b.serviceId))}</span><span class="hub-booking-status">${esc(b.status)}</span></div>`).join('')}</div>` : ''}
+
+    <div class="section-label" style="margin-top:20px">Canonical guides</div>
+    <div class="hub-guides">${guides.length ? guides.map(guideRow).join('') : '<div class="hub-empty">No guides yet.</div>'}</div>
+
+    <div class="disclaimer" style="margin-top:16px">Educational only — not investment advice. Expert track records are percentages, never dollar values (#4/#8); experts are ranked by verification, never by returns (#9).</div>
   </section>`;
 }
 
@@ -1635,6 +1715,7 @@ function render() {
   else if (r === 'maven') main = renderMaven();
   else if (r === 'admin') main = state.me.isAdmin ? renderAdmin() : renderFeed();
   else if (r === 'karma') main = renderKarma();
+  else if (r === 'hub') main = renderHub();
   else main = renderFeed();
 
   $app.innerHTML = `
@@ -1782,6 +1863,16 @@ const actions = {
   'open-profile': (el) => { nav(`#/u/${encodeURIComponent(el.dataset.user)}`); },
   'open-maven': (el) => { nav(`#/maven/${encodeURIComponent(el.dataset.user)}`); },
   'maven-tab': (el) => { state.mavenTab = el.dataset.tab; render(); },
+  'hub-book': async (el) => {
+    const svc = el.dataset.svc;
+    try {
+      await api('/api/hub/bookings', { method: 'POST', body: { serviceId: svc } });
+      const bk = await apiSafe('/api/hub/bookings', { bookings: state.hubBookings ?? [] });
+      state.hubBookings = bk.bookings ?? [];
+      render();
+      toast('Booking request sent — the expert will follow up in the community.');
+    } catch (err) { toast(err.message); }
+  },
   'search-tab': (el) => { state.searchTab = el.dataset.tab; render(); },
   'search-join': async (el) => {
     const id = el.dataset.community;
